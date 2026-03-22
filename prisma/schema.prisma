@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ============ AUTH ============
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  hashedPassword String?
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Settings
+  defaultStance  String    @default("balanced")
+  onboardingDone Boolean   @default(false)
+
+  // Relations
+  accounts       Account[]
+  sessions       Session[]
+  strategies     StrategySession[]
+  calendarEvents CalendarEvent[]
+  aiMemories     AiMemory[]
+  activityLogs   ActivityLog[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============ STRATEGY SESSIONS ============
+
+model StrategySession {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Business profile data (JSON)
+  profileJson String @default("{}")
+
+  // Diagnosis results (JSON)
+  valueDiagnosisJson String?
+  healthScoreJson    String?
+  platformJson       String?
+  strategyJson       String?
+
+  // State
+  activeModule  String  @default("intake")
+  intakeComplete Boolean @default(false)
+
+  // Metadata
+  name        String  @default("Untitled Business")
+  description String?
+  archived    Boolean @default(false)
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String   // user, assistant, system
+  content   String
+  module    String   @default("general")
+  createdAt DateTime @default(now())
+  metadata  String?  // JSON for extra data
+
+  session StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+// ============ AI MEMORY ============
+
+model AiMemory {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String   // e.g., "business_style", "preferred_channels"
+  value     String   // stored insight
+  category  String   // business, preference, learning, context
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime? // optional TTL for time-sensitive memories
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId, category])
+}
+
+// ============ CALENDAR ============
+
+model CalendarEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  description String?
+  date      DateTime
+  endDate   DateTime?
+  type      String   // campaign, post, launch, review, research, custom
+  status    String   @default("scheduled") // scheduled, in_progress, completed, skipped
+  priority  String   @default("medium") // low, medium, high, critical
+  module    String?  // which MadAi module generated this
+  sessionId String?  // linked strategy session
+  metadata  String?  // JSON for extra data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, status])
+}
+
+// ============ ACTIVITY LOG ============
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // session_created, analysis_run, strategy_generated, research_conducted, etc.
+  details   String?  // JSON
+  module    String?
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}

@@ -1,0 +1,38 @@
+const sharp = require('sharp');
+const path = require('path');
+
+const svgBuffer = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#6366f1"/>
+  <g transform="translate(256,240)" fill="none" stroke="white" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-8,-100 C-60,-100 -100,-70 -100,-30 C-110,-30 -130,-10 -130,20 C-130,50 -110,70 -90,75 C-90,110 -60,130 -30,130 C-10,130 -8,120 -8,120"/>
+    <path d="M8,-100 C60,-100 100,-70 100,-30 C110,-30 130,-10 130,20 C130,50 110,70 90,75 C90,110 60,130 30,130 C10,130 8,120 8,120"/>
+    <line x1="0" y1="-100" x2="0" y2="130"/>
+    <path d="M0,-50 C-40,-50 -60,-30 -60,-10"/>
+    <path d="M0,10 C-50,10 -70,30 -70,55"/>
+    <path d="M0,-50 C40,-50 60,-30 60,-10"/>
+    <path d="M0,10 C50,10 70,30 70,55"/>
+    <circle cx="-50" cy="-60" r="6" fill="white" stroke="none"/>
+    <circle cx="50" cy="-60" r="6" fill="white" stroke="none"/>
+    <circle cx="-70" cy="30" r="6" fill="white" stroke="none"/>
+    <circle cx="70" cy="30" r="6" fill="white" stroke="none"/>
+  </g>
+  <text x="256" y="460" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="80" fill="white" opacity="0.9">MadAi</text>
+</svg>`);
+
+const publicDir = path.join(__dirname, '..', 'public');
+
+async function generate() {
+  await sharp(svgBuffer)
+    .resize(192, 192)
+    .png()
+    .toFile(path.join(publicDir, 'icon-192.png'));
+  console.log('Created icon-192.png');
+
+  await sharp(svgBuffer)
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(publicDir, 'icon-512.png'));
+  console.log('Created icon-512.png');
+}
+
+generate().catch(err => { console.error(err); process.exit(1); });

@@ -1,0 +1,253 @@
+// What Works Patterns Knowledge Library
+// Proven strategy patterns for different business types, price points, and market conditions
+
+export interface StrategyPattern {
+  name: string;
+  description: string;
+  keyTactics: string[];
+  commonPitfalls: string[];
+  exampleScenario: string;
+}
+
+export const PATTERNS_LIBRARY: Record<string, StrategyPattern> = {
+  cheapImpulseBuys: {
+    name: 'Cheap Impulse Buys (<$30)',
+    description: 'Low-price purchases driven by emotion, novelty, or convenience. Minimal consideration time. The visual or hook IS the marketing. The purchase decision happens in seconds, not days.',
+    keyTactics: [
+      'Scroll-stopping visuals showing the product in action',
+      'One-click checkout with minimal friction between desire and purchase',
+      'Social proof through review counts, UGC, and visible popularity',
+      'Retargeting cart abandoners within 24 hours while desire is still warm',
+      'Bundle offers to increase average order value above single-item margins',
+      'Urgency tactics that are genuine (limited stock, seasonal availability)',
+    ],
+    commonPitfalls: [
+      'Over-relying on paid ads with thin margins — one bad week kills profitability',
+      'Ignoring lifetime value — a single impulse purchase rarely covers acquisition cost',
+      'No post-purchase email sequence to drive repeat purchases and reviews',
+      'Product quality too low for repeat business or positive word of mouth',
+      'No brand building — each product launch starts from zero',
+    ],
+    exampleScenario: 'A $15 novelty kitchen gadget sold via TikTok Shop. A 15-second video shows it solving a common annoyance. Comments provide social proof. One-tap purchase. Follow-up email offers a complementary product at 20% off.',
+  },
+  premiumTrustHeavy: {
+    name: 'Premium Trust-Heavy Services ($1000+)',
+    description: 'High-ticket purchases requiring multiple touchpoints, deep trust, and personal connection before commitment. The sales cycle is weeks to months, not minutes. Trust is the bottleneck, not awareness.',
+    keyTactics: [
+      'Content marketing establishing authority through YouTube, blog, or podcast',
+      'Lead magnet capturing email addresses for nurture sequence',
+      'Free consultation or strategy call as a conversion mechanism',
+      'Case studies with specific, quantifiable results',
+      'Strong guarantee or risk reversal to reduce purchase anxiety',
+      'Social proof from credible, recognizable clients or peers',
+    ],
+    commonPitfalls: [
+      'Trying to sell high-ticket through cold ads alone without warming the audience',
+      'No nurture sequence — jumping straight from awareness to the ask',
+      'Generic positioning that does not justify the premium price point',
+      'Not enough touchpoints before the sales conversation — trust is insufficient',
+      'Underpricing out of imposter syndrome when the market would pay more',
+    ],
+    exampleScenario: 'A $5,000 business consulting package. Prospect finds a YouTube video teaching a valuable framework. Downloads a PDF expanding on the framework. Joins the email list and receives weekly insights for 6 weeks. Attends a live webinar. Books a strategy call. Closes with a clear scope of work and guarantee.',
+  },
+  localUrgency: {
+    name: 'Local Business with Urgency',
+    description: 'Services needed NOW — plumbers, locksmiths, towing, emergency repair. The winner is whoever shows up first and seems trustworthy. Speed and visibility beat everything else.',
+    keyTactics: [
+      'Google Business Profile with 50+ reviews, photos, and weekly posts',
+      'Google Ads for "near me" and emergency search terms',
+      'Answer phone in under 30 seconds — response speed IS the differentiator',
+      'Systematic review generation after every completed service call',
+      'Vehicle wraps and yard signs for neighborhood visibility',
+      'Neighborhood Facebook/Nextdoor groups for community presence',
+    ],
+    commonPitfalls: [
+      'No online presence at all — invisible to searchers',
+      'Slow response time — the first to answer the phone wins',
+      'Not asking for reviews — competitors with more reviews get the call',
+      'Competing on price instead of speed, reliability, and professionalism',
+      'No follow-up system for maintenance and repeat service opportunities',
+    ],
+    exampleScenario: 'Emergency plumber. A homeowner\'s pipe bursts at 2am. They search "emergency plumber near me." Your Google Business Profile shows 127 reviews (4.8 stars), photos of your team in uniform, and a phone number. You answer in 10 seconds. You arrive in 30 minutes. You fix it and leave a card. They leave a 5-star review and refer you to every neighbor.',
+  },
+  creatorMonetization: {
+    name: 'Creator Monetization',
+    description: 'Turning an audience built on free content into sustainable revenue. The key challenge: transitioning from free entertainment to paid value without alienating the audience.',
+    keyTactics: [
+      'Identify the highest-value knowledge or skill the audience craves',
+      'Launch a low-ticket digital product first ($27-97) to identify buyers',
+      'Build email list from social audience — this is the critical bridge',
+      'Create a community or membership tier for recurring revenue',
+      'Develop coaching or consulting as the premium tier',
+      'Layer sponsorships as passive revenue alongside owned products',
+    ],
+    commonPitfalls: [
+      'Only relying on ad revenue and sponsorships — the least controllable income',
+      'No email list — audience is trapped on the platform with no direct access',
+      'Selling something the audience does not actually want to buy',
+      'Pricing too low out of guilt about monetizing a free relationship',
+      'Content burnout without revenue to sustain the production effort',
+    ],
+    exampleScenario: 'An Instagram artist with 50K followers. Launches a $47 digital brush pack promoted to their email list of 5,000 subscribers. 3% conversion generates $7,050. Uses that revenue and testimonials to launch a $297 illustration course. 150 students generate $44,550. Now has sustainable income and case studies for the next launch.',
+  },
+  uglyButUseful: {
+    name: 'Ugly but Useful Offers',
+    description: 'The product or service works incredibly well but has zero aesthetic appeal or brand polish. Function over form. These businesses succeed through results, not appearance.',
+    keyTactics: [
+      'Lead with quantifiable results, not branding or aesthetics',
+      'Testimonials and case studies front and center on every page',
+      'Direct response marketing over brand marketing — sell the outcome',
+      'Free trial or demo to let the product prove itself through experience',
+      'Target the audience segment that values function over form',
+      'Lean into the "real and unpretentious" angle as a positioning advantage',
+    ],
+    commonPitfalls: [
+      'Spending on branding before proving the offer converts on its merits',
+      'Trying to compete with polished competitors on aesthetics instead of results',
+      'Not leveraging the honest, no-nonsense positioning angle',
+      'Assuming you need to look good to sell well — many billion-dollar businesses are ugly',
+    ],
+    exampleScenario: 'An ugly but functional Excel template that saves accountants 10 hours per week. Sold through a simple landing page with specific time-savings data, before/after workflow screenshots, and testimonials from CPAs. $149 price point. No logo. No design. Just results.',
+  },
+  luxury: {
+    name: 'Luxury & Premium Positioning',
+    description: 'High-price, high-margin products and services where exclusivity, quality, and status are the primary value drivers. The perception of scarcity and prestige is as important as the product itself.',
+    keyTactics: [
+      'Genuine scarcity through limited editions, waitlists, or invite-only access',
+      'Exceptional visual presentation, photography, and design quality',
+      'Story and heritage building that justifies the premium position',
+      'Association with high-status individuals, environments, and events',
+      'White-glove customer experience at every touchpoint',
+      'Higher prices actively increase perceived value — do not discount',
+    ],
+    commonPitfalls: [
+      'Discounting destroys luxury positioning permanently — once you discount, you are no longer luxury',
+      'Being present on too many channels dilutes the exclusivity perception',
+      'Using accessible, casual marketing tone that undermines premium feeling',
+      'Product quality not matching the price point — luxury buyers have high standards',
+      'Trying to scale too fast — luxury requires controlled growth',
+    ],
+    exampleScenario: 'A handmade leather goods brand. Limited production of 50 pieces per month. Waitlist of 200+. Photography shot in premium environments with natural materials. Personal handwritten note with each order. No sales, no discounts, no marketplaces. Prices increase annually.',
+  },
+  tabooOrStigmatized: {
+    name: 'Taboo or Stigmatized Categories',
+    description: 'Products and services in categories that carry social stigma. Requires navigating platform restrictions, audience shame, and payment processing challenges while building a safe, trusted brand.',
+    keyTactics: [
+      'Normalize the category through educational, non-promotional content',
+      'Build community where people feel safe discussing their needs',
+      'Use platform-compliant language and imagery to avoid bans',
+      'Leverage X/Twitter and Reddit which have more permissive content policies',
+      'Email and SMS for direct sales without platform gatekeeping',
+      'Premium framing reduces shame — luxury positioning beats cheap positioning',
+    ],
+    commonPitfalls: [
+      'Getting banned from platforms by pushing content boundaries too far',
+      'No backup plan when a platform changes rules or payment processor cuts you off',
+      'Ignoring the emotional journey of the customer from shame to purchase to satisfaction',
+      'Pricing too low — premium framing actively reduces the stigma of the purchase',
+      'Not having backup payment processing and platform alternatives ready',
+    ],
+    exampleScenario: 'Adult wellness brand. Educational TikTok content about health and wellness without explicit content. Instagram for aspirational brand building. Email list for actual product marketing and sales. Premium subscription tier for recurring revenue. All content compliant, all sales through owned channels.',
+  },
+  strongProductWeakStory: {
+    name: 'Strong Product, Weak Story',
+    description: 'The product is genuinely excellent but nobody knows about it or cares. Marketing and positioning are the bottleneck, not the product itself. This is the most common pattern for technical founders and craftspeople.',
+    keyTactics: [
+      'Invest in positioning and messaging BEFORE any more product development',
+      'Find the emotional hook — why should anyone care beyond the functional benefit?',
+      'Get the product into the hands of people who will talk about it (influencers, reviewers, early adopters)',
+      'Create a clear before/after narrative showing the transformation',
+      'Simplify the value proposition to one sentence a non-expert would understand',
+      'Stop describing features; start describing outcomes',
+    ],
+    commonPitfalls: [
+      'Continuing to improve the product instead of marketing what already works',
+      'Using technical descriptions instead of benefit-driven language',
+      'Assuming the product will "sell itself" if it is good enough',
+      'No distribution or go-to-market strategy beyond "build it and they will come"',
+      'Adding features instead of adding customers',
+    ],
+    exampleScenario: 'A developer builds an automation tool that saves hours of repetitive work. Originally described in technical jargon on a bare-bones website. Reframes to "Save 10 hours per week on tasks you hate." Launches on Product Hunt with a compelling demo video. Gets picked up by a popular newsletter. 2,000 signups in the first week.',
+  },
+  weakProductStrongStory: {
+    name: 'Weak Product, Strong Story',
+    description: 'Great marketing but mediocre or disappointing delivery. Short-term gains, long-term reputation damage. The gap between promise and delivery creates escalating trust debt.',
+    keyTactics: [
+      'STOP marketing harder and fix the product first',
+      'Audit every customer touchpoint for disappointment moments',
+      'Close the gap between promise and delivery — either improve delivery or reduce the promise',
+      'Reduce marketing claims to match current capabilities honestly',
+      'Use customer feedback to prioritize product improvements',
+      'Rebuild trust through over-delivery on the improved product',
+    ],
+    commonPitfalls: [
+      'Doubling down on marketing to compensate for product weakness',
+      'Blaming customers for not "getting it" when the product fails expectations',
+      'Refund rates climbing without anyone investigating why',
+      'Building reputation debt that compounds — negative reviews are permanent',
+      'Hiring more marketers when you need more product/delivery people',
+    ],
+    exampleScenario: 'A coaching program with a beautiful sales page and persuasive webinar but generic, templated content inside. Refund rate is 15% and climbing. Fix: pause new enrollment, redesign the program based on student feedback, then re-launch with genuine transformation stories from the improved version.',
+  },
+  subscriptionModels: {
+    name: 'Subscription & Recurring Revenue',
+    description: 'Business model where customers pay regularly for ongoing access, value, or delivery. The economics are transformative but only if churn is controlled. Subscription businesses live and die by retention.',
+    keyTactics: [
+      'Exceptional onboarding in the first 7 days — this period determines long-term retention',
+      'Regular value delivery that justifies the recurring cost every single month',
+      'Annual plan options that reduce churn by 2-3x compared to monthly',
+      'Community as a retention mechanism — social bonds create switching costs',
+      'Win-back campaigns for recently churned customers',
+      'Usage-based nudges when engagement drops before the customer cancels',
+    ],
+    commonPitfalls: [
+      'Celebrating new signups while ignoring the churn rate underneath',
+      'No onboarding sequence — new subscribers are lost within 30 days',
+      'Delivering the same value month after month without evolution',
+      'Making cancellation deliberately difficult — creates resentment, not loyalty',
+      'No engagement monitoring to catch at-risk subscribers before they leave',
+    ],
+    exampleScenario: 'A $29/month design resource library. Weekly new template additions. Member gallery showcasing work. Monthly live workshops with Q&A. Annual plan at $249 (28% discount). Automated email when a member has not logged in for 2 weeks. Churn: 3% monthly, 15% annually on yearly plans.',
+  },
+  serviceBusinesses: {
+    name: 'Service Businesses',
+    description: 'Businesses where the primary value is human expertise, labor, or time. The core challenge is scaling beyond the founders personal capacity without degrading quality.',
+    keyTactics: [
+      'Productize services into defined packages with clear scopes and prices',
+      'Build systems and documentation so others can deliver to your standard',
+      'Create a content engine that generates inbound leads while you deliver',
+      'Implement referral systems — service businesses thrive on word of mouth',
+      'Raise prices and lose the worst clients to create capacity for better ones',
+      'Add a digital product layer (course, templates, guides) for leverage',
+    ],
+    commonPitfalls: [
+      'Trading hours for dollars indefinitely — the founder becomes the bottleneck',
+      'No systems or documentation — knowledge exists only in the founders head',
+      'Undercharging because of imposter syndrome or fear of losing clients',
+      'No marketing during busy periods — creating feast-famine cycles',
+      'Trying to scale by hiring without having systems in place first',
+    ],
+    exampleScenario: 'A freelance web developer charges $100/hour and is maxed at 30 billable hours per week. Productizes into three packages: Landing Page ($3,000), Business Site ($7,500), and E-commerce ($15,000). Hires a junior developer and trains them using documented processes. Revenue doubles while hours worked decrease. Creates a $197 DIY website course for leads who cannot afford custom work.',
+  },
+  digitalProducts: {
+    name: 'Digital Products',
+    description: 'Products delivered digitally with near-zero marginal cost: courses, templates, software, ebooks, design assets, music, photography presets. The economics are extraordinary once creation cost is covered.',
+    keyTactics: [
+      'Validate before building — pre-sell or survey your audience',
+      'Create the minimum viable product and improve based on customer feedback',
+      'Build an email list before launch — the list IS the launch strategy',
+      'Price based on value delivered, not hours spent creating',
+      'Bundle related products to increase average order value',
+      'Use evergreen funnels alongside periodic launch events for ongoing revenue',
+    ],
+    commonPitfalls: [
+      'Building for months without validating demand — the biggest risk',
+      'Pricing based on production cost rather than customer value',
+      'No marketing until the product is "perfect" — it never will be',
+      'Piracy and sharing eroding perceived value',
+      'Not updating or maintaining the product after initial creation',
+      'One-time sales only with no upsell path or recurring model',
+    ],
+    exampleScenario: 'A photographer creates a pack of 50 Lightroom presets. Presells to her 3,000-person email list at $37. 150 people buy during prelaunch, generating $5,550 and validating demand. Full launch adds Instagram promotion and affiliate partners. Total: 800 sales in 6 months. Creates a follow-up $197 editing course for buyers who want to go deeper.',
+  },
+} as const;
