@@ -54,11 +54,11 @@ export default function TemplatesPage() {
 
       const session = await res.json();
 
-      // Send the starter prompt as the first message
-      await fetch(`/api/sessions/${session.id}/chat`, {
+      // Send the starter prompt as the first user message
+      await fetch(`/api/sessions/${session.id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: template.starterPrompt }),
+        body: JSON.stringify({ role: 'user', content: template.starterPrompt, module: 'intake' }),
       });
 
       router.push(`/session/${session.id}`);
