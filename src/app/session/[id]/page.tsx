@@ -6,7 +6,7 @@ import Sidebar from '@/components/ui/Sidebar';
 import ModuleHeader from '@/components/ui/ModuleHeader';
 import ChatWindow from '@/components/chat/ChatWindow';
 import { ModuleIcon } from '@/lib/icons';
-import { FileText, Clipboard } from 'lucide-react';
+import { FileText, Clipboard, ClipboardList } from 'lucide-react';
 import type { ModuleType, EthicalStance, ChatMessage } from '@/lib/types/business';
 import { MODULE_INFO } from '@/lib/types/business';
 
@@ -257,6 +257,119 @@ export default function SessionPage() {
     a.click();
   }
 
+  async function handleGeneratePlan() {
+    if (!session || isLoading) return;
+    setIsLoading(true);
+
+    // Send a special message to the AI asking it to generate an action plan
+    const planPrompt = `Based on everything we've discussed about this business, generate a detailed ACTION PLAN with specific, numbered steps I can execute. For each step include:
+- A clear title
+- Brief description of what to do
+- Priority (high/medium/low)
+- Category (marketing/sales/product/operations/research)
+- Suggested timeline
+
+Format each step as:
+STEP: [title]
+DESC: [description]
+PRIORITY: [high/medium/low]
+CATEGORY: [category]
+TIMELINE: [when to do it]
+
+Generate 8-12 actionable steps in order of priority.`;
+
+    const tempUserMsg: DbMessage = {
+      id: `temp-${Date.now()}`,
+      role: 'user',
+      content: 'Generate my action plan based on our conversation',
+      module: session.activeModule,
+      createdAt: new Date().toISOString(),
+    };
+    setSession(prev => prev ? { ...prev, messages: [...prev.messages, tempUserMsg] } : null);
+
+    try {
+      await fetch(`/api/sessions/${id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'user', content: planPrompt, module: session.activeModule }),
+      });
+
+      const recentMessages = session.messages
+        .filter(m => m.role !== 'system')
+        .slice(-15)
+        .map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+      recentMessages.push({ role: 'user', content: planPrompt });
+
+      const aiRes = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: recentMessages,
+          module: 'strategy-macro',
+          businessContext: buildBusinessContext(),
+          ethicalStance: (profile.ethicalStance as string) || 'balanced',
+        }),
+      });
+
+      if (!aiRes.ok) throw new Error('Failed to generate plan');
+      const aiData = await aiRes.json();
+
+      await fetch(`/api/sessions/${id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: 'assistant', content: aiData.response, module: 'strategy-macro' }),
+      });
+
+      const tempAiMsg: DbMessage = {
+        id: `temp-ai-${Date.now()}`,
+        role: 'assistant',
+        content: aiData.response,
+        module: 'strategy-macro',
+        createdAt: new Date().toISOString(),
+      };
+      setSession(prev => prev ? { ...prev, messages: [...prev.messages, tempAiMsg] } : null);
+
+      // Parse the AI response to extract action plan items
+      const steps: { title: string; description: string; priority: string; category: string }[] = [];
+      const stepMatches = aiData.response.matchAll(/STEP:\s*(.+?)(?:\n|$)[\s\S]*?DESC:\s*(.+?)(?:\n|$)[\s\S]*?PRIORITY:\s*(.+?)(?:\n|$)[\s\S]*?CATEGORY:\s*(.+?)(?:\n|$)/gi);
+      for (const match of stepMatches) {
+        steps.push({
+          title: match[1].trim(),
+          description: match[2].trim(),
+          priority: match[3].trim().toLowerCase(),
+          category: match[4].trim().toLowerCase(),
+        });
+      }
+
+      // If we got structured steps, create an action plan
+      if (steps.length > 0) {
+        await fetch('/api/plans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: `Action Plan: ${session.name}`,
+            description: `Generated from strategy session on ${new Date().toLocaleDateString()}`,
+            sessionId: id,
+            horizon: '90-day',
+            items: steps,
+          }),
+        });
+      }
+    } catch (error) {
+      const errMsg = error instanceof Error ? error.message : 'Something went wrong';
+      const errDbMsg: DbMessage = {
+        id: `temp-err-${Date.now()}`,
+        role: 'assistant',
+        content: `Error generating plan: ${errMsg}`,
+        module: session.activeModule,
+        createdAt: new Date().toISOString(),
+      };
+      setSession(prev => prev ? { ...prev, messages: [...prev.messages, errDbMsg] } : null);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="h-screen flex overflow-hidden">
       {/* Sidebar - hidden on mobile, shown on desktop */}
@@ -325,8 +438,16 @@ export default function SessionPage() {
               onStanceChange={handleStanceChange}
             />
           </div>
-          {/* Desktop export */}
+          {/* Desktop export + plan */}
           <div className="hidden md:flex items-center gap-1 pr-4">
+            {session.intakeComplete && (
+              <button onClick={handleGeneratePlan}
+                disabled={isLoading}
+                className="text-xs bg-primary/10 text-primary-light hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 mr-2 disabled:opacity-50"
+                title="Generate Action Plan">
+                <ClipboardList className="w-3.5 h-3.5" /> Generate Plan
+              </button>
+            )}
             <button onClick={() => handleExport('md')}
               className="text-xs text-text-muted hover:text-text px-2 py-1 transition-colors flex items-center gap-1" title="Export Markdown">
               <FileText className="w-4 h-4 text-current" /> .md

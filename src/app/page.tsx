@@ -224,6 +224,32 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Quick Actions (shown when user has sessions) */}
+        {sessions.length > 0 && (
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="/plans" className="bg-surface-light border border-border rounded-xl p-4 hover:border-primary/40 transition-colors text-center group">
+              <ClipboardList className="w-5 h-5 text-primary-light mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-xs font-medium text-text">Action Plans</p>
+              <p className="text-[10px] text-text-muted mt-0.5">Track your strategy</p>
+            </a>
+            <a href="/library" className="bg-surface-light border border-border rounded-xl p-4 hover:border-primary/40 transition-colors text-center group">
+              <BookOpen className="w-5 h-5 text-primary-light mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-xs font-medium text-text">Strategy Library</p>
+              <p className="text-[10px] text-text-muted mt-0.5">Learn the frameworks</p>
+            </a>
+            <a href="/templates" className="bg-surface-light border border-border rounded-xl p-4 hover:border-primary/40 transition-colors text-center group">
+              <FolderOpen className="w-5 h-5 text-primary-light mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-xs font-medium text-text">Templates</p>
+              <p className="text-[10px] text-text-muted mt-0.5">Jumpstart a strategy</p>
+            </a>
+            <a href="/calendar" className="bg-surface-light border border-border rounded-xl p-4 hover:border-primary/40 transition-colors text-center group">
+              <Calendar className="w-5 h-5 text-primary-light mx-auto mb-2 group-hover:scale-110 transition-transform" />
+              <p className="text-xs font-medium text-text">Calendar</p>
+              <p className="text-[10px] text-text-muted mt-0.5">Plan your timeline</p>
+            </a>
+          </div>
+        )}
+
         {/* Install PWA prompt for mobile */}
         <div className="mt-8 sm:mt-12 bg-surface-light border border-border rounded-xl p-4 sm:p-5 text-center sm:hidden">
           <p className="text-sm font-medium text-text mb-1">Install MadAi on your phone</p>
