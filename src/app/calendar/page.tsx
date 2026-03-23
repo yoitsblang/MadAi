@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { Calendar } from 'lucide-react';
 
 interface CalendarEvent {
   id: string;
@@ -101,15 +102,18 @@ export default function CalendarPage() {
       <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-text-muted hover:text-text transition-colors">←</a>
-            <h1 className="text-lg font-bold text-text">📅 Marketing Calendar</h1>
+            <a href="/" className="text-text-muted hover:text-text transition-colors">&larr;</a>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-current" />
+              <h1 className="text-lg font-bold text-text">Marketing Calendar</h1>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
               className="text-text-muted hover:text-text px-2 py-1"
             >
-              ←
+              &larr;
             </button>
             <span className="text-sm font-semibold text-text min-w-[140px] text-center">
               {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
@@ -118,7 +122,7 @@ export default function CalendarPage() {
               onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
               className="text-text-muted hover:text-text px-2 py-1"
             >
-              →
+              &rarr;
             </button>
           </div>
         </div>

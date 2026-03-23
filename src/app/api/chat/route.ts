@@ -141,21 +141,129 @@ export async function POST(req: NextRequest) {
 
     const text = response.text ?? '';
 
-    // Auto-extract memories from AI responses (key facts about the business)
-    if (module === 'intake' && text.includes('BUSINESS PROFILE SUMMARY')) {
-      const nameMatch = text.match(/Business:\s*(.+)/);
-      if (nameMatch) {
-        await prisma.aiMemory.upsert({
-          where: { userId_key: { userId: session.user.id, key: 'business_name' } },
-          update: { value: nameMatch[1].trim(), category: 'business' },
-          create: { userId: session.user.id, key: 'business_name', value: nameMatch[1].trim(), category: 'business' },
-        });
-      }
+    // Intelligent memory extraction from AI responses
+    try {
+      await extractAndSaveMemories(session.user.id, text, module, sanitizedMessages);
+    } catch (memErr) {
+      console.error('Memory extraction error (non-fatal):', memErr);
     }
 
     return NextResponse.json({ response: text });
   } catch (error: unknown) {
     console.error('Chat API error:', error);
     return NextResponse.json({ error: 'Failed to generate response. Please try again.' }, { status: 500 });
+  }
+}
+
+// Intelligent memory extraction - logs key business facts from conversations
+async function extractAndSaveMemories(
+  userId: string,
+  aiResponse: string,
+  module: string,
+  messages: { role: string; content: string }[]
+) {
+  const lastUserMsg = messages.filter(m => m.role === 'user').pop()?.content || '';
+
+  // Extract from BUSINESS PROFILE SUMMARY
+  if (aiResponse.includes('BUSINESS PROFILE SUMMARY')) {
+    const fields: Record<string, RegExp> = {
+      business_name: /Business:\s*(.+)/,
+      business_type: /Type:\s*(.+)/,
+      business_stage: /Stage:\s*(.+)/,
+      offering: /Offering:\s*(.+)/,
+      price_point: /Price Point:\s*(.+)/,
+      target_audience: /Target Audience:\s*(.+)/,
+      core_value_prop: /Core Value Proposition:\s*(.+)/,
+      current_traction: /Current Traction:\s*(.+)/,
+      active_channels: /Active Channels:\s*(.+)/,
+      goal_30d: /Goal — 30 days?:\s*(.+)/i,
+      goal_6m: /Goal — 6 months?:\s*(.+)/i,
+    };
+
+    for (const [key, regex] of Object.entries(fields)) {
+      const match = aiResponse.match(regex);
+      if (match) {
+        await prisma.aiMemory.upsert({
+          where: { userId_key: { userId, key } },
+          update: { value: match[1].trim(), category: 'business', updatedAt: new Date() },
+          create: { userId, key, value: match[1].trim(), category: 'business' },
+        });
+      }
+    }
+  }
+
+  // Extract key numbers and metrics mentioned by user
+  const numberPatterns = [
+    { regex: /(\$[\d,.]+k?)\s*(?:per|\/)\s*month|(\$[\d,.]+k?)\s*MRR/i, key: 'revenue_monthly' },
+    { regex: /(\d+)\s*(?:users|customers|subscribers|clients)/i, key: 'user_count' },
+    { regex: /(\d+\.?\d*)\s*%\s*(?:retention|churn)/i, key: 'retention_rate' },
+    { regex: /(\d+\.?\d*)\s*%\s*(?:conversion|CVR)/i, key: 'conversion_rate' },
+    { regex: /(\$[\d,.]+)\s*(?:CAC|acquisition cost)/i, key: 'cac' },
+  ];
+
+  for (const { regex, key } of numberPatterns) {
+    const match = lastUserMsg.match(regex);
+    if (match) {
+      const value = match[1] || match[2];
+      if (value) {
+        await prisma.aiMemory.upsert({
+          where: { userId_key: { userId, key } },
+          update: { value, category: 'metrics', updatedAt: new Date() },
+          create: { userId, key, value, category: 'metrics' },
+        });
+      }
+    }
+  }
+
+  // Log preferences and decisions from user messages
+  const preferencePatterns = [
+    { regex: /(?:I (?:don't|won't|refuse to|hate)|no (?:cold|paid|spam))\s+(.+)/i, key: 'ethical_boundary', category: 'preference' },
+    { regex: /(?:my budget is|I (?:can|have) \$?)([\d,.]+k?)\s*(?:per|\/)\s*month/i, key: 'budget_monthly', category: 'business' },
+    { regex: /(?:I (?:have|spend)|available)\s+(\d+)\s*hours?\s*(?:per|a)\s*week/i, key: 'hours_per_week', category: 'business' },
+  ];
+
+  for (const { regex, key, category } of preferencePatterns) {
+    const match = lastUserMsg.match(regex);
+    if (match) {
+      await prisma.aiMemory.upsert({
+        where: { userId_key: { userId, key } },
+        update: { value: match[1].trim(), category, updatedAt: new Date() },
+        create: { userId, key, value: match[1].trim(), category },
+      });
+    }
+  }
+
+  // Store module-specific insights from AI analysis
+  if (module === 'value-diagnosis' && aiResponse.includes('Value Clarity Score')) {
+    const scoreMatch = aiResponse.match(/Value Clarity Score:\s*(\d+)/);
+    if (scoreMatch) {
+      await prisma.aiMemory.upsert({
+        where: { userId_key: { userId, key: 'value_clarity_score' } },
+        update: { value: scoreMatch[1], category: 'analysis', updatedAt: new Date() },
+        create: { userId, key: 'value_clarity_score', value: scoreMatch[1], category: 'analysis' },
+      });
+    }
+  }
+
+  if (module === 'business-logic' && aiResponse.includes('Overall Health')) {
+    const healthMatch = aiResponse.match(/Overall Health:\s*(\d+)/);
+    if (healthMatch) {
+      await prisma.aiMemory.upsert({
+        where: { userId_key: { userId, key: 'business_health_score' } },
+        update: { value: healthMatch[1], category: 'analysis', updatedAt: new Date() },
+        create: { userId, key: 'business_health_score', value: healthMatch[1], category: 'analysis' },
+      });
+    }
+  }
+
+  if (module === 'platform-power' && aiResponse.includes('Sovereignty Score')) {
+    const sovMatch = aiResponse.match(/Sovereignty Score:\s*(\d+)/);
+    if (sovMatch) {
+      await prisma.aiMemory.upsert({
+        where: { userId_key: { userId, key: 'sovereignty_score' } },
+        update: { value: sovMatch[1], category: 'analysis', updatedAt: new Date() },
+        create: { userId, key: 'sovereignty_score', value: sovMatch[1], category: 'analysis' },
+      });
+    }
   }
 }

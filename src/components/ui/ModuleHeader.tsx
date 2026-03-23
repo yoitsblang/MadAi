@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { MODULE_INFO, ModuleType, EthicalStance } from '@/lib/types/business';
+import { ModuleIcon } from '@/lib/icons';
 
 interface ModuleHeaderProps {
   module: ModuleType;
@@ -23,7 +24,7 @@ export default function ModuleHeader({ module, ethicalStance, onStanceChange }: 
   return (
     <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-surface/50 backdrop-blur-sm">
       <div className="flex items-center gap-3">
-        <span className="text-xl">{info.icon}</span>
+        <ModuleIcon name={info.icon} className="w-5 h-5 text-current" />
         <div>
           <h2 className="text-sm font-bold text-text">{info.label}</h2>
           <p className="text-xs text-text-muted">{info.description}</p>

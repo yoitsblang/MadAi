@@ -17,7 +17,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Competitive Analysis',
     description:
       'Research your competitors, find gaps in the market, and position your business against them with clarity.',
-    icon: '🔍',
+    icon: 'Search',
     category: 'research',
     moduleSequence: ['intake', 'market-research', 'value-diagnosis', 'strategy-macro'],
     starterPrompt:
@@ -29,7 +29,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Go-to-Market Plan',
     description:
       'Build a full launch strategy from positioning and messaging to channel selection and rollout timeline.',
-    icon: '🚀',
+    icon: 'Rocket',
     category: 'planning',
     moduleSequence: [
       'intake',
@@ -50,7 +50,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Content Strategy',
     description:
       'Define your content pillars, plan a publishing calendar, and choose the right platforms for your audience.',
-    icon: '📝',
+    icon: 'FileEdit',
     category: 'planning',
     moduleSequence: [
       'intake',
@@ -69,7 +69,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Brand Positioning',
     description:
       'Define your brand identity, voice, and differentiation so you stand out in a crowded market.',
-    icon: '💎',
+    icon: 'Gem',
     category: 'branding',
     moduleSequence: [
       'intake',
@@ -87,7 +87,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Growth Audit',
     description:
       'Diagnose what is working and what is not in your business, and find the bottlenecks holding you back.',
-    icon: '📊',
+    icon: 'BarChart3',
     category: 'optimization',
     moduleSequence: [
       'intake',
@@ -105,7 +105,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Campaign Brief',
     description:
       'Plan a specific marketing campaign end-to-end, from objective and audience to creative and measurement.',
-    icon: '📣',
+    icon: 'Megaphone',
     category: 'planning',
     moduleSequence: [
       'intake',
@@ -124,7 +124,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Price Optimization',
     description:
       'Analyze your pricing strategy, understand willingness to pay, and find the right price point for maximum revenue.',
-    icon: '💰',
+    icon: 'DollarSign',
     category: 'optimization',
     moduleSequence: [
       'intake',
@@ -143,7 +143,7 @@ export const STRATEGY_TEMPLATES: TemplateType[] = [
     name: 'Platform Independence',
     description:
       'Reduce your dependency on any single platform and build owned channels that you control.',
-    icon: '🏰',
+    icon: 'Shield',
     category: 'optimization',
     moduleSequence: [
       'intake',

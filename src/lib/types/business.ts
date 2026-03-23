@@ -200,20 +200,20 @@ export interface ChatMessage {
 }
 
 export const MODULE_INFO: Record<ModuleType, { label: string; icon: string; description: string }> = {
-  'intake': { label: 'Strategic Intake', icon: '🎯', description: 'Deep business understanding' },
-  'value-diagnosis': { label: 'Value Diagnosis', icon: '💎', description: 'What value are you really creating?' },
-  'business-logic': { label: 'Business Logic', icon: '⚙️', description: 'The Kaufman 5-part analysis' },
-  'platform-power': { label: 'Platform & Power', icon: '🏰', description: 'Platform dependency & sovereignty' },
-  'market-research': { label: 'Market Research', icon: '🔍', description: 'Live competitive & market intelligence' },
-  'psychology': { label: 'Psychology', icon: '🧠', description: 'Deep audience psychology modeling' },
-  'ethics': { label: 'Ethical Exchange', icon: '⚖️', description: 'Effectiveness vs legitimacy' },
-  'strategy-macro': { label: 'Macro Strategy', icon: '🗺️', description: 'Business model & positioning' },
-  'strategy-meso': { label: 'Meso Strategy', icon: '📋', description: 'Campaigns & funnels' },
-  'strategy-micro': { label: 'Micro Strategy', icon: '✏️', description: 'Exact execution steps' },
-  'timing': { label: 'Timing & Context', icon: '⏱️', description: 'When to do what' },
-  'innovation': { label: 'Innovation Lab', icon: '🧪', description: 'Hybrid & novel strategies' },
-  'teaching': { label: 'Learn Why', icon: '📚', description: 'Understand the principles' },
-  'general': { label: 'General', icon: '💬', description: 'Open strategic conversation' },
+  'intake': { label: 'Strategic Intake', icon: 'Target', description: 'Deep business understanding' },
+  'value-diagnosis': { label: 'Value Diagnosis', icon: 'Gem', description: 'What value are you really creating?' },
+  'business-logic': { label: 'Business Logic', icon: 'Cog', description: 'The Kaufman 5-part analysis' },
+  'platform-power': { label: 'Platform & Power', icon: 'Shield', description: 'Platform dependency & sovereignty' },
+  'market-research': { label: 'Market Research', icon: 'Search', description: 'Live competitive & market intelligence' },
+  'psychology': { label: 'Psychology', icon: 'Brain', description: 'Deep audience psychology modeling' },
+  'ethics': { label: 'Ethical Exchange', icon: 'Scale', description: 'Effectiveness vs legitimacy' },
+  'strategy-macro': { label: 'Macro Strategy', icon: 'Map', description: 'Business model & positioning' },
+  'strategy-meso': { label: 'Meso Strategy', icon: 'ClipboardList', description: 'Campaigns & funnels' },
+  'strategy-micro': { label: 'Micro Strategy', icon: 'Pencil', description: 'Exact execution steps' },
+  'timing': { label: 'Timing & Context', icon: 'Clock', description: 'When to do what' },
+  'innovation': { label: 'Innovation Lab', icon: 'FlaskConical', description: 'Hybrid & novel strategies' },
+  'teaching': { label: 'Learn Why', icon: 'BookOpen', description: 'Understand the principles' },
+  'general': { label: 'General', icon: 'MessageSquare', description: 'Open strategic conversation' },
 };
 
 // Default empty business profile

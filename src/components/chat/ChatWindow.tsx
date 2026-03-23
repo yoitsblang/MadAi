@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import ChatMessage, { TypingIndicator } from './ChatMessage';
 import ChatInput from './ChatInput';
+import { Brain } from 'lucide-react';
 import type { ChatMessage as ChatMessageType, ModuleType } from '@/lib/types/business';
 
 interface ChatWindowProps {
@@ -136,7 +137,7 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 py-16">
       <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
-        <span className="text-3xl">🧠</span>
+        <Brain className="w-8 h-8 text-primary-light" />
       </div>
       <h2 className="text-2xl font-bold text-text mb-2">{w.title}</h2>
       <p className="text-text-muted max-w-md mb-8">{w.subtitle}</p>

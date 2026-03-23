@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Brain, FolderOpen, Calendar, BookOpen, User, Power, Target, Search, Scale, Map, Shield, FlaskConical, ClipboardList } from 'lucide-react';
 
 interface SessionItem {
   id: string;
@@ -65,6 +66,15 @@ export default function Dashboard() {
     );
   }
 
+  const featureCards = [
+    { Icon: Target, title: 'Any Business Type', desc: 'Lemonade stand to SaaS. Creator brand to consulting. No restrictions.' },
+    { Icon: Search, title: 'Live Research', desc: 'Real competitors, real trends, real market data. Not generic advice.' },
+    { Icon: Scale, title: 'Ethical Intelligence', desc: 'Maximize profit through genuine value, not predatory extraction.' },
+    { Icon: Map, title: 'Macro to Micro', desc: 'From business model design down to exact Instagram captions.' },
+    { Icon: Shield, title: 'Platform Power Awareness', desc: 'Know when you\'re building a business vs feeding someone else\'s.' },
+    { Icon: FlaskConical, title: 'Innovation Lab', desc: 'Cross-industry tactics. Hybrid strategies. Novel approaches.' },
+  ];
+
   return (
     <div className="min-h-screen bg-surface">
       {/* Top bar */}
@@ -72,7 +82,7 @@ export default function Dashboard() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <span className="text-xl sm:text-2xl">🧠</span>
+              <Brain className="w-6 h-6 text-primary-light" />
             </div>
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-text">MadAi</h1>
@@ -80,25 +90,29 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-1 sm:gap-3">
-            <a href="/templates" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2">
-              <span className="sm:hidden">🗂️</span>
-              <span className="hidden sm:inline">🗂️ Templates</span>
+            <a href="/plans" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2 flex items-center gap-1.5">
+              <ClipboardList className="w-4 h-4 text-current sm:hidden" />
+              <span className="hidden sm:inline flex items-center gap-1.5"><ClipboardList className="w-4 h-4 text-current" /> Plans</span>
             </a>
-            <a href="/calendar" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2">
-              <span className="sm:hidden">📅</span>
-              <span className="hidden sm:inline">📅 Calendar</span>
+            <a href="/templates" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2 flex items-center gap-1.5">
+              <FolderOpen className="w-4 h-4 text-current sm:hidden" />
+              <span className="hidden sm:inline flex items-center gap-1.5"><FolderOpen className="w-4 h-4 text-current" /> Templates</span>
             </a>
-            <a href="/library" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2">
-              <span className="sm:hidden">📚</span>
-              <span className="hidden sm:inline">📚 Library</span>
+            <a href="/calendar" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2 flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-current sm:hidden" />
+              <span className="hidden sm:inline flex items-center gap-1.5"><Calendar className="w-4 h-4 text-current" /> Calendar</span>
             </a>
-            <a href="/profile" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2">
+            <a href="/library" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2 flex items-center gap-1.5">
+              <BookOpen className="w-4 h-4 text-current sm:hidden" />
+              <span className="hidden sm:inline flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-current" /> Library</span>
+            </a>
+            <a href="/profile" className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2 flex items-center gap-1.5">
               {session?.user?.image ? (
                 <img src={session.user.image} alt="" className="w-6 h-6 rounded-full inline" />
               ) : (
                 <>
-                  <span className="sm:hidden">👤</span>
-                  <span className="hidden sm:inline">👤 {session?.user?.name || 'Profile'}</span>
+                  <User className="w-4 h-4 text-current sm:hidden" />
+                  <span className="hidden sm:inline flex items-center gap-1.5"><User className="w-4 h-4 text-current" /> {session?.user?.name || 'Profile'}</span>
                 </>
               )}
             </a>
@@ -107,7 +121,7 @@ export default function Dashboard() {
               className="text-xs text-text-muted/50 hover:text-accent-red transition-colors px-2 py-2 hidden sm:block"
               title="Sign out"
             >
-              ⏻
+              <Power className="w-4 h-4 text-current" />
             </button>
           </div>
         </div>
@@ -148,16 +162,9 @@ export default function Dashboard() {
         {/* Capabilities grid (shown when no sessions) */}
         {sessions.length === 0 && !loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-12">
-            {[
-              { icon: '🎯', title: 'Any Business Type', desc: 'Lemonade stand to SaaS. Creator brand to consulting. No restrictions.' },
-              { icon: '🔍', title: 'Live Research', desc: 'Real competitors, real trends, real market data. Not generic advice.' },
-              { icon: '⚖️', title: 'Ethical Intelligence', desc: 'Maximize profit through genuine value, not predatory extraction.' },
-              { icon: '🗺️', title: 'Macro to Micro', desc: 'From business model design down to exact Instagram captions.' },
-              { icon: '🏰', title: 'Platform Power Awareness', desc: 'Know when you\'re building a business vs feeding someone else\'s.' },
-              { icon: '🧪', title: 'Innovation Lab', desc: 'Cross-industry tactics. Hybrid strategies. Novel approaches.' },
-            ].map((cap, i) => (
+            {featureCards.map((cap, i) => (
               <div key={i} className="bg-surface-light border border-border rounded-xl p-4 sm:p-5">
-                <span className="text-xl sm:text-2xl">{cap.icon}</span>
+                <cap.Icon className="w-6 h-6 text-primary-light" />
                 <h3 className="text-sm font-semibold text-text mt-2 sm:mt-3 mb-1">{cap.title}</h3>
                 <p className="text-xs text-text-muted leading-relaxed">{cap.desc}</p>
               </div>

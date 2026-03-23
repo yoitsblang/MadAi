@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { STRATEGY_TEMPLATES, type TemplateType } from '@/lib/templates';
+import { ModuleIcon } from '@/lib/icons';
 
 const CATEGORY_LABELS: Record<TemplateType['category'], string> = {
   research: 'Research',
@@ -124,7 +125,7 @@ export default function TemplatesPage() {
                 disabled:opacity-60 disabled:cursor-wait"
             >
               <div className="flex items-start gap-3 mb-3">
-                <span className="text-2xl">{template.icon}</span>
+                <ModuleIcon name={template.icon} className="w-6 h-6 text-primary-light" />
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-text group-hover:text-primary-light transition-colors">
                     {template.name}

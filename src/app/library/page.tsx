@@ -1,19 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ModuleIcon } from '@/lib/icons';
+import { BookOpen } from 'lucide-react';
 
 type LibraryCategory = 'business' | 'marketing' | 'psychology' | 'channels' | 'industries' | 'patterns' | 'antipatterns' | 'power' | 'ai2026';
 
 const CATEGORIES: { id: LibraryCategory; label: string; icon: string; description: string }[] = [
-  { id: 'business', label: 'Business Foundations', icon: '⚙️', description: 'Value creation, pricing, margins, offer architecture, positioning, trust' },
-  { id: 'marketing', label: 'Marketing Frameworks', icon: '📣', description: 'Funnels, demand gen, direct response, brand, launches, community growth' },
-  { id: 'psychology', label: 'Psychological Triggers', icon: '🧠', description: 'Identity, belonging, aspiration, urgency, scarcity, curiosity, transformation' },
-  { id: 'channels', label: 'Channel Knowledge', icon: '📱', description: 'Instagram, TikTok, YouTube, SEO, GEO/LLM visibility, email, paid ads' },
-  { id: 'industries', label: 'Industry Patterns', icon: '🏭', description: 'What works in food, beauty, SaaS, coaching, adult content, and 20+ industries' },
-  { id: 'patterns', label: 'What Works', icon: '✅', description: 'Proven patterns for impulse buys, premium services, creator monetization' },
-  { id: 'antipatterns', label: 'What Fails', icon: '❌', description: 'Oversaturated tactics, fake urgency, platform addiction, content-for-content\'s-sake' },
-  { id: 'power', label: 'Platform Power Critique', icon: '🏰', description: 'Rent extraction, algorithmic dependence, creator exploitation, walled gardens' },
-  { id: 'ai2026', label: 'AI & 2026 Landscape', icon: '🤖', description: 'AI search, GEO, content saturation, zero-click results, and the new marketing stack' },
+  { id: 'business', label: 'Business Foundations', icon: 'Cog', description: 'Value creation, pricing, margins, offer architecture, positioning, trust' },
+  { id: 'marketing', label: 'Marketing Frameworks', icon: 'Megaphone', description: 'Funnels, demand gen, direct response, brand, launches, community growth' },
+  { id: 'psychology', label: 'Psychological Triggers', icon: 'Brain', description: 'Identity, belonging, aspiration, urgency, scarcity, curiosity, transformation' },
+  { id: 'channels', label: 'Channel Knowledge', icon: 'Smartphone', description: 'Instagram, TikTok, YouTube, SEO, GEO/LLM visibility, email, paid ads' },
+  { id: 'industries', label: 'Industry Patterns', icon: 'Factory', description: 'What works in food, beauty, SaaS, coaching, adult content, and 20+ industries' },
+  { id: 'patterns', label: 'What Works', icon: 'CheckCircle', description: 'Proven patterns for impulse buys, premium services, creator monetization' },
+  { id: 'antipatterns', label: 'What Fails', icon: 'XCircle', description: 'Oversaturated tactics, fake urgency, platform addiction, content-for-content\'s-sake' },
+  { id: 'power', label: 'Platform Power Critique', icon: 'Shield', description: 'Rent extraction, algorithmic dependence, creator exploitation, walled gardens' },
+  { id: 'ai2026', label: 'AI & 2026 Landscape', icon: 'Bot', description: 'AI search, GEO, content saturation, zero-click results, and the new marketing stack' },
 ];
 
 const LIBRARY_CONTENT: Record<LibraryCategory, { name: string; content: string }[]> = {
@@ -107,15 +109,20 @@ export default function LibraryPage() {
       )
     : entries;
 
+  const activeCat = CATEGORIES.find(c => c.id === activeCategory);
+
   return (
     <div className="min-h-screen bg-surface">
       <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-text-muted hover:text-text transition-colors">←</a>
-            <div>
-              <h1 className="text-lg font-bold text-text">📚 Strategy Library</h1>
-              <p className="text-xs text-text-muted">The intellectual backbone of MadAi</p>
+            <a href="/" className="text-text-muted hover:text-text transition-colors">&larr;</a>
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-current" />
+              <div>
+                <h1 className="text-lg font-bold text-text">Strategy Library</h1>
+                <p className="text-xs text-text-muted">The intellectual backbone of MadAi</p>
+              </div>
             </div>
           </div>
           <input
@@ -137,13 +144,13 @@ export default function LibraryPage() {
               <button
                 key={cat.id}
                 onClick={() => { setActiveCategory(cat.id); setSearch(''); }}
-                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors
+                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex items-center gap-2
                   ${activeCategory === cat.id
                     ? 'bg-primary/15 text-primary-light border border-primary/20'
                     : 'text-text-muted hover:bg-surface-light hover:text-text'
                   }`}
               >
-                <span className="mr-2">{cat.icon}</span>
+                <ModuleIcon name={cat.icon} className="w-4 h-4 text-current" />
                 {cat.label}
               </button>
             ))}
@@ -154,11 +161,11 @@ export default function LibraryPage() {
         <div className="flex-1">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-text flex items-center gap-2">
-              {CATEGORIES.find(c => c.id === activeCategory)?.icon}
-              {CATEGORIES.find(c => c.id === activeCategory)?.label}
+              {activeCat && <ModuleIcon name={activeCat.icon} className="w-5 h-5 text-current" />}
+              {activeCat?.label}
             </h2>
             <p className="text-sm text-text-muted mt-1">
-              {CATEGORIES.find(c => c.id === activeCategory)?.description}
+              {activeCat?.description}
             </p>
           </div>
 

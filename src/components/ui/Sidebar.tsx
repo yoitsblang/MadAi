@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { MODULE_INFO, ModuleType } from '@/lib/types/business';
+import { ModuleIcon } from '@/lib/icons';
+import { Brain, Lock, ArrowLeft, BookOpen, Settings } from 'lucide-react';
 
 interface SidebarProps {
   activeModule: ModuleType;
@@ -41,7 +43,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <span className="text-lg">🧠</span>
+            <Brain className="w-5 h-5 text-primary-light" />
           </div>
           <div>
             <h1 className="text-sm font-bold text-text">MadAi</h1>
@@ -78,14 +80,16 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
                         : 'text-text-muted hover:bg-surface-light hover:text-text'
                     }`}
                 >
-                  <span className={`text-base ${isLocked ? 'opacity-30' : ''}`}>{info.icon}</span>
+                  <span className={`${isLocked ? 'opacity-30' : ''}`}>
+                    <ModuleIcon name={info.icon} className="w-4 h-4 text-current" />
+                  </span>
                   <div className="flex-1 min-w-0">
                     <div className={`text-xs font-medium truncate ${isActive ? 'text-primary-light' : ''}`}>
                       {info.label}
                     </div>
                   </div>
                   {isLocked && (
-                    <span className="text-[10px] text-text-muted/30">🔒</span>
+                    <Lock className="w-3 h-3 text-text-muted/30" />
                   )}
                 </button>
               );
@@ -125,19 +129,19 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
           href="/"
           className="flex items-center gap-2 px-3 py-2 text-xs text-text-muted hover:text-text rounded-lg hover:bg-surface-light transition-colors"
         >
-          <span>←</span> All Sessions
+          <ArrowLeft className="w-4 h-4 text-current" /> All Sessions
         </a>
         <a
           href="/library"
           className="flex items-center gap-2 px-3 py-2 text-xs text-text-muted hover:text-text rounded-lg hover:bg-surface-light transition-colors"
         >
-          <span>📚</span> Strategy Library
+          <BookOpen className="w-4 h-4 text-current" /> Strategy Library
         </a>
         <a
           href="/profile"
           className="flex items-center gap-2 px-3 py-2 text-xs text-text-muted hover:text-text rounded-lg hover:bg-surface-light transition-colors"
         >
-          <span>⚙️</span> Settings
+          <Settings className="w-4 h-4 text-current" /> Settings
         </a>
       </div>
     </aside>

@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/ui/Sidebar';
 import ModuleHeader from '@/components/ui/ModuleHeader';
 import ChatWindow from '@/components/chat/ChatWindow';
+import { ModuleIcon } from '@/lib/icons';
+import { FileText, Clipboard } from 'lucide-react';
 import type { ModuleType, EthicalStance, ChatMessage } from '@/lib/types/business';
 import { MODULE_INFO } from '@/lib/types/business';
 
@@ -46,20 +48,37 @@ export default function SessionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  // Load session from DB
+  // Load session from DB and user defaults
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/sessions/${id}`);
-        if (!res.ok) {
+        const [sessionRes, userRes] = await Promise.all([
+          fetch(`/api/sessions/${id}`),
+          fetch('/api/user'),
+        ]);
+        if (!sessionRes.ok) {
           router.push('/');
           return;
         }
-        const data = await res.json();
+        const data = await sessionRes.json();
         setSession(data);
-        try {
-          setProfile(JSON.parse(data.profileJson || '{}'));
-        } catch { setProfile({}); }
+        let parsed: Record<string, unknown> = {};
+        try { parsed = JSON.parse(data.profileJson || '{}'); } catch { /* ignore */ }
+
+        // Apply user's default stance if session doesn't have one set
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          if (!parsed.ethicalStance && userData.defaultStance) {
+            parsed.ethicalStance = userData.defaultStance;
+            // Persist to session
+            fetch(`/api/sessions/${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ profileJson: JSON.stringify(parsed) }),
+            });
+          }
+        }
+        setProfile(parsed);
       } catch {
         router.push('/');
       }
@@ -81,11 +100,19 @@ export default function SessionPage() {
   const handleStanceChange = useCallback(async (stance: EthicalStance) => {
     const updatedProfile = { ...profile, ethicalStance: stance };
     setProfile(updatedProfile);
-    await fetch(`/api/sessions/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profileJson: JSON.stringify(updatedProfile) }),
-    });
+    // Save to both session and user defaults
+    await Promise.all([
+      fetch(`/api/sessions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileJson: JSON.stringify(updatedProfile) }),
+      }),
+      fetch('/api/user', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ defaultStance: stance }),
+      }),
+    ]);
   }, [profile, id]);
 
   const buildBusinessContext = useCallback(() => {
@@ -262,7 +289,7 @@ export default function SessionPage() {
                         ${activeModule === mod ? 'bg-primary/20 text-primary-light font-medium' : 'text-text-muted'}
                         ${isLocked ? 'opacity-30' : ''}`}
                     >
-                      <span className="text-xs">{info.icon}</span>
+                      <ModuleIcon name={info.icon} className="w-3 h-3 text-current" />
                       {info.label}
                     </button>
                   );
@@ -271,10 +298,10 @@ export default function SessionPage() {
             ))}
             {/* Export buttons */}
             <button onClick={() => handleExport('md')} className="text-[10px] px-2 py-1.5 text-text-muted hover:text-text flex-shrink-0">
-              📄
+              <FileText className="w-4 h-4 text-current" />
             </button>
             <button onClick={() => handleExport('json')} className="text-[10px] px-2 py-1.5 text-text-muted hover:text-text flex-shrink-0">
-              📋
+              <Clipboard className="w-4 h-4 text-current" />
             </button>
           </div>
           {/* Progress bar showing strategy journey */}
@@ -301,12 +328,12 @@ export default function SessionPage() {
           {/* Desktop export */}
           <div className="hidden md:flex items-center gap-1 pr-4">
             <button onClick={() => handleExport('md')}
-              className="text-xs text-text-muted hover:text-text px-2 py-1 transition-colors" title="Export Markdown">
-              📄 .md
+              className="text-xs text-text-muted hover:text-text px-2 py-1 transition-colors flex items-center gap-1" title="Export Markdown">
+              <FileText className="w-4 h-4 text-current" /> .md
             </button>
             <button onClick={() => handleExport('json')}
-              className="text-xs text-text-muted hover:text-text px-2 py-1 transition-colors" title="Export JSON">
-              📋 .json
+              className="text-xs text-text-muted hover:text-text px-2 py-1 transition-colors flex items-center gap-1" title="Export JSON">
+              <Clipboard className="w-4 h-4 text-current" /> .json
             </button>
           </div>
         </div>
