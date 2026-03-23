@@ -2,7 +2,6 @@ import NextAuth from 'next-auth';
 import type { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/db';
 
@@ -51,19 +50,96 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  // No adapter — we handle user/account creation manually in signIn callback
+  // This avoids PrismaAdapter compatibility issues with NextAuth v5 beta OIDC flow
   session: { strategy: 'jwt' },
+  trustHost: true,
   pages: {
     signIn: '/login',
   },
   providers,
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google' && profile?.email) {
+        try {
+          // Find or create user from Google profile
+          let dbUser = await prisma.user.findUnique({
+            where: { email: profile.email },
+          });
+
+          if (!dbUser) {
+            dbUser = await prisma.user.create({
+              data: {
+                email: profile.email,
+                name: profile.name || profile.email.split('@')[0],
+                image: (profile as Record<string, unknown>).picture as string || null,
+                emailVerified: new Date(),
+              },
+            });
+          } else {
+            // Update profile info from Google
+            await prisma.user.update({
+              where: { id: dbUser.id },
+              data: {
+                name: dbUser.name || profile.name,
+                image: dbUser.image || (profile as Record<string, unknown>).picture as string || null,
+                emailVerified: dbUser.emailVerified || new Date(),
+              },
+            });
+          }
+
+          // Upsert the Account link
+          const existingAccount = await prisma.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: 'google',
+                providerAccountId: account.providerAccountId,
+              },
+            },
+          });
+
+          if (!existingAccount) {
+            await prisma.account.create({
+              data: {
+                userId: dbUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+              },
+            });
+          }
+
+          // Set the user id so JWT callback can use it
+          user.id = dbUser.id;
+          return true;
+        } catch (error) {
+          console.error('[AUTH] Google signIn error:', error);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
       }
       if (account) {
         token.provider = account.provider;
+      }
+      // For Google users, ensure we have the DB user id
+      if (account?.provider === 'google' && !token.id && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+        }
       }
       return token;
     },
