@@ -6,6 +6,14 @@ import Sidebar from '@/components/ui/Sidebar';
 import ModuleHeader from '@/components/ui/ModuleHeader';
 import ChatWindow from '@/components/chat/ChatWindow';
 import type { ModuleType, EthicalStance, ChatMessage } from '@/lib/types/business';
+import { MODULE_INFO } from '@/lib/types/business';
+
+const mobileModuleGroups = [
+  { label: '•', modules: ['intake', 'value-diagnosis', 'business-logic'] as ModuleType[] },
+  { label: '•', modules: ['platform-power', 'market-research', 'psychology', 'ethics'] as ModuleType[] },
+  { label: '•', modules: ['strategy-macro', 'strategy-meso', 'strategy-micro'] as ModuleType[] },
+  { label: '•', modules: ['timing', 'innovation', 'teaching', 'general'] as ModuleType[] },
+];
 
 interface DbSession {
   id: string;
@@ -235,35 +243,51 @@ export default function SessionPage() {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile nav bar */}
-        <div className="md:hidden flex items-center gap-1 px-2 py-2 border-b border-border overflow-x-auto scrollbar-none">
-          <a href="/" className="text-text-muted hover:text-text px-2 py-1 flex-shrink-0 text-lg">←</a>
-          {(['intake', 'value-diagnosis', 'business-logic', 'market-research', 'strategy-macro', 'strategy-micro', 'general'] as ModuleType[]).map(mod => (
-            <button
-              key={mod}
-              onClick={() => handleModuleChange(mod)}
-              disabled={mod !== 'intake' && mod !== 'general' && !session.intakeComplete}
-              className={`text-[10px] px-2.5 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors
-                ${activeModule === mod ? 'bg-primary/20 text-primary-light font-medium' : 'text-text-muted'}
-                ${mod !== 'intake' && mod !== 'general' && !session.intakeComplete ? 'opacity-40' : ''}`}
-            >
-              {mod.replace(/-/g, ' ')}
+        {/* Mobile nav bar - shows all modules with horizontal scroll */}
+        <div className="md:hidden border-b border-border">
+          <div className="flex items-center gap-1 px-2 py-2 overflow-x-auto scrollbar-none">
+            <a href="/" className="text-text-muted hover:text-text px-2 py-1 flex-shrink-0 text-lg">←</a>
+            {mobileModuleGroups.map((group) => (
+              <React.Fragment key={group.label}>
+                <span className="text-[8px] text-text-muted/40 uppercase tracking-wider px-1 flex-shrink-0">{group.label}</span>
+                {group.modules.map(mod => {
+                  const info = MODULE_INFO[mod];
+                  const isLocked = mod !== 'intake' && mod !== 'general' && !session.intakeComplete;
+                  return (
+                    <button
+                      key={mod}
+                      onClick={() => !isLocked && handleModuleChange(mod)}
+                      disabled={isLocked}
+                      className={`text-[10px] px-2 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors flex items-center gap-1
+                        ${activeModule === mod ? 'bg-primary/20 text-primary-light font-medium' : 'text-text-muted'}
+                        ${isLocked ? 'opacity-30' : ''}`}
+                    >
+                      <span className="text-xs">{info.icon}</span>
+                      {info.label}
+                    </button>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+            {/* Export buttons */}
+            <button onClick={() => handleExport('md')} className="text-[10px] px-2 py-1.5 text-text-muted hover:text-text flex-shrink-0">
+              📄
             </button>
-          ))}
-          {/* Export dropdown on mobile */}
-          <div className="relative flex-shrink-0 group">
-            <button className="text-[10px] px-2.5 py-1.5 text-text-muted hover:text-text">
-              ↓ Export
+            <button onClick={() => handleExport('json')} className="text-[10px] px-2 py-1.5 text-text-muted hover:text-text flex-shrink-0">
+              📋
             </button>
-            <div className="hidden group-focus-within:block absolute right-0 top-full mt-1 bg-surface-light border border-border rounded-lg shadow-xl z-50 py-1 min-w-[140px]">
-              <button onClick={() => handleExport('md')} className="block w-full text-left px-3 py-2 text-xs text-text hover:bg-surface-lighter">
-                Export Markdown
-              </button>
-              <button onClick={() => handleExport('json')} className="block w-full text-left px-3 py-2 text-xs text-text hover:bg-surface-lighter">
-                Export JSON
-              </button>
-            </div>
           </div>
+          {/* Progress bar showing strategy journey */}
+          {session.intakeComplete && (
+            <div className="px-3 pb-2">
+              <div className="h-1 bg-surface-light rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-primary to-accent-green rounded-full transition-all"
+                  style={{ width: `${Math.min(100, (session.messages.length / 20) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center">

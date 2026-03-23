@@ -40,7 +40,7 @@ export default function ChatWindow({ messages, onSend, isLoading, module, placeh
             timestamp={msg.timestamp}
           />
         ))}
-        {isLoading && <TypingIndicator />}
+        {isLoading && <TypingIndicator module={module} />}
       </div>
 
       {/* Input area */}

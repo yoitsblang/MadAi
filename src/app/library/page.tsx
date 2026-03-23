@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-type LibraryCategory = 'business' | 'marketing' | 'psychology' | 'channels' | 'industries' | 'patterns' | 'antipatterns' | 'power';
+type LibraryCategory = 'business' | 'marketing' | 'psychology' | 'channels' | 'industries' | 'patterns' | 'antipatterns' | 'power' | 'ai2026';
 
 const CATEGORIES: { id: LibraryCategory; label: string; icon: string; description: string }[] = [
   { id: 'business', label: 'Business Foundations', icon: '⚙️', description: 'Value creation, pricing, margins, offer architecture, positioning, trust' },
@@ -13,6 +13,7 @@ const CATEGORIES: { id: LibraryCategory; label: string; icon: string; descriptio
   { id: 'patterns', label: 'What Works', icon: '✅', description: 'Proven patterns for impulse buys, premium services, creator monetization' },
   { id: 'antipatterns', label: 'What Fails', icon: '❌', description: 'Oversaturated tactics, fake urgency, platform addiction, content-for-content\'s-sake' },
   { id: 'power', label: 'Platform Power Critique', icon: '🏰', description: 'Rent extraction, algorithmic dependence, creator exploitation, walled gardens' },
+  { id: 'ai2026', label: 'AI & 2026 Landscape', icon: '🤖', description: 'AI search, GEO, content saturation, zero-click results, and the new marketing stack' },
 ];
 
 const LIBRARY_CONTENT: Record<LibraryCategory, { name: string; content: string }[]> = {
@@ -81,6 +82,16 @@ const LIBRARY_CONTENT: Record<LibraryCategory, { name: string; content: string }
     { name: 'Walled Garden Economics', content: 'Platforms make it easy to enter and hard to leave. Your audience, content, and reputation are locked inside. Counter-strategy: always cross-pollinate to owned channels. Never let a platform be your only presence.' },
     { name: 'Attention Capture vs Value', content: 'Platforms optimize for engagement (time on platform), not for your business goals. What makes content "perform" may not be what makes your business money. Counter-strategy: optimize for business outcomes, not vanity metrics.' },
     { name: 'Data Asymmetry', content: 'Platforms know more about your customers than you do. They use this data to help competitors target your audience. Counter-strategy: collect first-party data, build direct relationships, use your own analytics.' },
+  ],
+  ai2026: [
+    { name: 'AI Overviews & Zero-Click Search', content: 'Google AI Overviews now appear on 40%+ of searches in 2026. Many users get answers without clicking through to websites. Strategy: optimize for being cited IN the AI overview (structured content, E-E-A-T signals, authoritative sources) rather than just ranking below it. This is the biggest SEO shift since mobile-first indexing.' },
+    { name: 'GEO (Generative Engine Optimization)', content: 'A new discipline alongside SEO. Focuses on ensuring your brand, products, and content are cited by AI systems (ChatGPT, Gemini, Perplexity, Claude). Key factors: brand mentions across authoritative sources, structured data, topical authority, clear entity signals, and being recommended in AI conversations. Early movers have a significant advantage.' },
+    { name: 'Content Saturation & Authenticity Premium', content: 'AI tools have made it trivial to produce large volumes of generic content. The result: massive saturation of mediocre content across every niche. The winning strategy is now depth over volume — original research, genuine expertise, personal perspective, and content that AI literally cannot produce because it requires human experience and judgment.' },
+    { name: 'AI as a Marketing Tool', content: 'Use AI for research, drafting, analysis, personalization, and testing — but not as a replacement for strategy or voice. The best marketers in 2026 use AI to work 3x faster while maintaining their unique perspective. Key applications: audience research, competitive analysis, A/B test copy variants, data synthesis, content repurposing across formats.' },
+    { name: 'Subscription Fatigue & Pricing Shifts', content: 'Consumers are cutting subscriptions aggressively in 2026. The winners: lifetime deals, pay-per-use models, transparent pricing, and subscriptions that deliver clear monthly value. The losers: subscriptions that feel like "content access" when free content is abundant. Key insight: if your subscription can be replaced by a free AI tool, you need to rethink.' },
+    { name: 'The Human Premium', content: 'As AI commoditizes information, human elements become premium: personal connection, curated communities, live experiences, mentorship, accountability, and "someone who actually knows my situation." Businesses built on human relationships and judgment are more defensible than those built on information delivery.' },
+    { name: 'Short-Form Video Dominance', content: 'Short-form video (TikTok, Reels, Shorts) remains the dominant discovery channel in 2026. But the bar has risen — raw authenticity with genuine expertise beats polished production. Algorithmic discovery means any creator can reach millions, but retention and conversion require a clear funnel from content to owned channels.' },
+    { name: 'First-Party Data is King', content: 'With cookie deprecation and privacy regulations, first-party data (email lists, customer data, community membership) is the most valuable marketing asset. Every touchpoint should include a value-exchange for data collection. The businesses with the best first-party data will have the lowest customer acquisition costs.' },
   ],
 };
 

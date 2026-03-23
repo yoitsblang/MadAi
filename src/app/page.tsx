@@ -123,6 +123,12 @@ export default function Dashboard() {
             Business fundamentals. Psychological insight. Live market research. Platform-power awareness.
             Channel-specific execution. All in one strategic intelligence system.
           </p>
+          {sessions.length === 0 && (
+            <div className="mt-4 inline-flex items-center gap-2 bg-primary/10 text-primary-light text-xs px-3 py-1.5 rounded-full">
+              <span className="w-2 h-2 bg-primary-light rounded-full animate-pulse" />
+              Start by telling MadAi about your business
+            </div>
+          )}
           <div className="flex flex-wrap gap-3 justify-center mt-6 sm:mt-8">
             <button
               onClick={handleNew}

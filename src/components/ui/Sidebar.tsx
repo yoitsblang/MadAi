@@ -94,6 +94,31 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
         ))}
       </nav>
 
+      {/* Strategy Journey Progress */}
+      {intakeComplete && (
+        <div className="mx-3 mb-2 p-3 bg-surface-light/50 border border-border rounded-lg">
+          <div className="text-[10px] font-semibold text-text-muted/60 uppercase tracking-wider mb-2">
+            Strategy Journey
+          </div>
+          <div className="space-y-1.5">
+            {[
+              { mod: 'intake' as ModuleType, label: 'Intake' },
+              { mod: 'value-diagnosis' as ModuleType, label: 'Value' },
+              { mod: 'business-logic' as ModuleType, label: 'Logic' },
+              { mod: 'strategy-macro' as ModuleType, label: 'Strategy' },
+            ].map(({ mod, label }) => {
+              const done = mod === 'intake' ? intakeComplete : activeModule === mod || MODULE_ORDER.indexOf(activeModule) > MODULE_ORDER.indexOf(mod);
+              return (
+                <div key={mod} className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full border ${done ? 'bg-accent-green border-accent-green' : 'border-border'}`} />
+                  <span className={`text-[10px] ${done ? 'text-text' : 'text-text-muted/40'}`}>{label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Bottom actions */}
       <div className="p-3 border-t border-border space-y-1">
         <a
@@ -109,7 +134,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
           <span>📚</span> Strategy Library
         </a>
         <a
-          href="/settings"
+          href="/profile"
           className="flex items-center gap-2 px-3 py-2 text-xs text-text-muted hover:text-text rounded-lg hover:bg-surface-light transition-colors"
         >
           <span>⚙️</span> Settings

@@ -141,14 +141,35 @@ function InlineFormat({ text }: { text: string }) {
   );
 }
 
-export function TypingIndicator() {
+export function TypingIndicator({ module }: { module?: string }) {
+  const labels: Record<string, string> = {
+    'intake': 'Understanding your business...',
+    'value-diagnosis': 'Diagnosing value...',
+    'business-logic': 'Analyzing business health...',
+    'platform-power': 'Mapping platform dependencies...',
+    'market-research': 'Researching your market...',
+    'psychology': 'Modeling audience psychology...',
+    'ethics': 'Evaluating ethical dimensions...',
+    'strategy-macro': 'Building macro strategy...',
+    'strategy-meso': 'Designing campaign strategy...',
+    'strategy-micro': 'Crafting execution plan...',
+    'timing': 'Analyzing timing factors...',
+    'innovation': 'Generating novel approaches...',
+    'teaching': 'Preparing explanation...',
+    'general': 'Thinking...',
+  };
   return (
     <div className="flex justify-start animate-fade-in">
       <div className="bg-surface-light border border-border rounded-2xl rounded-bl-md px-5 py-4">
-        <div className="flex gap-1.5">
-          <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
-          <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
-          <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1.5">
+            <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
+            <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
+            <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
+          </div>
+          <span className="text-xs text-text-muted/60 animate-pulse">
+            {labels[module || 'general'] || 'Thinking...'}
+          </span>
         </div>
       </div>
     </div>
