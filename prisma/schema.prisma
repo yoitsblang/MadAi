@@ -20,8 +20,18 @@ model User {
   updatedAt      DateTime  @updatedAt
 
   // Settings
-  defaultStance  String    @default("balanced")
-  onboardingDone Boolean   @default(false)
+  defaultStance    String    @default("balanced")
+  onboardingDone   Boolean   @default(false)
+
+  // Legal
+  acceptedTermsAt  DateTime?                        // null = not yet accepted
+  acceptedTermsVersion String?                      // "2026-03-24-v1"
+
+  // Role & Subscription
+  role             String    @default("user")       // "user" | "admin"
+  subscriptionTier String    @default("free")       // "free" | "starter" | "pro" | "enterprise"
+  credits          Int       @default(50)           // current credit balance
+  creditsResetAt   DateTime?                        // monthly credit reset timestamp
 
   // Relations
   accounts       Account[]

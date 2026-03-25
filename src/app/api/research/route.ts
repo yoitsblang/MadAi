@@ -35,6 +35,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid research type' }, { status: 400 });
     }
 
+    // Credit check and deduction (research costs more — uses search grounding)
+    const { checkAndDeductCredits } = await import('@/lib/credits');
+    const { CREDIT_COSTS } = await import('@/lib/tiers');
+    const creditResult = await checkAndDeductCredits(session.user.id, CREDIT_COSTS.research);
+    if (!creditResult.allowed) {
+      return NextResponse.json({
+        error: 'insufficient_credits',
+        credits: creditResult.currentCredits,
+        tier: creditResult.tier,
+        message: creditResult.error,
+      }, { status: 402 });
+    }
+
     const sanitizedQuery = query.slice(0, 5000);
     const sanitizedContext = businessContext.slice(0, 5000);
 

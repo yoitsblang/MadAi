@@ -5,6 +5,8 @@ import Google from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/db';
 
+const ADMIN_EMAIL = 'bslang97@gmail.com';
+
 const providers: Provider[] = [
   Credentials({
     name: 'credentials',
@@ -67,6 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { email: profile.email },
           });
 
+          const isAdmin = profile.email === ADMIN_EMAIL;
           if (!dbUser) {
             dbUser = await prisma.user.create({
               data: {
@@ -74,18 +77,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 name: profile.name || profile.email.split('@')[0],
                 image: (profile as Record<string, unknown>).picture as string || null,
                 emailVerified: new Date(),
+                role: isAdmin ? 'admin' : 'user',
+                credits: isAdmin ? 999999 : 50,
               },
             });
           } else {
-            // Update profile info from Google
-            await prisma.user.update({
-              where: { id: dbUser.id },
-              data: {
-                name: dbUser.name || profile.name,
-                image: dbUser.image || (profile as Record<string, unknown>).picture as string || null,
-                emailVerified: dbUser.emailVerified || new Date(),
-              },
-            });
+            // Update profile info from Google + ensure admin role
+            const updateData: Record<string, unknown> = {
+              name: dbUser.name || profile.name,
+              image: dbUser.image || (profile as Record<string, unknown>).picture as string || null,
+              emailVerified: dbUser.emailVerified || new Date(),
+            };
+            if (isAdmin && dbUser.role !== 'admin') {
+              updateData.role = 'admin';
+              updateData.credits = 999999;
+            }
+            await prisma.user.update({ where: { id: dbUser.id }, data: updateData });
           }
 
           // Upsert the Account link
@@ -136,9 +143,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === 'google' && !token.id && token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
+          select: { id: true, role: true, subscriptionTier: true },
         });
         if (dbUser) {
           token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.tier = dbUser.subscriptionTier;
+        }
+      }
+      // Load role/tier from DB on every token refresh for freshness
+      if (token.id && (!token.role || !token.tier)) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true, subscriptionTier: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.tier = dbUser.subscriptionTier;
         }
       }
       return token;
@@ -146,6 +167,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
+        (session.user as Record<string, unknown>).role = token.role || 'user';
+        (session.user as Record<string, unknown>).tier = token.tier || 'free';
       }
       return session;
     },

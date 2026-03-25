@@ -96,7 +96,55 @@ WHAT'S NOT WORKING:
 - Paid ads without organic conversion proof
 - Ignoring AI/LLM visibility
 - Platform-dependent businesses with no owned channels
-- "Free value" funnels that never convert because the free content is too complete`;
+- "Free value" funnels that never convert because the free content is too complete
+
+=== CORE BUSINESS FORMULAS (reference these whenever relevant) ===
+
+UNIT ECONOMICS:
+- CAC = Total Marketing Spend ÷ New Customers Acquired (this period)
+- LTV = Avg Order Value × Purchase Frequency × Customer Lifespan in months
+- LTV:CAC Ratio — target 3:1 minimum. Below 1.5:1 = losing money on every customer
+- Payback Period = CAC ÷ Monthly Revenue Per Customer — target under 12 months
+- Contribution Margin = (Revenue − Variable Costs) ÷ Revenue × 100%
+- Break-Even = Fixed Monthly Costs ÷ Contribution Margin per Unit
+- Gross Margin benchmarks: SaaS 70-85% | Services 40-60% | Physical goods 20-50%
+
+GROWTH MECHANICS:
+- Viral Coefficient (K-factor) = Invites Sent Per User × Conversion Rate of Invites
+  - K > 1 = exponential growth | K < 1 = growth requires paid/organic acquisition
+- Rule of 40 (SaaS) = Monthly Growth Rate % + Profit Margin % — healthy = 40+
+- Payback-to-LTV ratio: the faster CAC is recovered, the safer you can invest in growth
+
+CHANNEL ECONOMICS (2026 benchmarks):
+- Meta ads: CPM $10-15 | CPC $0.50-3 | Target ROAS 2-4x for most products
+- Google search: CPC $1-5 (competitive niches up to $50+) | conversion rate 3-8%
+- Email marketing: open rate 20-40% | click rate 2-5% | conversion rate 1-3%
+- Organic social: reach 1-5% of followers per post | engagement 1-3% on Instagram
+- LinkedIn: CPM $30-60 (expensive but highest B2B quality)
+- YouTube ads: CPV $0.02-0.10 | view rate 15-30%
+
+PRICING PSYCHOLOGY BENCHMARKS:
+- Price anchoring: show original price to make sale price feel like a win
+- Charm pricing: $97 converts better than $100 in most consumer markets
+- Decoy effect: 3-tier pricing where middle option is the target
+- Bundle savings: minimum 20% perceived savings to change behavior
+- Payment plans: breaking into 3-4 monthly payments can increase conversion 20-40%
+
+CONVERSION RATE BENCHMARKS (by stage):
+- Landing page → lead: 5-15% (B2C) | 2-8% (B2B)
+- Lead → sales call booked: 20-40%
+- Sales call → close: 20-40% (high-ticket) | 50-70% (warm referrals)
+- Free trial → paid: 2-5% (broad SaaS) | 10-25% (niche/focused SaaS)
+- Email opt-in → purchase: 1-3% within 30 days
+- Social follower → customer: 0.1-1% (mass market) | 1-5% (tight community)
+
+MARKET SIZING FRAMEWORK:
+- TAM (Total Addressable Market) = full global/national market at 100% capture
+- SAM (Serviceable Addressable Market) = portion reachable with this model + geography
+- SOM (Serviceable Obtainable Market) = realistic 12-24 month capture given resources
+- Rule of thumb: realistic SOM = 1-5% of SAM in year 1 for early-stage businesses
+
+Reference these formulas proactively when the user shares numbers or asks about growth, pricing, or profitability.`;
 
 export function buildSystemPrompt(
   businessContext: string,
@@ -104,13 +152,23 @@ export function buildSystemPrompt(
   activeModule: string,
   modulePrompt: string
 ): string {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+
+  const dateContext = `\n\nCURRENT DATE & TIME: ${dateStr}, ${timeStr}\nUse this for any time-sensitive recommendations, seasonal awareness, or timing strategy.`;
+
+  const styleRules = `\n\nFORMATTING RULES:\n- Do NOT use emojis anywhere in your responses. Zero emojis.\n- Use text-based structure instead: bold headers (##), numbered lists, bullet points (-).\n- For status indicators use text labels: [STRONG] [WEAK] [RISK] [OPPORTUNITY] [ACTION] [WARNING]\n- Keep formatting clean and professional.`;
+
   const general = GENERAL_SYSTEM_PROMPT
     .replace('{businessContext}', businessContext || 'Not yet established. User is in intake phase.')
     .replace('{ethicalStance}', ethicalStance || 'balanced')
     .replace('{activeModule}', activeModule || 'general');
 
+  const base = general + dateContext + styleRules;
+
   if (modulePrompt) {
-    return `${general}\n\n--- MODULE-SPECIFIC INSTRUCTIONS ---\n\n${modulePrompt}`;
+    return `${base}\n\n--- MODULE-SPECIFIC INSTRUCTIONS ---\n\n${modulePrompt}`;
   }
-  return general;
+  return base;
 }

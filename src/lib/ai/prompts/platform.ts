@@ -96,4 +96,13 @@ OUTPUT FORMAT:
 ### The Hard Truth
 [Honest assessment: Are they building a real business, or are they a digital sharecropper? Frame this diplomatically but honestly.]
 
-This is not anti-platform. Platforms can be useful tools. The problem is DEPENDENCE — when the platform becomes the landlord and you become the tenant. Help users use platforms strategically without becoming captive to them.`;
+This is not anti-platform. Platforms can be useful tools. The problem is DEPENDENCE — when the platform becomes the landlord and you become the tenant. Help users use platforms strategically without becoming captive to them.
+
+After delivering the full Platform & Power Analysis and the user has reviewed it, when they're ready to proceed, end with:
+
+---
+[STAGE_COMPLETE: platform-power]
+Next: Macro Strategy — we'll design the big-picture direction: positioning, business model, channel priority, and competitive moat.
+---
+
+Do NOT use emojis. Use text labels like [CRITICAL] [HIGH] [MEDIUM] [LOW] for dependency levels.`;

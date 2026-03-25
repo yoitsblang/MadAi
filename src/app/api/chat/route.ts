@@ -47,6 +47,8 @@ function checkRateLimit(userId: string): boolean {
   const now = Date.now();
   const entry = rateLimitMap.get(userId);
   if (!entry || now > entry.resetAt) {
+    // Clean up expired entry before setting new one
+    if (entry) rateLimitMap.delete(userId);
     rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW });
     return true;
   }
@@ -54,6 +56,14 @@ function checkRateLimit(userId: string): boolean {
   entry.count++;
   return true;
 }
+
+// Periodic cleanup of expired rate limit entries to prevent memory leak
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of rateLimitMap.entries()) {
+    if (now > val.resetAt) rateLimitMap.delete(key);
+  }
+}, 5 * 60_000); // Clean every 5 minutes
 
 interface ChatRequest {
   messages: { role: 'user' | 'assistant'; content: string }[];
@@ -109,6 +119,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No messages provided' }, { status: 400 });
     }
 
+    // Module access check (tier gating)
+    const { checkModuleAccess, checkAndDeductCredits, refundCredits } = await import('@/lib/credits');
+    const { CREDIT_COSTS } = await import('@/lib/tiers');
+
+    const moduleAccess = await checkModuleAccess(session.user.id, module);
+    if (!moduleAccess.allowed) {
+      return NextResponse.json({
+        error: 'module_locked',
+        tier: moduleAccess.tier,
+        module,
+        message: `The ${module} module requires a higher subscription tier.`,
+      }, { status: 403 });
+    }
+
+    // Credit check and deduction
+    const creditCost = (body as Record<string, unknown>).purpose === 'brief' ? CREDIT_COSTS.brief : CREDIT_COSTS.chat;
+    const creditResult = await checkAndDeductCredits(session.user.id, creditCost);
+    if (!creditResult.allowed) {
+      return NextResponse.json({
+        error: 'insufficient_credits',
+        credits: creditResult.currentCredits,
+        tier: creditResult.tier,
+        message: creditResult.error,
+      }, { status: 402 });
+    }
+
     // Sanitize message content
     const sanitizedMessages = messages.map(m => ({
       role: m.role,
@@ -148,11 +184,30 @@ export async function POST(req: NextRequest) {
       console.error('Memory extraction error (non-fatal):', memErr);
     }
 
-    return NextResponse.json({ response: text });
+    return NextResponse.json({ response: text, creditsRemaining: creditResult.currentCredits });
   } catch (error: unknown) {
     console.error('Chat API error:', error);
+    // Refund credits on AI call failure
+    try {
+      const { refundCredits } = await import('@/lib/credits');
+      const { CREDIT_COSTS } = await import('@/lib/tiers');
+      const s = await auth();
+      if (s?.user?.id) {
+        await refundCredits(s.user.id, CREDIT_COSTS.chat);
+      }
+    } catch { /* best effort refund */ }
     return NextResponse.json({ error: 'Failed to generate response. Please try again.' }, { status: 500 });
   }
+}
+
+// Helper: upsert a single memory entry
+async function saveMemory(userId: string, key: string, value: string, category: string) {
+  if (!value || value.trim().length === 0) return;
+  await prisma.aiMemory.upsert({
+    where: { userId_key: { userId, key } },
+    update: { value: value.trim(), category, updatedAt: new Date() },
+    create: { userId, key, value: value.trim(), category },
+  });
 }
 
 // Intelligent memory extraction - logs key business facts from conversations
@@ -163,107 +218,279 @@ async function extractAndSaveMemories(
   messages: { role: string; content: string }[]
 ) {
   const lastUserMsg = messages.filter(m => m.role === 'user').pop()?.content || '';
+  const allUserText = messages.filter(m => m.role === 'user').map(m => m.content).join('\n');
 
-  // Extract from BUSINESS PROFILE SUMMARY
-  if (aiResponse.includes('BUSINESS PROFILE SUMMARY')) {
-    const fields: Record<string, RegExp> = {
-      business_name: /Business:\s*(.+)/,
-      business_type: /Type:\s*(.+)/,
-      business_stage: /Stage:\s*(.+)/,
-      offering: /Offering:\s*(.+)/,
-      price_point: /Price Point:\s*(.+)/,
-      target_audience: /Target Audience:\s*(.+)/,
-      core_value_prop: /Core Value Proposition:\s*(.+)/,
-      current_traction: /Current Traction:\s*(.+)/,
-      active_channels: /Active Channels:\s*(.+)/,
-      goal_30d: /Goal — 30 days?:\s*(.+)/i,
-      goal_6m: /Goal — 6 months?:\s*(.+)/i,
+  // ── INTAKE: Business Profile Summary ─────────────────────────────────────
+  if (aiResponse.includes('BUSINESS PROFILE SUMMARY') || module === 'intake') {
+    const profileFields: Record<string, RegExp> = {
+      business_name:    /Business(?:\s+Name)?:\s*(.+)/i,
+      business_type:    /Type:\s*(.+)/i,
+      business_stage:   /Stage:\s*(.+)/i,
+      offering:         /Offering:\s*(.+)/i,
+      price_point:      /Price Point:\s*(.+)/i,
+      target_audience:  /Target Audience:\s*(.+)/i,
+      core_value_prop:  /Core Value Proposition:\s*(.+)/i,
+      current_traction: /Current Traction:\s*(.+)/i,
+      active_channels:  /Active Channels:\s*(.+)/i,
+      goal_30d:         /Goal[^:]*30[- ]?day[s]?[^:]*:\s*(.+)/i,
+      goal_6m:          /Goal[^:]*6[- ]?month[s]?[^:]*:\s*(.+)/i,
+      goal_1y:          /Goal[^:]*1[- ]?year[^:]*:\s*(.+)/i,
+      niche:            /Niche:\s*(.+)/i,
+      location:         /Location:\s*(.+)/i,
+      team_size:        /Team(?: Size)?:\s*(.+)/i,
     };
-
-    for (const [key, regex] of Object.entries(fields)) {
+    for (const [key, regex] of Object.entries(profileFields)) {
       const match = aiResponse.match(regex);
-      if (match) {
-        await prisma.aiMemory.upsert({
-          where: { userId_key: { userId, key } },
-          update: { value: match[1].trim(), category: 'business', updatedAt: new Date() },
-          create: { userId, key, value: match[1].trim(), category: 'business' },
-        });
-      }
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'business');
     }
   }
 
-  // Extract key numbers and metrics mentioned by user
-  const numberPatterns = [
-    { regex: /(\$[\d,.]+k?)\s*(?:per|\/)\s*month|(\$[\d,.]+k?)\s*MRR/i, key: 'revenue_monthly' },
-    { regex: /(\d+)\s*(?:users|customers|subscribers|clients)/i, key: 'user_count' },
-    { regex: /(\d+\.?\d*)\s*%\s*(?:retention|churn)/i, key: 'retention_rate' },
-    { regex: /(\d+\.?\d*)\s*%\s*(?:conversion|CVR)/i, key: 'conversion_rate' },
-    { regex: /(\$[\d,.]+)\s*(?:CAC|acquisition cost)/i, key: 'cac' },
+  // ── VALUE-DIAGNOSIS: Scores & Pricing ────────────────────────────────────
+  if (module === 'value-diagnosis') {
+    const diagFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'value_clarity_score',      regex: /Value Clarity Score[:\s]+(\d+(?:\/\d+)?)/i },
+      { key: 'offer_strength',           regex: /Offer Strength[:\s]+(\w+)/i },
+      { key: 'pricing_verdict',          regex: /Pricing[^:]*Verdict[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'pricing_recommendation',   regex: /Recommended (?:Price|Pricing)[:\s]+(.+)/i },
+      { key: 'primary_bottleneck',       regex: /(?:Primary |Main )?Bottleneck[:\s]+(.+)/i },
+      { key: 'value_gap',                regex: /(?:Value )?Gap[:\s]+(.+)/i },
+      { key: 'top_objection',            regex: /(?:Top |Primary )?Objection[:\s]+(.+)/i },
+      { key: 'positioning_statement',    regex: /Positioning Statement[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of diagFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'analysis');
+    }
+  }
+
+  // ── BUSINESS-LOGIC: Unit Economics ───────────────────────────────────────
+  if (module === 'business-logic') {
+    const bizFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'business_health_score',    regex: /Overall Health[:\s]+(\d+(?:\/\d+)?)/i },
+      { key: 'cac_estimate',             regex: /CAC[:\s]+\$?([\d,.]+k?)/i },
+      { key: 'ltv_estimate',             regex: /LTV[:\s]+\$?([\d,.]+k?)/i },
+      { key: 'ltv_cac_ratio',            regex: /LTV:CAC[:\s]+([\d.]+)/i },
+      { key: 'payback_period',           regex: /Payback Period[:\s]+([\d.]+ ?\w+)/i },
+      { key: 'gross_margin',             regex: /Gross Margin[:\s]+([\d.]+%)/i },
+      { key: 'break_even',               regex: /Break[-\s]?Even[:\s]+(.+)/i },
+      { key: 'revenue_conservative_12m', regex: /Conservative[^:]*12[- ]?mo(?:nth)?[s]?[:\s]+\$?([\d,.]+k?)/i },
+      { key: 'revenue_realistic_12m',    regex: /Realistic[^:]*12[- ]?mo(?:nth)?[s]?[:\s]+\$?([\d,.]+k?)/i },
+      { key: 'revenue_optimistic_12m',   regex: /Optimistic[^:]*12[- ]?mo(?:nth)?[s]?[:\s]+\$?([\d,.]+k?)/i },
+      { key: 'primary_revenue_model',    regex: /Revenue Model[:\s]+(.+)/i },
+      { key: 'unit_economics_verdict',   regex: /Unit Economics[^:]*Verdict[:\s]+(\[?\w[\w\s]*\]?)/i },
+    ];
+    for (const { key, regex } of bizFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'economics');
+    }
+  }
+
+  // ── PLATFORM-POWER: Sovereignty & Channels ───────────────────────────────
+  if (module === 'platform-power') {
+    const platformFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'sovereignty_score',        regex: /Sovereignty Score[:\s]+(\d+(?:\/\d+)?)/i },
+      { key: 'platform_risk_level',      regex: /Platform Risk[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'recommended_owned_channel',regex: /(?:Recommended |Primary )?Owned Channel[:\s]+(.+)/i },
+      { key: 'top_rented_platform',      regex: /(?:Top |Primary )?Rented Platform[:\s]+(.+)/i },
+      { key: 'platform_strategy_verdict',regex: /Platform Strategy[:\s]+(.+)/i },
+      { key: 'audience_portability',     regex: /Audience Portability[:\s]+(\[?\w[\w\s]*\]?)/i },
+    ];
+    for (const { key, regex } of platformFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'platform');
+    }
+  }
+
+  // ── PSYCHOLOGY: Drivers & Trust ──────────────────────────────────────────
+  if (module === 'psychology') {
+    const psychFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'primary_psychological_driver', regex: /Primary(?:\s+Psychological)?\s+Driver[:\s]+(.+)/i },
+      { key: 'secondary_driver',             regex: /Secondary Driver[:\s]+(.+)/i },
+      { key: 'top_trust_blocker',            regex: /(?:Top |Primary )?Trust Blocker[:\s]+(.+)/i },
+      { key: 'buying_trigger',               regex: /Buying Trigger[:\s]+(.+)/i },
+      { key: 'identity_hook',                regex: /Identity Hook[:\s]+(.+)/i },
+      { key: 'core_fear',                    regex: /Core Fear[:\s]+(.+)/i },
+      { key: 'core_desire',                  regex: /Core Desire[:\s]+(.+)/i },
+      { key: 'message_resonance_score',      regex: /Message Resonance[:\s]+(\d+(?:\/\d+)?)/i },
+    ];
+    for (const { key, regex } of psychFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'psychology');
+    }
+  }
+
+  // ── ETHICS: Verdict ───────────────────────────────────────────────────────
+  if (module === 'ethics') {
+    const ethicsFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'ethics_verdict',          regex: /(?:Ethics|Ethical)(?:\s+Verdict)?[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'ethics_rating',           regex: /(?:Ethics|Ethical) Rating[:\s]+(\d+(?:\/\d+)?)/i },
+      { key: 'manipulation_risk',       regex: /Manipulation Risk[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'top_ethical_concern',     regex: /(?:Top |Primary )?Ethical Concern[:\s]+(.+)/i },
+      { key: 'recommended_stance',      regex: /Recommended Stance[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of ethicsFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'ethics');
+    }
+  }
+
+  // ── MARKET-RESEARCH: Niche Intelligence ──────────────────────────────────
+  if (module === 'market-research') {
+    const researchFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'niche_power_score',       regex: /Niche Power Score[:\s]+(\d+(?:\/\d+|\s*\/\s*\d+)?)/i },
+      { key: 'market_category',         regex: /Market Category[:\s]+(.+)/i },
+      { key: 'tam_estimate',            regex: /TAM[:\s]+\$?([\d,.]+[BbMmKk]?)/i },
+      { key: 'sam_estimate',            regex: /SAM[:\s]+\$?([\d,.]+[BbMmKk]?)/i },
+      { key: 'som_estimate',            regex: /SOM[:\s]+\$?([\d,.]+[BbMmKk]?)/i },
+      { key: 'market_trend_label',      regex: /(?:Market )?Trend[:\s]+(\[(?:EVERGREEN|DURABLE SHIFT|HOT TREND|TEMPORARY FAD|MANUFACTURED HYPE|LOCAL OPPORTUNITY)\])/i },
+      { key: 'competition_level',       regex: /Competition[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'top_competitor',          regex: /(?:Top |Primary )?Competitor[:\s]+(.+)/i },
+      { key: 'niche_entry_difficulty',  regex: /Entry (?:Difficulty|Barrier)[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'best_sub_niche',          regex: /Best Sub[-\s]?Niche[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of researchFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'market');
+    }
+  }
+
+  // ── TIMING: Market Window ─────────────────────────────────────────────────
+  if (module === 'timing') {
+    const timingFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'timing_verdict',          regex: /Timing Verdict[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'market_window',           regex: /Market Window[:\s]+(.+)/i },
+      { key: 'urgency_level',           regex: /Urgency[:\s]+(\[?\w[\w\s]*\]?)/i },
+      { key: 'seasonal_peak',           regex: /Seasonal Peak[:\s]+(.+)/i },
+      { key: 'timing_risk',             regex: /Timing Risk[:\s]+(.+)/i },
+      { key: 'best_launch_window',      regex: /Best Launch Window[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of timingFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'timing');
+    }
+  }
+
+  // ── STRATEGY-MACRO: Competitive Position & Moat ──────────────────────────
+  if (module === 'strategy-macro') {
+    const macroFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'moat_score',                  regex: /(?:Competitive )?Moat Score[:\s]+(\d+(?:\/\d+)?)/i },
+      { key: 'moat_type',                   regex: /(?:Primary )?Moat Type[:\s]+(.+)/i },
+      { key: 'strategic_direction',         regex: /Strategic Direction[:\s]+(.+)/i },
+      { key: 'competitive_position',        regex: /Competitive Position[:\s]+(.+)/i },
+      { key: 'positioning_category',        regex: /Positioning[^:]*Category[:\s]+(.+)/i },
+      { key: 'primary_growth_lever',        regex: /(?:Primary )?Growth Lever[:\s]+(.+)/i },
+      { key: 'competitive_advantage',       regex: /Competitive Advantage[:\s]+(.+)/i },
+      { key: 'porter_threat_new_entrants',  regex: /New Entrants?[:\s]+(\d+(?:\/10)?)/i },
+      { key: 'porter_buyer_power',          regex: /Buyer Power[:\s]+(\d+(?:\/10)?)/i },
+      { key: 'porter_supplier_power',       regex: /Supplier Power[:\s]+(\d+(?:\/10)?)/i },
+      { key: 'revenue_strategy_12m',        regex: /12[- ]?Month Revenue Strategy[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of macroFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'strategy');
+    }
+  }
+
+  // ── STRATEGY-MESO: Channel & Campaign ────────────────────────────────────
+  if (module === 'strategy-meso') {
+    const mesoFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'primary_channel',            regex: /Primary Channel[:\s]+(.+)/i },
+      { key: 'secondary_channel',          regex: /Secondary Channel[:\s]+(.+)/i },
+      { key: 'content_format',             regex: /Content Format[:\s]+(.+)/i },
+      { key: 'posting_frequency',          regex: /Posting Frequency[:\s]+(.+)/i },
+      { key: 'campaign_theme',             regex: /Campaign Theme[:\s]+(.+)/i },
+      { key: 'funnel_stage_focus',         regex: /Funnel (?:Stage )?Focus[:\s]+(.+)/i },
+      { key: 'lead_magnet_type',           regex: /Lead Magnet[:\s]+(.+)/i },
+      { key: 'email_sequence_priority',    regex: /Email Sequence[:\s]+(.+)/i },
+      { key: 'partnership_opportunity',    regex: /Partnership Opportunity[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of mesoFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'tactics');
+    }
+  }
+
+  // ── STRATEGY-MICRO: Execution ─────────────────────────────────────────────
+  if (module === 'strategy-micro') {
+    const microFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'immediate_action_1',          regex: /(?:Week 1|Day 1[^0]|Immediate)[^:]*(?:Action|Task)[^:]*1[:\s]+(.+)/i },
+      { key: 'immediate_action_2',          regex: /(?:Week 1|Day 1[^0]|Immediate)[^:]*(?:Action|Task)[^:]*2[:\s]+(.+)/i },
+      { key: 'sprint_goal_30d',             regex: /30[-\s]?Day (?:Sprint )?Goal[:\s]+(.+)/i },
+      { key: 'milestone_90d',               regex: /90[-\s]?Day Milestone[:\s]+(.+)/i },
+      { key: 'kpi_primary',                 regex: /Primary KPI[:\s]+(.+)/i },
+      { key: 'kpi_secondary',               regex: /Secondary KPI[:\s]+(.+)/i },
+      { key: 'first_revenue_action',        regex: /First Revenue Action[:\s]+(.+)/i },
+      { key: 'quick_win',                   regex: /Quick Win[:\s]+(.+)/i },
+      { key: 'execution_risk',              regex: /(?:Top |Primary )?Execution Risk[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of microFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'execution');
+    }
+  }
+
+  // ── INNOVATION: Opportunities ─────────────────────────────────────────────
+  if (module === 'innovation') {
+    const innovFields: Array<{ key: string; regex: RegExp }> = [
+      { key: 'top_innovation_opportunity',  regex: /(?:Top |#1 )?Innovation Opportunity[:\s]+(.+)/i },
+      { key: 'disruption_risk',             regex: /Disruption Risk[:\s]+(.+)/i },
+      { key: 'ai_leverage_opportunity',     regex: /AI (?:Leverage|Opportunity)[:\s]+(.+)/i },
+      { key: 'untapped_segment',            regex: /Untapped Segment[:\s]+(.+)/i },
+      { key: 'product_expansion_idea',      regex: /Product Expansion[:\s]+(.+)/i },
+    ];
+    for (const { key, regex } of innovFields) {
+      const match = aiResponse.match(regex);
+      if (match?.[1]) await saveMemory(userId, key, match[1], 'innovation');
+    }
+  }
+
+  // ── UNIVERSAL: Key numbers mentioned by user (any module) ─────────────────
+  const numberPatterns: Array<{ regex: RegExp; key: string; category: string }> = [
+    { regex: /(\$[\d,.]+k?)\s*(?:per|\/)\s*month|\b(\$[\d,.]+k?)\s*MRR/i, key: 'revenue_monthly',     category: 'metrics' },
+    { regex: /(\d{1,6})\s*(?:users|customers|subscribers|clients|buyers)/i,  key: 'user_count',         category: 'metrics' },
+    { regex: /(\d+\.?\d*)\s*%\s*(?:retention)/i,                              key: 'retention_rate',     category: 'metrics' },
+    { regex: /(\d+\.?\d*)\s*%\s*churn/i,                                      key: 'churn_rate',         category: 'metrics' },
+    { regex: /(\d+\.?\d*)\s*%\s*(?:conversion|CVR|CR)\b/i,                   key: 'conversion_rate',    category: 'metrics' },
+    { regex: /\bCAC\b[:\s]+\$?([\d,.]+k?)/i,                                  key: 'cac',                category: 'metrics' },
+    { regex: /\bLTV\b[:\s]+\$?([\d,.]+k?)/i,                                  key: 'ltv',                category: 'metrics' },
+    { regex: /average[^$]*(?:order|sale|ticket)[^$]*\$?([\d,.]+k?)/i,        key: 'avg_order_value',    category: 'metrics' },
+    { regex: /(\d+\.?\d*)\s*%\s*(?:open rate|email open)/i,                  key: 'email_open_rate',    category: 'metrics' },
+    { regex: /\b(\d{4,})\s*(?:followers?|subs)/i,                            key: 'social_followers',   category: 'metrics' },
   ];
 
-  for (const { regex, key } of numberPatterns) {
-    const match = lastUserMsg.match(regex);
+  for (const { regex, key, category } of numberPatterns) {
+    const match = lastUserMsg.match(regex) || allUserText.slice(-2000).match(regex);
     if (match) {
       const value = match[1] || match[2];
-      if (value) {
-        await prisma.aiMemory.upsert({
-          where: { userId_key: { userId, key } },
-          update: { value, category: 'metrics', updatedAt: new Date() },
-          create: { userId, key, value, category: 'metrics' },
-        });
-      }
+      if (value) await saveMemory(userId, key, value, category);
     }
   }
 
-  // Log preferences and decisions from user messages
-  const preferencePatterns = [
-    { regex: /(?:I (?:don't|won't|refuse to|hate)|no (?:cold|paid|spam))\s+(.+)/i, key: 'ethical_boundary', category: 'preference' },
-    { regex: /(?:my budget is|I (?:can|have) \$?)([\d,.]+k?)\s*(?:per|\/)\s*month/i, key: 'budget_monthly', category: 'business' },
-    { regex: /(?:I (?:have|spend)|available)\s+(\d+)\s*hours?\s*(?:per|a)\s*week/i, key: 'hours_per_week', category: 'business' },
+  // ── UNIVERSAL: Preferences & constraints ─────────────────────────────────
+  const preferencePatterns: Array<{ regex: RegExp; key: string; category: string }> = [
+    { regex: /(?:I (?:don't|won't|refuse to|hate|never|avoid)|no (?:cold|paid|spam))\s+(.{5,60})/i,                key: 'ethical_constraint',   category: 'preference' },
+    { regex: /(?:my budget is|I (?:can spend|have)\s+)\$?([\d,.]+k?)\s*(?:per|a|\/)\s*(?:month|mo\b)/i,            key: 'budget_monthly',       category: 'business' },
+    { regex: /(?:I (?:have|spend|can do)|available)\s+(\d+)\s*hours?\s*(?:per|a)\s*week/i,                         key: 'hours_per_week',       category: 'business' },
+    { regex: /(?:I(?:'m| am) based in|located in|operating in|serving)\s+([A-Za-z ,]{3,40})/i,                     key: 'location',             category: 'business' },
+    { regex: /(?:I(?:'ve| have) been (?:doing|running|operating)|in business for)\s+([\d]+ ?\w+)/i,                key: 'time_in_business',     category: 'business' },
+    { regex: /(?:I (?:prefer|want to focus on|love|enjoy))\s+(.{5,60})/i,                                          key: 'personal_preference',  category: 'preference' },
+    { regex: /(?:working (?:solo|alone)|it'?s just me|one[-\s]person|solopreneur)/i,                               key: 'team_size',            category: 'business' },
   ];
 
   for (const { regex, key, category } of preferencePatterns) {
     const match = lastUserMsg.match(regex);
     if (match) {
-      await prisma.aiMemory.upsert({
-        where: { userId_key: { userId, key } },
-        update: { value: match[1].trim(), category, updatedAt: new Date() },
-        create: { userId, key, value: match[1].trim(), category },
-      });
+      const value = match[1] || 'solo';
+      await saveMemory(userId, key, value, category);
     }
   }
 
-  // Store module-specific insights from AI analysis
-  if (module === 'value-diagnosis' && aiResponse.includes('Value Clarity Score')) {
-    const scoreMatch = aiResponse.match(/Value Clarity Score:\s*(\d+)/);
-    if (scoreMatch) {
-      await prisma.aiMemory.upsert({
-        where: { userId_key: { userId, key: 'value_clarity_score' } },
-        update: { value: scoreMatch[1], category: 'analysis', updatedAt: new Date() },
-        create: { userId, key: 'value_clarity_score', value: scoreMatch[1], category: 'analysis' },
-      });
-    }
-  }
-
-  if (module === 'business-logic' && aiResponse.includes('Overall Health')) {
-    const healthMatch = aiResponse.match(/Overall Health:\s*(\d+)/);
-    if (healthMatch) {
-      await prisma.aiMemory.upsert({
-        where: { userId_key: { userId, key: 'business_health_score' } },
-        update: { value: healthMatch[1], category: 'analysis', updatedAt: new Date() },
-        create: { userId, key: 'business_health_score', value: healthMatch[1], category: 'analysis' },
-      });
-    }
-  }
-
-  if (module === 'platform-power' && aiResponse.includes('Sovereignty Score')) {
-    const sovMatch = aiResponse.match(/Sovereignty Score:\s*(\d+)/);
-    if (sovMatch) {
-      await prisma.aiMemory.upsert({
-        where: { userId_key: { userId, key: 'sovereignty_score' } },
-        update: { value: sovMatch[1], category: 'analysis', updatedAt: new Date() },
-        create: { userId, key: 'sovereignty_score', value: sovMatch[1], category: 'analysis' },
-      });
+  // ── Track which modules have been completed ────────────────────────────────
+  if (aiResponse.includes('[STAGE_COMPLETE:')) {
+    const stageMatch = aiResponse.match(/\[STAGE_COMPLETE:\s*([^\]]+)\]/);
+    if (stageMatch?.[1]) {
+      const stageKey = `stage_completed_${stageMatch[1].trim().replace(/\s+/g, '_')}`;
+      await saveMemory(userId, stageKey, new Date().toISOString(), 'progress');
     }
   }
 }

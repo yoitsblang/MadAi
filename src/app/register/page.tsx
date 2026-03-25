@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -27,13 +28,18 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!acceptedTerms) {
+      setError('You must accept the Terms of Service and Privacy Policy');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, acceptedTerms }),
       });
 
       const data = await res.json();
@@ -170,9 +176,25 @@ export default function RegisterPage() {
             />
           </div>
 
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={e => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-primary/30 bg-surface-light"
+            />
+            <span className="text-xs text-text-muted leading-relaxed">
+              I agree to the{' '}
+              <a href="/terms" target="_blank" className="text-primary-light hover:underline">Terms of Service</a>
+              {' '}and{' '}
+              <a href="/privacy" target="_blank" className="text-primary-light hover:underline">Privacy Policy</a>.
+              I understand I receive 50 free credits to try MadAi.
+            </span>
+          </label>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !acceptedTerms}
             className="w-full bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl py-3
               text-sm transition-colors disabled:opacity-50"
           >

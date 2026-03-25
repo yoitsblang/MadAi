@@ -52,6 +52,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid analysis type' }, { status: 400 });
     }
 
+    // Credit check and deduction
+    const { checkAndDeductCredits } = await import('@/lib/credits');
+    const { CREDIT_COSTS } = await import('@/lib/tiers');
+    const creditCost = analysisType === 'full-diagnosis' ? CREDIT_COSTS['analyze-full'] : CREDIT_COSTS.analyze;
+    const creditResult = await checkAndDeductCredits(session.user.id, creditCost);
+    if (!creditResult.allowed) {
+      return NextResponse.json({
+        error: 'insufficient_credits',
+        credits: creditResult.currentCredits,
+        tier: creditResult.tier,
+        message: creditResult.error,
+      }, { status: 402 });
+    }
+
     const sanitizedContext = businessContext.slice(0, 5000);
     const sanitizedAdditional = additionalContext?.slice(0, 3000) || '';
 

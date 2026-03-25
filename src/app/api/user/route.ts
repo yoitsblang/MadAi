@@ -20,6 +20,10 @@ export async function GET() {
       defaultStance: true,
       onboardingDone: true,
       createdAt: true,
+      role: true,
+      subscriptionTier: true,
+      credits: true,
+      creditsResetAt: true,
       _count: {
         select: {
           strategies: { where: { archived: false } },

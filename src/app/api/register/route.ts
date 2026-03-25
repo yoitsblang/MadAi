@@ -26,7 +26,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many registration attempts. Please try again later.' }, { status: 429 });
     }
 
-    const { name, email, password } = await req.json();
+    const { name, email, password, acceptedTerms } = await req.json();
+
+    if (!acceptedTerms) {
+      return NextResponse.json({ error: 'You must accept the Terms of Service and Privacy Policy to create an account' }, { status: 400 });
+    }
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -48,11 +52,17 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    const isAdmin = email === 'bslang97@gmail.com';
+    const TERMS_VERSION = '2026-03-24-v1';
     const user = await prisma.user.create({
       data: {
         name: name || email.split('@')[0],
         email,
         hashedPassword,
+        role: isAdmin ? 'admin' : 'user',
+        credits: isAdmin ? 999999 : 50,
+        acceptedTermsAt: new Date(),
+        acceptedTermsVersion: TERMS_VERSION,
       },
     });
 
