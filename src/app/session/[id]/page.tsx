@@ -715,60 +715,34 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
           </div>
         )}
 
-        {/* ═══ STAGE COMPLETE BANNER ═══ — the key UI element */}
+        {/* ═══ STAGE COMPLETE TOAST ═══ — compact floating notification */}
         {stageComplete && (
-          <div className="flex-shrink-0 border-b border-accent-green/20 bg-gradient-to-r from-accent-green/8 via-primary/5 to-transparent">
-            {/* Top accent line */}
-            <div className="h-0.5 bg-gradient-to-r from-accent-green to-primary/40 w-full" />
-            <div className="px-4 py-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-accent-green/20 border border-accent-green/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-4.5 h-4.5 text-accent-green" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-bold text-accent-green uppercase tracking-wider">Stage Complete</span>
-                      <span className="text-[10px] text-text-muted/60 bg-surface px-1.5 py-0.5 rounded">
-                        {MODULE_INFO[stageComplete.stage]?.label}
-                      </span>
-                    </div>
-                    <p className="text-sm text-text leading-snug">{stageComplete.description}</p>
-                    {stageComplete.nextStage && (
-                      <p className="text-xs text-text-muted mt-0.5">
-                        Ready to continue to <span className="text-primary-light font-medium">{stageComplete.nextLabel}</span>
-                      </p>
-                    )}
-                  </div>
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md animate-fade-in">
+            <div className="bg-surface border border-accent-green/30 rounded-xl shadow-lg shadow-black/20 px-4 py-3">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-accent-green flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-text truncate">
+                    {MODULE_INFO[stageComplete.stage]?.label} complete
+                  </p>
                 </div>
-
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {stageComplete.nextStage ? (
-                    <>
-                      <a href="/"
-                        className="text-xs text-text-muted border border-border hover:border-primary/30 hover:text-text px-3 py-1.5 rounded-lg transition-colors">
-                        Save & Exit
-                      </a>
-                      <button
-                        onClick={() => handleAcceptStage(stageComplete.nextStage!)}
-                        disabled={isLoading}
-                        className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-2 rounded-lg transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5 disabled:opacity-40 shadow-sm shadow-accent-green/20">
-                        Continue to {stageComplete.nextLabel} <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <a href="/"
-                        className="text-xs text-text-muted border border-border hover:border-primary/30 hover:text-text px-3 py-1.5 rounded-lg transition-colors">
-                        Save & Exit
-                      </a>
-                      <a href={`/session/${id}/dashboard`}
-                        className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-2 rounded-lg flex items-center gap-1.5">
-                        View Dashboard <ArrowRight className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  )}
-                </div>
+                {stageComplete.nextStage ? (
+                  <button
+                    onClick={() => handleAcceptStage(stageComplete.nextStage!)}
+                    disabled={isLoading}
+                    className="text-xs font-semibold bg-accent-green text-white px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0 hover:bg-accent-green/90 active:scale-95 transition-all disabled:opacity-40">
+                    Continue <ArrowRight className="w-3 h-3" />
+                  </button>
+                ) : (
+                  <a href={`/session/${id}/dashboard`}
+                    className="text-xs font-semibold bg-accent-green text-white px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0">
+                    Dashboard <ArrowRight className="w-3 h-3" />
+                  </a>
+                )}
+                <button onClick={() => setStageComplete(null)}
+                  className="text-text-muted/40 hover:text-text-muted p-0.5 transition-colors flex-shrink-0">
+                  <span className="text-sm leading-none">&#x2715;</span>
+                </button>
               </div>
             </div>
           </div>
