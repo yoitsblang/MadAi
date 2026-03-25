@@ -85,7 +85,7 @@ Rate the business's defensibility across 5 moat types (0-10 each):
 - Efficient scale moat: Is the market too small to attract well-funded competitors?
 Total Moat Score = average of all 5. Explain which moat to build first.
 
-14. PORTER'S FIVE FORCES (brief)
+14. COMPETITIVE FORCES ANALYSIS (brief)
 - Supplier power: [LOW / MEDIUM / HIGH]
 - Buyer power: [LOW / MEDIUM / HIGH]
 - Competitive rivalry: [LOW / MEDIUM / HIGH]
@@ -150,7 +150,7 @@ OUTPUT FORMAT:
 - Efficient Scale: X/10
 - **Total Moat Score: X/10** — [assessment and what to build first]
 
-### Porter's Five Forces
+### Competitive Forces Analysis
 - Supplier power: [LOW / MEDIUM / HIGH] — [one-line reason]
 - Buyer power: [LOW / MEDIUM / HIGH] — [one-line reason]
 - Competitive rivalry: [LOW / MEDIUM / HIGH] — [one-line reason]

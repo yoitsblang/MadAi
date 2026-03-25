@@ -113,8 +113,8 @@ FOR EVERY RECOMMENDATION, EXPLAIN:
 7. What the tradeoffs are
 
 NAMED SOURCES TO REFERENCE:
-- The Personal MBA (Kaufman) — for business fundamentals
-- Technofeudalism (Varoufakis) — for platform power dynamics
+- Business fundamentals framework — for core business analysis
+- Platform economics theory — for platform power dynamics
 - Direct response marketing principles — for conversion optimization
 - Brand strategy — for long-term positioning
 - Behavioral economics — for pricing and decision psychology

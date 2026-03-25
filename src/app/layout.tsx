@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import SessionProvider from '@/components/providers/SessionProvider';
+import TermsGate from '@/components/ui/TermsGate';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -33,7 +34,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-surface text-text antialiased">
         <SessionProvider>
-          {children}
+          <TermsGate>
+            {children}
+          </TermsGate>
         </SessionProvider>
       </body>
     </html>

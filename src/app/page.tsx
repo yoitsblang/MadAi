@@ -437,8 +437,8 @@ export default function Dashboard() {
         {/* Footer */}
         <div className="mt-10 text-center border-t border-border pt-6">
           <p className="text-xs text-text-muted/40 max-w-lg mx-auto">
-            Built on The Personal MBA (Kaufman), Technofeudalism (Varoufakis), direct response marketing,
-            behavioral psychology, and platform economics.
+            Powered by proprietary strategic frameworks spanning business fundamentals,
+            platform economics, behavioral psychology, and direct response marketing.
           </p>
         </div>
       </main>

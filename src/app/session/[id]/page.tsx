@@ -41,7 +41,7 @@ const STAGE_NEXT_LABEL: Partial<Record<ModuleType, string>> = {
 // What the AI will be asked when each stage auto-starts
 const STAGE_KICKOFF_MESSAGES: Partial<Record<ModuleType, string>> = {
   'value-diagnosis': `Based on my business profile, please run the full Value Diagnosis now. Analyze: (1) what value type I'm actually creating, (2) whether my framing does it justice, (3) pricing assessment, (4) hidden value opportunities, and (5) my weakest link. Give me the complete report with your honest assessment.`,
-  'business-logic': `Please run the complete Business Health Scorecard using the Kaufman 5-part framework now. Score all five areas (Value Creation, Marketing, Sales, Value Delivery, Finance), identify my primary bottleneck, run unit economics if you have the numbers, and tell me exactly what to fix first.`,
+  'business-logic': `Please run the complete Business Health Scorecard now. Score all five core areas (Value Creation, Marketing, Sales, Value Delivery, Finance), identify my primary bottleneck, run unit economics if you have the numbers, and tell me exactly what to fix first.`,
   'platform-power': `Please run the full Platform & Power Analysis now. Map all my platform dependencies, calculate my sovereignty score, identify the critical dependencies that could kill my business if a platform changes, and give me a concrete sovereignty strategy.`,
   'strategy-macro': `Based on all the analysis so far — intake, value diagnosis, business logic, and platform power — please build my complete Macro Strategy. I need: positioning statement, business model recommendation, market selection, offer structure, pricing philosophy, channel priority, trust architecture, acquisition model, competitive moat scorecard, Porter's Five Forces, platform independence plan, and 12-month revenue scenarios.`,
   'strategy-meso': `Based on my macro strategy, design the full Meso Strategy now. I need: campaign themes for the next 90 days, offer architecture, launch sequence week by week, funnel design, audience segments, content pillars with examples, partnership opportunities, and owned channel development plan.`,
@@ -745,46 +745,29 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {stageComplete.nextStage ? (
                     <>
-                      {/* Manual navigate */}
-                      <button
-                        onClick={() => handleContinueManually(stageComplete.nextStage!)}
-                        disabled={isLoading}
-                        className="text-xs text-text-muted border border-border hover:border-primary/30 hover:text-text px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
-                        title="Navigate to next stage — start conversation yourself">
-                        Continue <ChevronRight className="w-3 h-3 inline" />
-                      </button>
-                      {/* Auto-generate — the big CTA */}
+                      <a href="/"
+                        className="text-xs text-text-muted border border-border hover:border-primary/30 hover:text-text px-3 py-1.5 rounded-lg transition-colors">
+                        Save & Exit
+                      </a>
                       <button
                         onClick={() => handleAcceptStage(stageComplete.nextStage!)}
                         disabled={isLoading}
-                        className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-1.5 rounded-lg transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5 disabled:opacity-40 shadow-sm shadow-accent-green/20"
-                        title="AI auto-generates the next stage based on everything so far">
-                        <Zap className="w-3.5 h-3.5" />
-                        AI Generate {stageComplete.nextLabel}
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-2 rounded-lg transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5 disabled:opacity-40 shadow-sm shadow-accent-green/20">
+                        Continue to {stageComplete.nextLabel} <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </>
                   ) : (
-                    // Final stage complete
                     <div className="flex items-center gap-2">
+                      <a href="/"
+                        className="text-xs text-text-muted border border-border hover:border-primary/30 hover:text-text px-3 py-1.5 rounded-lg transition-colors">
+                        Save & Exit
+                      </a>
                       <a href={`/session/${id}/dashboard`}
-                        className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-1.5 rounded-lg flex items-center gap-1.5">
-                        <BarChart3 className="w-3.5 h-3.5" /> View Dashboard
+                        className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-2 rounded-lg flex items-center gap-1.5">
+                        View Dashboard <ArrowRight className="w-3.5 h-3.5" />
                       </a>
-                      <a href={`/brief/${id}`}
-                        className="text-xs bg-primary/10 text-primary-light border border-primary/20 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                        <BookMarked className="w-3.5 h-3.5" /> Master Brief
-                      </a>
-                      <button onClick={handleGeneratePlan} disabled={isLoading}
-                        className="text-xs bg-surface-light text-text-muted border border-border px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:text-text">
-                        <ClipboardList className="w-3.5 h-3.5" /> Generate Plan
-                      </button>
                     </div>
                   )}
-                  <button onClick={() => setStageComplete(null)}
-                    className="text-text-muted/30 hover:text-text-muted/70 p-1 transition-colors text-xs">
-                    ✕
-                  </button>
                 </div>
               </div>
             </div>
@@ -801,27 +784,42 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
           </div>
         )}
 
-        {/* Fallback: intake is complete but no stage banner showing */}
-        {!stageComplete && session.intakeComplete && activeModule === 'intake' && (
-          <div className="flex-shrink-0 px-4 py-2.5 bg-accent-green/5 border-b border-accent-green/20 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-accent-green" />
-              <span className="text-xs text-text">Intake complete. Ready to proceed?</span>
+        {/* Universal stage navigation bar — shows on any completed stage without the banner */}
+        {!stageComplete && !pendingKickoff && session.intakeComplete && (() => {
+          const currentIdx = STAGE_FLOW.indexOf(activeModule);
+          const nextStage = currentIdx >= 0 && currentIdx < STAGE_FLOW.length - 1 ? STAGE_FLOW[currentIdx + 1] : null;
+          const isCurrentDone = completedStages.includes(activeModule);
+          if (!isCurrentDone && activeModule !== 'intake') return null;
+          return (
+            <div className="flex-shrink-0 px-4 py-2.5 bg-primary/5 border-b border-primary/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-accent-green" />
+                <span className="text-xs text-text">
+                  {MODULE_INFO[activeModule]?.label} complete.
+                  {nextStage ? ` Next: ${MODULE_INFO[nextStage]?.label}` : ' All stages done!'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a href="/" className="text-xs text-text-muted border border-border hover:border-primary/30 px-3 py-1 rounded-lg transition-colors">
+                  Save & Exit
+                </a>
+                {nextStage ? (
+                  <button
+                    onClick={() => handleAcceptStage(nextStage)}
+                    disabled={isLoading}
+                    className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-40">
+                    Continue <ArrowRight className="w-3 h-3" />
+                  </button>
+                ) : (
+                  <a href={`/session/${id}/dashboard`}
+                    className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-1.5 rounded-lg flex items-center gap-1.5">
+                    View Dashboard <ArrowRight className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleContinueManually('value-diagnosis' as ModuleType)}
-                className="text-xs text-text-muted border border-border hover:border-primary/30 px-3 py-1 rounded-lg transition-colors">
-                Continue <ChevronRight className="w-3 h-3 inline" />
-              </button>
-              <button
-                onClick={() => handleAcceptStage('value-diagnosis' as ModuleType)}
-                className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-3 py-1 rounded-lg transition-colors flex items-center gap-1.5">
-                <Zap className="w-3 h-3" /> AI Generate Value Diagnosis <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Chat area */}
         <div className="flex-1 overflow-hidden min-h-0">

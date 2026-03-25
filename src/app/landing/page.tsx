@@ -383,8 +383,8 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="reveal-on-scroll text-3xl sm:text-4xl font-bold mb-4">
-              Built on real frameworks,{' '}
-              <span className="gradient-text">not vibes</span>
+              Built on proven methodology,{' '}
+              <span className="gradient-text">not guesswork</span>
             </h2>
             <p className="reveal-on-scroll text-text-muted text-lg max-w-2xl mx-auto">
               Every strategic recommendation traces back to validated frameworks and research.
@@ -394,13 +394,13 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-5">
             {[
               {
-                title: 'The Personal MBA',
-                source: 'Josh Kaufman',
-                text: 'Every business runs on 5 processes \u2014 Value Creation, Marketing, Sales, Delivery, Finance. We diagnose which is broken.',
+                title: 'Business Fundamentals Engine',
+                source: '',
+                text: 'Every business runs on 5 core processes \u2014 Value Creation, Marketing, Sales, Delivery, Finance. We diagnose which is broken.',
               },
               {
-                title: 'Technofeudalism',
-                source: 'Yanis Varoufakis',
+                title: 'Platform Sovereignty Analysis',
+                source: '',
                 text: 'Platforms extract rent from your business. We analyze your dependency and build sovereignty.',
               },
               {

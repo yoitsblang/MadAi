@@ -77,7 +77,7 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
     },
     'business-logic': {
       title: 'Business Logic Analysis',
-      subtitle: 'Using Kaufman\'s 5-part framework (Value Creation → Marketing → Sales → Delivery → Finance) to find your biggest bottleneck.',
+      subtitle: 'Analyzing your 5 core business processes (Value Creation, Marketing, Sales, Delivery, Finance) to find your biggest bottleneck.',
       prompts: ['Run the business health scorecard', 'Why aren\'t my sales growing?', 'Where\'s my weakest link?', 'Am I spending money in the right places?'],
     },
     'platform-power': {

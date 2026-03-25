@@ -24,6 +24,8 @@ export async function GET() {
       subscriptionTier: true,
       credits: true,
       creditsResetAt: true,
+      acceptedTermsAt: true,
+      acceptedTermsVersion: true,
       _count: {
         select: {
           strategies: { where: { archived: false } },
@@ -55,6 +57,8 @@ export async function PATCH(req: NextRequest) {
   if (body.name !== undefined) updateData.name = body.name;
   if (body.defaultStance !== undefined) updateData.defaultStance = body.defaultStance;
   if (body.onboardingDone !== undefined) updateData.onboardingDone = body.onboardingDone;
+  if (body.acceptedTermsAt !== undefined) updateData.acceptedTermsAt = new Date(body.acceptedTermsAt);
+  if (body.acceptedTermsVersion !== undefined) updateData.acceptedTermsVersion = body.acceptedTermsVersion;
 
   if (body.newPassword) {
     if (body.newPassword.length < 8) {
