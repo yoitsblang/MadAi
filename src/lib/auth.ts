@@ -167,8 +167,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
-        (session.user as Record<string, unknown>).role = token.role || 'user';
-        (session.user as Record<string, unknown>).tier = token.tier || 'free';
+        (session.user as unknown as Record<string, unknown>).role = token.role || 'user';
+        (session.user as unknown as Record<string, unknown>).tier = token.tier || 'free';
       }
       return session;
     },

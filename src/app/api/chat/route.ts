@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Credit check and deduction
-    const creditCost = (body as Record<string, unknown>).purpose === 'brief' ? CREDIT_COSTS.brief : CREDIT_COSTS.chat;
+    const creditCost = (body as unknown as Record<string, unknown>).purpose === 'brief' ? CREDIT_COSTS.brief : CREDIT_COSTS.chat;
     const creditResult = await checkAndDeductCredits(session.user.id, creditCost);
     if (!creditResult.allowed) {
       return NextResponse.json({
