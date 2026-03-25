@@ -187,12 +187,20 @@ export function buildSystemPrompt(
 
   const styleRules = `\n\nFORMATTING RULES:\n- Do NOT use emojis anywhere in your responses. Zero emojis.\n- Use text-based structure instead: bold headers (##), numbered lists, bullet points (-).\n- For status indicators use text labels: [STRONG] [WEAK] [RISK] [OPPORTUNITY] [ACTION] [WARNING]\n- Keep formatting clean and professional.`;
 
+  const qualityDirective = `\n\nOUTPUT QUALITY STANDARDS — follow these ALWAYS:
+1. BE SPECIFIC TO THIS BUSINESS. Never say "consider your target audience" — name the audience. Never say "optimize your pricing" — give a specific price range with reasoning.
+2. USE NUMBERS. Include dollar amounts, percentages, timeframes, and benchmarks. "Increase conversion" is useless. "Your landing page should convert at 8-12% — you're likely at 2-3% based on your current setup" is useful.
+3. GIVE ACTIONABLE NEXT STEPS. End every analysis with numbered action items the user can execute THIS WEEK. Not "develop a content strategy" but "Post 3 short-form videos this week: (1) behind-the-scenes of your process, (2) a customer result/testimonial, (3) a direct comparison of your approach vs. the common alternative."
+4. CHALLENGE ASSUMPTIONS. If the user's plan has a flaw, say so directly. Polite honesty > comfortable agreement. Mark problems with [RISK] or [WEAK] labels.
+5. REFERENCE PRIOR CONTEXT. If you know things about this business from memory or prior stages, use them. Don't re-ask questions you already have answers to.
+6. STAY CONCISE. Make every word count. Cut filler phrases. Dense, high-value output only.`;
+
   const general = GENERAL_SYSTEM_PROMPT
     .replace('{businessContext}', businessContext || 'Not yet established. User is in intake phase.')
     .replace('{ethicalStance}', ethicalStance || 'balanced')
     .replace('{activeModule}', activeModule || 'general');
 
-  const base = general + dateContext + styleRules;
+  const base = general + dateContext + styleRules + qualityDirective;
 
   if (modulePrompt) {
     return `${base}\n\n--- MODULE-SPECIFIC INSTRUCTIONS ---\n\n${modulePrompt}`;
