@@ -33,6 +33,10 @@ model User {
   credits          Int       @default(50)           // current credit balance
   creditsResetAt   DateTime?                        // monthly credit reset timestamp
 
+  // Stripe
+  stripeCustomerId     String?   @unique
+  stripeSubscriptionId String?
+
   // Relations
   accounts       Account[]
   sessions       Session[]
