@@ -80,7 +80,7 @@ async function loadUserMemories(userId: string): Promise<string> {
       OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
     },
     orderBy: { updatedAt: 'desc' },
-    take: 20,
+    take: 200, // Load ALL memories — 80+ data points across modules
   });
 
   if (memories.length === 0) return '';
@@ -96,7 +96,44 @@ async function loadUserMemories(userId: string): Promise<string> {
     ([cat, items]) => `[${cat}]\n${items.join('\n')}`
   );
 
-  return `\n\n--- AI MEMORY (learned from prior conversations) ---\n${parts.join('\n\n')}\n--- END MEMORY ---`;
+  return `\n\n--- AI MEMORY (learned from prior conversations) ---\nYou have accumulated knowledge about this user's business from previous stages. USE this information proactively — reference specific details, build on prior analyses, and demonstrate continuity. Do NOT re-ask questions you already have answers to.\n\n${parts.join('\n\n')}\n--- END MEMORY ---`;
+}
+
+// Load a condensed summary of prior stage conversations for cross-stage awareness
+async function loadPriorStageContext(sessionId: string, currentModule: string): Promise<string> {
+  const STAGE_ORDER = ['intake', 'value-diagnosis', 'business-logic', 'platform-power',
+    'strategy-macro', 'strategy-meso', 'strategy-micro'];
+  const currentIdx = STAGE_ORDER.indexOf(currentModule);
+  if (currentIdx <= 0) return ''; // No prior stages for intake
+
+  const priorStages = STAGE_ORDER.slice(0, currentIdx);
+
+  const messages = await prisma.message.findMany({
+    where: {
+      sessionId,
+      module: { in: priorStages },
+      role: 'assistant',
+    },
+    orderBy: { createdAt: 'asc' },
+    select: { module: true, content: true },
+  });
+
+  if (messages.length === 0) return '';
+
+  // Build condensed summaries per stage (last assistant message per stage = conclusion)
+  const stageSummaries: Record<string, string> = {};
+  for (const msg of messages) {
+    // Keep the LAST (most complete) assistant message per stage
+    stageSummaries[msg.module] = msg.content.slice(0, 2000);
+  }
+
+  const parts = Object.entries(stageSummaries).map(([stage, content]) => {
+    const label = stage.replace(/-/g, ' ').toUpperCase();
+    // Extract key conclusions (first 800 chars of last message)
+    return `[${label} — COMPLETED]\n${content.slice(0, 800)}${content.length > 800 ? '...' : ''}`;
+  });
+
+  return `\n\n--- PRIOR STAGE RESULTS (completed analyses) ---\nThe following stages have been completed. Build on these findings — do NOT repeat work already done. Reference specific conclusions and scores from prior stages.\n\n${parts.join('\n\n')}\n--- END PRIOR STAGES ---`;
 }
 
 export async function POST(req: NextRequest) {
@@ -151,10 +188,11 @@ export async function POST(req: NextRequest) {
       content: m.content.slice(0, 10000),
     }));
 
-    // Load AI memories and inject into system prompt
+    // Load AI memories + prior stage context for full cross-stage awareness
     const memoryContext = await loadUserMemories(session.user.id);
+    const priorStageContext = await loadPriorStageContext(body.sessionId || '', module);
     const modulePrompt = MODULE_PROMPTS[module] || '';
-    const systemPrompt = buildSystemPrompt(businessContext, ethicalStance, module, modulePrompt) + memoryContext;
+    const systemPrompt = buildSystemPrompt(businessContext, ethicalStance, module, modulePrompt) + memoryContext + priorStageContext;
     const enableSearch = SEARCH_MODULES.has(module);
 
     const geminiMessages = sanitizedMessages.map(m => ({
