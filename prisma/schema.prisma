@@ -112,24 +112,46 @@ model StrategySession {
   archived    Boolean @default(false)
 
   // Relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages Message[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages      Message[]
+  conversations Conversation[]
 
   @@index([userId])
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  sessionId String
-  role      String   // user, assistant, system
-  content   String
-  module    String   @default("general")
-  createdAt DateTime @default(now())
-  metadata  String?  // JSON for extra data
+  id             String   @id @default(cuid())
+  sessionId      String
+  conversationId String?  // Thread grouping (null = legacy/default)
+  role           String   // user, assistant, system
+  content        String
+  module         String   @default("general")
+  createdAt      DateTime @default(now())
+  metadata       String?  // JSON for extra data
 
-  session StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  session      StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  conversation Conversation?   @relation(fields: [conversationId], references: [id])
 
   @@index([sessionId])
+  @@index([conversationId])
+}
+
+// ============ CONVERSATIONS ============
+
+model Conversation {
+  id        String   @id @default(cuid())
+  sessionId String
+  title     String   @default("New Conversation")
+  module    String?  // Primary module context
+  pinned    Boolean  @default(false)
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session  StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([sessionId, updatedAt])
 }
 
 // ============ AI MEMORY ============
