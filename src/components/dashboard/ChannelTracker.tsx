@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import {
-  Globe, Mail, Instagram, Youtube, Twitter, Linkedin,
-  Plus, Users, DollarSign, BarChart2,
+  Globe, Mail, Plus, Users, DollarSign, BarChart2,
+  MessageCircle, Video, Hash, Share2,
 } from 'lucide-react';
 
 interface Channel {
@@ -23,11 +23,14 @@ interface ChannelTrackerProps {
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   website: <Globe className="w-5 h-5" />,
   email: <Mail className="w-5 h-5" />,
-  instagram: <Instagram className="w-5 h-5" />,
-  youtube: <Youtube className="w-5 h-5" />,
-  twitter: <Twitter className="w-5 h-5" />,
-  linkedin: <Linkedin className="w-5 h-5" />,
+  instagram: <Share2 className="w-5 h-5" />,
+  youtube: <Video className="w-5 h-5" />,
+  twitter: <MessageCircle className="w-5 h-5" />,
+  linkedin: <Hash className="w-5 h-5" />,
   tiktok: <BarChart2 className="w-5 h-5" />,
+  reddit: <MessageCircle className="w-5 h-5" />,
+  deviantart: <Share2 className="w-5 h-5" />,
+  fanvue: <Users className="w-5 h-5" />,
 };
 
 const PLATFORMS = ['Website', 'Email', 'Instagram', 'YouTube', 'Twitter', 'LinkedIn', 'TikTok', 'Other'];

@@ -149,7 +149,7 @@ export default function FinanceTracker({ entries, onAdd }: FinanceTrackerProps) 
                     contentStyle={{ background: '#1a1d2e', border: '1px solid #2e3348', borderRadius: '0.5rem', fontSize: '12px' }}
                     labelStyle={{ color: '#94a3b8' }}
                     labelFormatter={(v) => `Week of ${new Date(v).toLocaleDateString()}`}
-                    formatter={(value: number) => formatCurrency(value)}
+                    formatter={(value) => formatCurrency(Number(value))}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="#22c55e" fill="url(#fillRevenue)" strokeWidth={1.5} />
                   <Area type="monotone" dataKey="expenses" stroke="#ef4444" fill="url(#fillExpenses)" strokeWidth={1.5} />
