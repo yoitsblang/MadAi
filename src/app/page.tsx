@@ -103,10 +103,13 @@ export default function Dashboard() {
 
   async function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
-    if (confirm('Delete this project?')) {
-      await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
-      loadSessions();
-    }
+    const name = sessions.find(s => s.id === id)?.name || 'this project';
+    const confirmed = confirm(`Delete "${name}"?\n\nThis will permanently remove the project, all conversations, analyses, and action plans. This cannot be undone.`);
+    if (!confirmed) return;
+    const doubleConfirm = confirm(`Are you absolutely sure? Type OK to confirm permanent deletion of "${name}".`);
+    if (!doubleConfirm) return;
+    await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+    loadSessions();
   }
 
   if (status === 'loading' || loading) {
