@@ -150,7 +150,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-surface">
       {/* Top bar */}
-      <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-border glass-strong sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/20">
@@ -263,10 +263,10 @@ export default function Dashboard() {
                 return (
                   <div
                     key={s.id}
-                    onClick={() => router.push(`/session/${s.id}`)}
-                    className={`relative bg-surface-light border rounded-2xl p-4 sm:p-5 cursor-pointer
-                      hover:border-primary/40 hover:bg-surface-light/80 transition-all duration-200 group overflow-hidden
-                      ${isActive ? 'border-border' : 'border-border/50'}`}
+                    onClick={() => router.push(s.intakeComplete ? `/session/${s.id}/dashboard` : `/session/${s.id}`)}
+                    className={`relative glass glass-glow rounded-2xl p-4 sm:p-5 cursor-pointer
+                      hover:border-primary/40 transition-all duration-200 group overflow-hidden
+                      ${isActive ? '' : 'opacity-70'}`}
                   >
                     {/* Background glow for high-progress projects */}
                     {score >= 70 && (
@@ -438,10 +438,9 @@ export default function Dashboard() {
         </div>
 
         {/* Footer */}
-        <div className="mt-10 text-center border-t border-border pt-6">
-          <p className="text-xs text-text-muted/40 max-w-lg mx-auto">
-            Powered by proprietary strategic frameworks spanning business fundamentals,
-            platform economics, behavioral psychology, and direct response marketing.
+        <div className="mt-10 text-center border-t border-border/30 pt-6">
+          <p className="text-[10px] text-text-muted/30 max-w-lg mx-auto">
+            MadAi — Strategic Marketing Intelligence. Powered by Sterling AI.
           </p>
         </div>
       </main>
@@ -460,7 +459,7 @@ function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; l
 
 function StatCard({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="bg-surface-light border border-border rounded-xl p-3 sm:p-4">
+    <div className="glass glass-glow rounded-xl p-3 sm:p-4">
       <div className="flex items-center gap-2 mb-1">
         {icon}
         <span className="text-xs text-text-muted">{label}</span>
@@ -472,7 +471,7 @@ function StatCard({ label, value, icon, color }: { label: string; value: string;
 
 function QuickCard({ href, icon, label, sub, color, bg }: { href: string; icon: React.ReactNode; label: string; sub: string; color: string; bg: string }) {
   return (
-    <a href={href} className="bg-surface-light border border-border rounded-xl p-4 hover:border-primary/40 transition-colors group flex flex-col gap-2">
+    <a href={href} className="glass rounded-xl p-4 hover:border-primary/40 transition-colors group flex flex-col gap-2">
       <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}>
         {icon}
       </div>
