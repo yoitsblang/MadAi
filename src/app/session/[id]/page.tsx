@@ -13,6 +13,7 @@ import {
 import type { ModuleType, EthicalStance, ChatMessage } from '@/lib/types/business';
 import { MODULE_INFO } from '@/lib/types/business';
 import UpgradePrompt from '@/components/ui/UpgradePrompt';
+import HamburgerMenu from '@/components/ui/HamburgerMenu';
 
 const mobileModuleGroups = [
   { label: '•', modules: ['intake', 'value-diagnosis', 'business-logic'] as ModuleType[] },
@@ -685,6 +686,13 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                 {userCredits >= 999999 ? 'Unlimited' : userCredits}
               </div>
             )}
+            {/* Hamburger menu */}
+            <HamburgerMenu
+              sessionId={id}
+              activeModule={activeModule}
+              onModuleChange={handleModuleChange}
+              intakeComplete={session.intakeComplete}
+            />
           </div>
         </div>
 

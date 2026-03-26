@@ -33,7 +33,7 @@ const MODULE_GROUPS = [
   { label: 'Foundation', modules: ['intake', 'value-diagnosis', 'business-logic'] as ModuleType[] },
   { label: 'Analysis', modules: ['platform-power', 'market-research', 'psychology', 'ethics'] as ModuleType[] },
   { label: 'Strategy', modules: ['strategy-macro', 'strategy-meso', 'strategy-micro'] as ModuleType[] },
-  { label: 'Advanced', modules: ['timing', 'innovation', 'teaching', 'general'] as ModuleType[] },
+  { label: 'Tools', modules: ['timing', 'innovation', 'teaching', 'general'] as ModuleType[] },
 ];
 
 export default function Sidebar({ activeModule, onModuleChange, intakeComplete, sessionName }: SidebarProps) {
