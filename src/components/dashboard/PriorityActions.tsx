@@ -19,8 +19,8 @@ interface PriorityActionsProps {
 }
 
 const PRIORITY_CONFIG: Record<string, { label: string; className: string }> = {
-  high: { label: 'NOW', className: 'bg-accent-red/15 text-red-400 border-accent-red/30' },
-  medium: { label: 'SOON', className: 'bg-accent-amber/15 text-amber-400 border-accent-amber/30' },
+  high: { label: 'NOW', className: 'bg-red-600 text-white border-red-600/30' },
+  medium: { label: 'SOON', className: 'bg-accent-gold/20 text-accent-gold border-accent-gold/30' },
   low: { label: 'LATER', className: 'bg-accent-blue/15 text-blue-400 border-accent-blue/30' },
 };
 
@@ -58,7 +58,7 @@ export default function PriorityActions({ actions, onToggle, onAskSterling }: Pr
                   className="flex-shrink-0 text-text-muted hover:text-primary-light transition-colors"
                 >
                   {action.completed ? (
-                    <CheckCircle2 className="w-4.5 h-4.5 text-accent-green" />
+                    <CheckCircle2 className="w-4.5 h-4.5 text-primary" />
                   ) : (
                     <Circle className="w-4.5 h-4.5" />
                   )}

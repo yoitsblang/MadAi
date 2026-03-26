@@ -59,7 +59,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
       <nav className="flex-1 overflow-y-auto p-2">
         {MODULE_GROUPS.map(group => (
           <div key={group.label} className="mb-3">
-            <div className="text-[10px] font-semibold text-text-muted/60 uppercase tracking-wider px-3 py-1">
+            <div className="text-[10px] font-semibold text-accent-gold/60 uppercase tracking-wider px-3 py-1">
               {group.label}
             </div>
             {group.modules.map(module => {
@@ -74,7 +74,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
                   disabled={isLocked}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all text-sm
                     ${isActive
-                      ? 'bg-primary/15 text-primary-light border border-primary/20'
+                      ? 'bg-primary/10 text-primary-light border-l-2 border-primary'
                       : isLocked
                         ? 'text-text-muted/30 cursor-not-allowed'
                         : 'text-text-muted hover:bg-surface-light hover:text-text'
@@ -101,7 +101,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
       {/* Strategy Journey Progress */}
       {intakeComplete && (
         <div className="mx-3 mb-2 p-3 bg-surface-light/50 border border-border rounded-lg">
-          <div className="text-[10px] font-semibold text-text-muted/60 uppercase tracking-wider mb-2">
+          <div className="text-[10px] font-semibold text-accent-gold/60 uppercase tracking-wider mb-2">
             Strategy Journey
           </div>
           <div className="space-y-1.5">
@@ -114,7 +114,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
               const done = mod === 'intake' ? intakeComplete : activeModule === mod || MODULE_ORDER.indexOf(activeModule) > MODULE_ORDER.indexOf(mod);
               return (
                 <div key={mod} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full border ${done ? 'bg-accent-green border-accent-green' : 'border-border'}`} />
+                  <div className={`w-3 h-3 rounded-full border ${done ? 'bg-primary border-primary' : 'border-accent-gold/40'}`} />
                   <span className={`text-[10px] ${done ? 'text-text' : 'text-text-muted/40'}`}>{label}</span>
                 </div>
               );

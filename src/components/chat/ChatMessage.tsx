@@ -35,12 +35,12 @@ export default function ChatMessage({ role, content, module, timestamp, onApprov
       <div
         className={`max-w-[85%] rounded-2xl px-5 py-3.5 ${
           isUser
-            ? 'bg-primary text-white rounded-br-md'
+            ? 'bg-gradient-to-r from-red-700 to-red-600 text-white rounded-br-md'
             : 'bg-surface-light border border-border rounded-bl-md'
         }`}
       >
         {!isUser && module && module !== 'general' && (
-          <div className="text-[10px] text-primary-light/70 font-semibold mb-2 uppercase tracking-widest border-b border-border/40 pb-1.5">
+          <div className="text-[10px] text-accent-gold/70 font-semibold mb-2 uppercase tracking-widest border-b border-border/40 pb-1.5">
             {module.replace(/-/g, ' ')}
           </div>
         )}

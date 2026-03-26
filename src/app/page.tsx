@@ -44,14 +44,14 @@ function getSessionScore(s: SessionItem): number {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-accent-green';
-  if (score >= 50) return 'text-primary-light';
+  if (score >= 80) return 'text-accent-gold';
+  if (score >= 50) return 'text-primary';
   if (score >= 25) return 'text-yellow-400';
   return 'text-text-muted';
 }
 
 function getScoreRing(score: number): string {
-  if (score >= 80) return 'border-accent-green/40 bg-accent-green/5';
+  if (score >= 80) return 'border-accent-gold/40 bg-accent-gold/5';
   if (score >= 50) return 'border-primary/40 bg-primary/5';
   if (score >= 25) return 'border-yellow-500/30 bg-yellow-500/5';
   return 'border-border bg-surface';
@@ -124,12 +124,12 @@ export default function Dashboard() {
   }
 
   const featureCards = [
-    { Icon: Target, title: 'Any Business Type', desc: 'Lemonade stand to SaaS. Creator brand to consulting. No restrictions.', color: 'text-primary-light', bg: 'bg-primary/10' },
-    { Icon: Search, title: 'Live Research', desc: 'Real competitors, real trends, real market data. Not generic advice.', color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { Icon: Target, title: 'Any Business Type', desc: 'Lemonade stand to SaaS. Creator brand to consulting. No restrictions.', color: 'text-primary', bg: 'bg-primary/10' },
+    { Icon: Search, title: 'Live Research', desc: 'Real competitors, real trends, real market data. Not generic advice.', color: 'text-accent-gold', bg: 'bg-accent-gold/10' },
     { Icon: Scale, title: 'Ethical Intelligence', desc: 'Maximize profit through genuine value, not predatory extraction.', color: 'text-accent-green', bg: 'bg-accent-green/10' },
     { Icon: Map, title: 'Macro to Micro', desc: 'From business model design down to exact Instagram captions.', color: 'text-purple-400', bg: 'bg-purple-500/10' },
-    { Icon: Shield, title: 'Platform Sovereignty', desc: 'Know when you\'re building a real business vs feeding someone else\'s.', color: 'text-orange-400', bg: 'bg-orange-500/10' },
-    { Icon: FlaskConical, title: 'Innovation Lab', desc: 'Cross-industry tactics. Hybrid strategies. Novel approaches.', color: 'text-pink-400', bg: 'bg-pink-500/10' },
+    { Icon: Shield, title: 'Platform Sovereignty', desc: 'Know when you\'re building a real business vs feeding someone else\'s.', color: 'text-primary', bg: 'bg-primary/10' },
+    { Icon: FlaskConical, title: 'Innovation Lab', desc: 'Cross-industry tactics. Hybrid strategies. Novel approaches.', color: 'text-accent-gold', bg: 'bg-accent-gold/10' },
   ];
 
   // Sort sessions: in-progress first, then by last updated
@@ -148,7 +148,7 @@ export default function Dashboard() {
   const activeProjects = sessions.filter(s => s.intakeComplete).length;
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface bg-grid">
       {/* Top bar */}
       <header className="border-b border-border glass-strong sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -198,7 +198,7 @@ export default function Dashboard() {
             <div className="flex gap-2 flex-shrink-0">
               <button
                 onClick={handleNew}
-                className="bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors shadow-lg shadow-primary/20 flex items-center gap-2"
+                className="bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors shadow-lg shadow-primary/20 flex items-center gap-2"
               >
                 <Zap className="w-4 h-4" />
                 New Analysis
@@ -302,7 +302,7 @@ export default function Dashboard() {
                           <div
                             key={stage.key}
                             className={`flex-1 h-1.5 rounded-full transition-all ${
-                              isDone ? 'bg-accent-green' :
+                              isDone ? 'bg-primary' :
                               isCurrent ? 'bg-primary animate-pulse' :
                               'bg-surface'
                             }`}
@@ -321,8 +321,8 @@ export default function Dashboard() {
                           </span>
                         ) : nextStage ? (
                           <span className="flex items-center gap-1 text-[10px] text-text-muted/60">
-                            <ChevronRight className="w-3 h-3 text-primary-light" />
-                            <span className="text-primary-light/70">Next: {nextStage.label}</span>
+                            <ChevronRight className="w-3 h-3 text-primary" />
+                            <span className="text-primary/70">Next: {nextStage.label}</span>
                           </span>
                         ) : (
                           <span className="flex items-center gap-1 text-[10px] text-accent-green/70">
@@ -385,7 +385,7 @@ export default function Dashboard() {
         <div className="mb-10">
           <h3 className="text-base font-semibold text-text mb-4">Quick Access</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <QuickCard href="/plans" icon={<ClipboardList className="w-5 h-5" />} label="Action Plans" sub="Track your strategy" color="text-primary-light" bg="bg-primary/10" />
+            <QuickCard href="/plans" icon={<ClipboardList className="w-5 h-5" />} label="Action Plans" sub="Track your strategy" color="text-primary" bg="bg-primary/10" />
             <QuickCard href="/library" icon={<BookOpen className="w-5 h-5" />} label="Strategy Library" sub="Frameworks & principles" color="text-purple-400" bg="bg-purple-500/10" />
             <QuickCard href="/templates" icon={<FolderOpen className="w-5 h-5" />} label="Templates" sub="Jumpstart a strategy" color="text-blue-400" bg="bg-blue-500/10" />
             <QuickCard href="/calendar" icon={<Calendar className="w-5 h-5" />} label="Calendar" sub="Plan your timeline" color="text-accent-green" bg="bg-accent-green/10" />
@@ -412,7 +412,7 @@ export default function Dashboard() {
 
         {/* Strategy journey explainer */}
         {sessions.length === 0 && (
-          <div className="bg-gradient-to-r from-primary/5 via-accent-green/5 to-transparent border border-border rounded-2xl p-5 sm:p-6 mb-8">
+          <div className="bg-gradient-to-r from-primary/5 via-accent-gold/5 to-transparent border border-border rounded-2xl p-5 sm:p-6 mb-8">
             <h3 className="text-sm font-semibold text-text mb-4 flex items-center gap-2">
               <Map className="w-4 h-4 text-primary-light" />
               The Strategy Journey
@@ -459,7 +459,7 @@ function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; l
 
 function StatCard({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="glass glass-glow rounded-xl p-3 sm:p-4">
+    <div className="glass glass-glow rounded-xl p-3 sm:p-4 border-t-2 border-primary/30">
       <div className="flex items-center gap-2 mb-1">
         {icon}
         <span className="text-xs text-text-muted">{label}</span>

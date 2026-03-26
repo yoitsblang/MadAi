@@ -95,7 +95,7 @@ function PricingContent() {
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-2">
-                  {key === 'enterprise' ? <Crown className="w-4 h-4 text-accent-amber" /> : <Zap className="w-4 h-4 text-primary-light" />}
+                  {key === 'enterprise' ? <Crown className="w-4 h-4 text-accent-gold" /> : <Zap className="w-4 h-4 text-primary-light" />}
                   <h3 className="text-sm font-bold text-text">{config.label}</h3>
                 </div>
                 <div className="mb-3">
@@ -152,7 +152,7 @@ function PricingContent() {
             <div key={pack.key} className="bg-surface-light border border-border rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-accent-amber" />
+                  <Sparkles className="w-4 h-4 text-accent-gold" />
                   <span className="text-sm font-bold text-text">{pack.credits} Credits</span>
                 </div>
                 {pack.savings && (

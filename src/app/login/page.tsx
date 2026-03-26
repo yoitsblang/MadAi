@@ -54,9 +54,9 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm accent-line-top">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-4">
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">🧠</span>
           </div>
           <h1 className="text-2xl font-bold text-text">Welcome back</h1>

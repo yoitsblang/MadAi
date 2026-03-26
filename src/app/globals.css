@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
-  --color-primary-light: #818cf8;
-  --color-surface: #0f1117;
-  --color-surface-light: #1a1d2e;
-  --color-surface-lighter: #252940;
-  --color-border: #2e3348;
-  --color-text: #e2e8f0;
-  --color-text-muted: #94a3b8;
+  /* Mad Men meets Futuristic — Red / Black / Gold / White */
+  --color-primary: #dc2626;
+  --color-primary-dark: #b91c1c;
+  --color-primary-light: #f87171;
+  --color-surface: #09090b;
+  --color-surface-light: #18181b;
+  --color-surface-lighter: #27272a;
+  --color-border: #3f3f46;
+  --color-text: #fafafa;
+  --color-text-muted: #a1a1aa;
+  --color-accent-gold: #d4a843;
   --color-accent-green: #22c55e;
   --color-accent-amber: #f59e0b;
   --color-accent-red: #ef4444;
@@ -19,39 +21,20 @@
 body {
   background-color: var(--color-surface);
   color: var(--color-text);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-surface-lighter);
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
 
-/* Markdown content styling */
-.prose h1, .prose h2, .prose h3 {
-  color: var(--color-text);
-  font-weight: 700;
-}
-.prose p {
-  color: var(--color-text-muted);
-  line-height: 1.7;
-}
-.prose strong {
-  color: var(--color-text);
-}
-.prose ul, .prose ol {
-  color: var(--color-text-muted);
-}
+/* Markdown content */
+.prose h1, .prose h2, .prose h3 { color: var(--color-text); font-weight: 700; }
+.prose p { color: var(--color-text-muted); line-height: 1.7; }
+.prose strong { color: var(--color-text); }
+.prose ul, .prose ol { color: var(--color-text-muted); }
 .prose code {
   background: var(--color-surface-lighter);
   padding: 0.15em 0.4em;
@@ -59,52 +42,90 @@ body {
   font-size: 0.9em;
 }
 
-/* Chat animations */
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
 
 @keyframes pulse-dot {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
   40% { transform: scale(1); opacity: 1; }
 }
-.typing-dot {
-  animation: pulse-dot 1.4s infinite ease-in-out;
-}
+.typing-dot { animation: pulse-dot 1.4s infinite ease-in-out; }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-/* Glassmorphism system */
-.glass {
-  background: rgba(26, 29, 46, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(46, 51, 72, 0.5);
-}
-.glass-strong {
-  background: rgba(26, 29, 46, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(46, 51, 72, 0.7);
-}
-.glass-subtle {
-  background: rgba(26, 29, 46, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(46, 51, 72, 0.3);
-}
-.glass-glow {
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.08), 0 8px 32px rgba(0, 0, 0, 0.3);
-}
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-slide-up {
-  animation: slideUp 0.4s ease-out forwards;
+.animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.2); }
+}
+
+/* Glassmorphism — tuned for zinc/black */
+.glass {
+  background: rgba(24, 24, 27, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(63, 63, 70, 0.5);
+  border-radius: 1rem;
+}
+.glass-strong {
+  background: rgba(9, 9, 11, 0.9);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(63, 63, 70, 0.6);
+  border-radius: 1rem;
+}
+.glass-subtle {
+  background: rgba(24, 24, 27, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(63, 63, 70, 0.3);
+  border-radius: 0.75rem;
+}
+.glass-glow {
+  box-shadow: 0 0 30px rgba(220, 38, 38, 0.06), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Premium accents */
+.accent-line {
+  position: relative;
+}
+.accent-line::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #dc2626, transparent);
+}
+.accent-line-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #dc2626, #d4a843, #dc2626);
+  border-radius: 2px;
+}
+.card-premium {
+  border: 1px solid rgba(212, 168, 67, 0.2);
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.05);
+}
+
+/* Subtle grid pattern for depth */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(63, 63, 70, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 63, 70, 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
 }

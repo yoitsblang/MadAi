@@ -20,8 +20,8 @@ interface HealthScoresProps {
 function getScoreColor(value: number): string {
   if (value === 0) return '#4b5563';
   if (value >= 7) return '#22c55e';
-  if (value >= 4) return '#f59e0b';
-  return '#ef4444';
+  if (value >= 4) return '#d4a843';
+  return '#dc2626';
 }
 
 function ScoreRing({ score, sessionId }: { score: Score; sessionId: string }) {

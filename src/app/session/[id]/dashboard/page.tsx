@@ -124,7 +124,7 @@ export default function DashboardPage() {
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
         {/* Greeting + Focus */}
-        <div className="glass glass-glow rounded-2xl p-6 animate-slide-up">
+        <div className="glass glass-glow rounded-2xl p-6 animate-slide-up accent-line-top">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs text-text-muted/60">{today}</p>
@@ -139,10 +139,10 @@ export default function DashboardPage() {
               )}
             </div>
             <div className="text-right flex-shrink-0 ml-4">
-              <div className={`text-2xl font-bold ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-red-400' : 'text-text-muted/30'}`}>
+              <div className={`text-2xl font-bold ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-primary' : 'text-text-muted/30'}`}>
                 {overallHealth > 0 ? overallHealth.toFixed(1) : '--'}
               </div>
-              <p className={`text-[10px] font-medium uppercase tracking-widest ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-red-400' : 'text-text-muted/30'}`}>
+              <p className={`text-[10px] font-medium uppercase tracking-widest ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-primary' : 'text-text-muted/30'}`}>
                 {healthLabel}
               </p>
               <p className="text-[9px] text-text-muted/40 mt-0.5">Overall Health</p>
@@ -157,13 +157,13 @@ export default function DashboardPage() {
             <span className="text-lg font-bold text-primary-light">{pipeline.percentage}%</span>
           </div>
           <div className="w-full h-1.5 bg-surface rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-gradient-to-r from-accent-green via-primary to-primary-light rounded-full transition-all duration-700" style={{ width: `${pipeline.percentage}%` }} />
+            <div className="h-full bg-gradient-to-r from-primary via-red-500 to-accent-gold rounded-full transition-all duration-700" style={{ width: `${pipeline.percentage}%` }} />
           </div>
           <div className="flex gap-1.5">
             {pipeline.stages.map(stage => {
               const done = pipeline.completed.includes(stage);
               return (
-                <a key={stage} href={`/session/${id}`} className={`flex-1 text-center rounded-lg py-2 text-[10px] font-medium transition-all ${done ? 'glass text-accent-green' : 'bg-surface/50 text-text-muted/20'}`}>
+                <a key={stage} href={`/session/${id}`} className={`flex-1 text-center rounded-lg py-2 text-[10px] font-medium transition-all ${done ? 'glass text-primary' : 'bg-surface/50 text-text-muted/20'}`}>
                   {STAGE_LABELS[stage]}
                 </a>
               );
@@ -185,7 +185,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Snapshot */}
           <div className="glass glass-glow rounded-2xl p-5">
-            <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 flex items-center gap-2"><Target className="w-4 h-4 text-primary-light" /> Business Snapshot</h3>
+            <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 flex items-center gap-2"><Target className="w-4 h-4 text-accent-gold" /> Business Snapshot</h3>
             <div className="grid grid-cols-2 gap-x-6 gap-y-3">
               <Field label="Offering" value={metrics.offering} />
               <Field label="Audience" value={metrics.targetAudience} />
@@ -228,7 +228,7 @@ export default function DashboardPage() {
         {/* Stage Details (expandable) */}
         {Object.keys(stageFindings).length > 0 && (
           <div className="glass rounded-2xl overflow-hidden">
-            <h3 className="text-xs font-bold text-text uppercase tracking-widest px-5 pt-5 pb-2 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-primary-light" /> Stage Analysis</h3>
+            <h3 className="text-xs font-bold text-text uppercase tracking-widest px-5 pt-5 pb-2 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-accent-gold" /> Stage Analysis</h3>
             {Object.entries(stageFindings).map(([stage, findings]) => findings.length > 0 && (
               <div key={stage} className="border-t border-border/20">
                 <button onClick={() => setExpandedStage(expandedStage === stage ? null : stage)} className="w-full px-5 py-3 flex items-center justify-between hover:bg-surface/30 transition-colors">
@@ -248,7 +248,7 @@ export default function DashboardPage() {
         {/* Goals */}
         {(has(metrics.goal30d) || has(metrics.goal6m) || has(metrics.goal1y)) && (
           <div className="glass glass-glow rounded-2xl p-5">
-            <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary-light" /> Goals & Trajectory</h3>
+            <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-accent-gold" /> Goals & Trajectory</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {has(metrics.goal30d) && <GoalCard tf="30 Days" goal={metrics.goal30d} c="text-accent-green border-accent-green/20" />}
               {has(metrics.goal6m) && <GoalCard tf="6 Months" goal={metrics.goal6m} c="text-accent-blue border-accent-blue/20" />}

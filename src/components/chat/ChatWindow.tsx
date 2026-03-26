@@ -136,8 +136,8 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 py-16">
-      <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6">
-        <Brain className="w-8 h-8 text-primary-light" />
+      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+        <Brain className="w-8 h-8 text-primary" />
       </div>
       <h2 className="text-2xl font-bold text-text mb-2">{w.title}</h2>
       <p className="text-text-muted max-w-md mb-8">{w.subtitle}</p>
