@@ -59,8 +59,8 @@ export default function ChatWindow({ messages, onSend, isLoading, module, placeh
 function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromptClick: (msg: string) => void }) {
   const welcomes: Record<string, { title: string; subtitle: string; prompts: string[] }> = {
     'intake': {
-      title: 'Welcome to MadAi',
-      subtitle: 'Tell me about your business, idea, or what you\'re working on. I\'ll ask the right questions to build a complete picture — then we\'ll build your strategy.',
+      title: 'Hey. I\'m Sterling.',
+      subtitle: 'Tell me what you\'re working on. I\'ll ask the hard questions, build the full picture, and then we\'ll make a strategy that actually holds up.',
       prompts: [
         'I have an idea but I\'m not sure where to start',
         'I sell handmade candles on Etsy and want to grow',
@@ -126,8 +126,8 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
       prompts: ['Explain why this strategy works', 'What principle is behind this recommendation?', 'Teach me about pricing psychology'],
     },
     'general': {
-      title: 'Strategic Intelligence',
-      subtitle: 'Ask me anything about your business strategy, marketing, positioning, or execution. I have full context on your business.',
+      title: 'Sterling here.',
+      subtitle: 'I have full context on your business. Ask me anything about strategy, marketing, positioning, or execution. No fluff, just answers.',
       prompts: ['Help me figure out my next move', 'What should I prioritize this week?', 'Review my current approach', 'What am I missing?'],
     },
   };

@@ -77,3 +77,34 @@ body {
 }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Glassmorphism system */
+.glass {
+  background: rgba(26, 29, 46, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(46, 51, 72, 0.5);
+}
+.glass-strong {
+  background: rgba(26, 29, 46, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(46, 51, 72, 0.7);
+}
+.glass-subtle {
+  background: rgba(26, 29, 46, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(46, 51, 72, 0.3);
+}
+.glass-glow {
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.08), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}

@@ -14,7 +14,11 @@ export interface TierConfig {
     calendar: boolean;
     templates: boolean;
     priorityAi: boolean;
-    maxSessions: number; // -1 = unlimited
+    aiChat: boolean;        // Can interact with Sterling after pipeline
+    financeTracker: boolean; // Revenue/spend tracking
+    channelTracker: boolean; // Platform analytics
+    reasoningAi: boolean;   // Gemini 3.1 Pro deep reasoning
+    maxSessions: number;    // -1 = unlimited
   };
   description: string;
 }
@@ -30,45 +34,59 @@ export const TIER_CONFIG: Record<SubscriptionTier, TierConfig> = {
   free: {
     label: 'Free',
     price: 0,
-    creditsPerMonth: 50,
-    modules: ['intake', 'value-diagnosis', 'business-logic', 'general'],
-    features: { export: false, calendar: false, templates: false, priorityAi: false, maxSessions: 2 },
-    description: 'Get started with core business analysis',
+    creditsPerMonth: 0, // No credits — free gets 1 pipeline walkthrough only
+    modules: ALL_MODULES, // Can access all stages for the walkthrough
+    features: {
+      export: false, calendar: false, templates: false, priorityAi: false,
+      aiChat: false, financeTracker: false, channelTracker: false, reasoningAi: false,
+      maxSessions: 1,
+    },
+    description: 'One full strategy pipeline. Sterling plans it, you execute it.',
   },
   starter: {
     label: 'Starter',
-    price: 19,
-    creditsPerMonth: 200,
-    modules: [
-      'intake', 'value-diagnosis', 'business-logic', 'platform-power',
-      'strategy-macro', 'strategy-meso', 'strategy-micro',
-      'ethics', 'psychology', 'general',
-    ],
-    features: { export: false, calendar: false, templates: true, priorityAi: false, maxSessions: 5 },
-    description: 'Full strategic pipeline with ethics & psychology',
+    price: 14,
+    creditsPerMonth: 500,
+    modules: ALL_MODULES,
+    features: {
+      export: true, calendar: false, templates: true, priorityAi: false,
+      aiChat: true, financeTracker: false, channelTracker: false, reasoningAi: false,
+      maxSessions: 5,
+    },
+    description: 'Talk to Sterling, iterate on strategy, export briefs',
   },
   pro: {
     label: 'Pro',
-    price: 49,
-    creditsPerMonth: 500,
+    price: 39,
+    creditsPerMonth: 2000,
     modules: ALL_MODULES,
-    features: { export: true, calendar: false, templates: true, priorityAi: true, maxSessions: -1 },
-    description: 'All modules including live research & innovation',
+    features: {
+      export: true, calendar: true, templates: true, priorityAi: true,
+      aiChat: true, financeTracker: true, channelTracker: true, reasoningAi: true,
+      maxSessions: -1,
+    },
+    description: 'Deep reasoning AI, finance tracking, unlimited sessions',
   },
   enterprise: {
     label: 'Enterprise',
-    price: 99,
+    price: 79,
     creditsPerMonth: -1, // unlimited
     modules: ALL_MODULES,
-    features: { export: true, calendar: true, templates: true, priorityAi: true, maxSessions: -1 },
-    description: 'Unlimited everything with full platform access',
+    features: {
+      export: true, calendar: true, templates: true, priorityAi: true,
+      aiChat: true, financeTracker: true, channelTracker: true, reasoningAi: true,
+      maxSessions: -1,
+    },
+    description: 'Unlimited Sterling access, all features, priority support',
   },
 };
 
 // Credit costs per action type
-// Pricing rationale (Claude API ~$0.03/msg avg):
-//   1 credit = ~$0.04 cost → Free (50 cred) = ~$2 cost, Starter (200) = ~$8 cost on $19 price
-//   Margin: Free = loss leader, Starter = 58% margin, Pro = 60% margin, Enterprise = 40%+ margin
+// Pricing rationale (Gemini API: flash ~$0.01/msg, pro ~$0.05/msg):
+//   Free = 1 pipeline walkthrough, no ongoing AI → $0 cost, pure lead gen
+//   Starter ($14/mo, 500 credits): ~$5 API cost → 64% margin
+//   Pro ($39/mo, 2000 credits): ~$20 API cost (includes reasoning model) → 49% margin
+//   Enterprise ($79/mo, unlimited): heavy users ~$40-60 → 25-50% margin
 export const CREDIT_COSTS = {
   chat: 1,           // Simple chat message
   analyze: 2,        // Analysis with structured output

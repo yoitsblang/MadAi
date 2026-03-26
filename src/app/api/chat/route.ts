@@ -12,26 +12,12 @@ import { RESEARCH_PROMPT, TIMING_PROMPT } from '@/lib/ai/prompts/research';
 import { INNOVATION_PROMPT, TEACHING_PROMPT } from '@/lib/ai/prompts/innovation';
 import { buildSystemPrompt } from '@/lib/ai/prompts/general';
 
+import { getModelForContext } from '@/lib/ai/config';
+
 if (!process.env.GEMINI_API_KEY) {
   throw new Error('GEMINI_API_KEY is not set');
 }
 const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-// Use better model for strategic analysis, lite for simple chat
-const MODEL_STANDARD = 'gemini-2.5-flash';
-const MODEL_LITE = 'gemini-2.0-flash-lite';
-const STRATEGIC_MODULES = new Set([
-  'intake', 'value-diagnosis', 'business-logic', 'platform-power',
-  'strategy-macro', 'strategy-meso', 'strategy-micro',
-]);
-function getModel(module: string, tier: string): string {
-  // Pro/Enterprise always get the best model
-  if (tier === 'pro' || tier === 'enterprise') return MODEL_STANDARD;
-  // Strategic modules use standard model for everyone (quality matters here)
-  if (STRATEGIC_MODULES.has(module)) return MODEL_STANDARD;
-  // General chat, teaching, etc. use lite model
-  return MODEL_LITE;
-}
 
 const MODULE_PROMPTS: Record<string, string> = {
   'intake': INTAKE_SYSTEM_PROMPT,
@@ -217,7 +203,7 @@ export async function POST(req: NextRequest) {
 
     const tools = enableSearch ? [{ googleSearch: {} }] : undefined;
 
-    const selectedModel = getModel(module, creditResult.tier);
+    const selectedModel = getModelForContext(module, creditResult.tier);
     const response = await genai.models.generateContent({
       model: selectedModel,
       contents: geminiMessages,
