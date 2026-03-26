@@ -130,10 +130,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const lines = content.split('\n');
     for (const line of lines) {
       const trimmed = line.trim();
-      if (/^\d+\.\s*\*?\*?(Fix|Start|Stop|Create|Move|Build|Launch|Set up|Define|Transition)/i.test(trimmed)) {
+      if (/^\d+\.\s*\*?\*?(Fix|Start|Stop|Create|Move|Build|Launch|Set up|Define|Transition|Implement|Migrate)/i.test(trimmed)) {
         const clean = trimmed.replace(/\*\*/g, '').replace(/^\d+\.\s*/, '').slice(0, 200);
-        const priority = /immediate|urgent|first|critical|non-negotiable/i.test(clean) ? 'high' :
-          /strategy|long[\s-]*term|consider/i.test(clean) ? 'low' : 'medium';
+        const priority = /immediate|urgent|first|critical|non-negotiable|today|this week|stop|fix.*delivery/i.test(clean) ? 'high' :
+          /strategy|long[\s-]*term|consider|eventually|explore|research/i.test(clean) ? 'low' : 'medium';
         actionItems.push({ text: clean, priority, stage });
       }
     }
@@ -162,6 +162,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
   }
+
+  // Ensure first 2 items are high priority (AI lists most important first)
+  if (actionItems.length > 0) actionItems[0].priority = 'high';
+  if (actionItems.length > 1) actionItems[1].priority = 'high';
 
   const planStats = plans.length > 0 ? {
     totalItems: plans[0].items.length,

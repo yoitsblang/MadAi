@@ -80,13 +80,28 @@ export default function DashboardPage() {
     description: `From ${STAGE_LABELS[item.stage] || item.stage} analysis. ${item.priority === 'high' ? 'This is critical — do it this week.' : item.priority === 'medium' ? 'Important but not urgent. Schedule it.' : 'Lower priority. Do when you have bandwidth.'}`,
   }));
 
-  // Build health scores
+  // Build health scores — cap at 10
+  function parseScore(val: string): number {
+    const n = parseInt(val) || 0;
+    if (n > 10) return Math.min(Math.round(n / 10), 10); // 45 → 5, 100 → 10
+    return Math.min(n, 10);
+  }
   const scores = [
-    { label: 'Value Clarity', value: parseInt(metrics.valueClarityScore) || 0, maxValue: 10, color: '#22c55e', module: 'value-diagnosis' },
-    { label: 'Business Health', value: parseInt(metrics.businessHealthScore) || 0, maxValue: 10, color: '#3b82f6', module: 'business-logic' },
-    { label: 'Sovereignty', value: parseInt(metrics.sovereigntyScore) || 0, maxValue: 10, color: '#f59e0b', module: 'platform-power' },
-    { label: 'Moat', value: parseInt(metrics.moatScore) || 0, maxValue: 10, color: '#818cf8', module: 'strategy-macro' },
+    { label: 'Value Clarity', value: parseScore(metrics.valueClarityScore), maxValue: 10, color: '#22c55e', module: 'value-diagnosis' },
+    { label: 'Business Health', value: parseScore(metrics.businessHealthScore), maxValue: 10, color: '#3b82f6', module: 'business-logic' },
+    { label: 'Sovereignty', value: parseScore(metrics.sovereigntyScore), maxValue: 10, color: '#f59e0b', module: 'platform-power' },
+    { label: 'Moat', value: parseScore(metrics.moatScore), maxValue: 10, color: '#818cf8', module: 'strategy-macro' },
   ];
+
+  // Time-aware greeting
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // Focus indicator — find the #1 priority
+  const topAction = actions.find(a => !a.completed);
+  const overallHealth = scores.reduce((sum, s) => sum + s.value, 0) / scores.filter(s => s.value > 0).length || 0;
+  const healthLabel = overallHealth >= 7 ? 'Strong' : overallHealth >= 4 ? 'Needs Work' : overallHealth > 0 ? 'Critical' : 'Not Scored';
 
   return (
     <div className="min-h-screen bg-surface">
@@ -108,6 +123,33 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+        {/* Greeting + Focus */}
+        <div className="glass glass-glow rounded-2xl p-6 animate-slide-up">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-text-muted/60">{today}</p>
+              <h2 className="text-lg font-bold text-text mt-0.5">{greeting}.</h2>
+              {topAction && (
+                <p className="text-sm text-text-muted mt-2 max-w-xl leading-relaxed">
+                  Your top priority right now: <span className="text-primary-light font-medium">{topAction.text.length > 80 ? topAction.text.slice(0, 80) + '...' : topAction.text}</span>
+                </p>
+              )}
+              {has(metrics.primaryBottleneck) && (
+                <p className="text-xs text-red-400/80 mt-1.5">Bottleneck: {metrics.primaryBottleneck}</p>
+              )}
+            </div>
+            <div className="text-right flex-shrink-0 ml-4">
+              <div className={`text-2xl font-bold ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-red-400' : 'text-text-muted/30'}`}>
+                {overallHealth > 0 ? overallHealth.toFixed(1) : '--'}
+              </div>
+              <p className={`text-[10px] font-medium uppercase tracking-widest ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-red-400' : 'text-text-muted/30'}`}>
+                {healthLabel}
+              </p>
+              <p className="text-[9px] text-text-muted/40 mt-0.5">Overall Health</p>
+            </div>
+          </div>
+        </div>
+
         {/* Pipeline */}
         <div className="glass glass-glow rounded-2xl p-5">
           <div className="flex items-center justify-between mb-3">
