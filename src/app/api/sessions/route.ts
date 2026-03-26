@@ -27,6 +27,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Enforce session limits based on subscription tier
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { subscriptionTier: true, role: true, email: true },
+  });
+  if (user && user.role !== 'admin' && user.email !== 'bslang97@gmail.com') {
+    const { canCreateSession, getSessionLimitMessage } = await import('@/lib/gating');
+    const existingCount = await prisma.strategySession.count({
+      where: { userId: session.user.id, archived: false },
+    });
+    if (!canCreateSession(user.subscriptionTier, existingCount)) {
+      return NextResponse.json({
+        error: 'session_limit',
+        message: getSessionLimitMessage(user.subscriptionTier),
+      }, { status: 403 });
+    }
+  }
+
   const body = await req.json().catch(() => ({}));
 
   const newSession = await prisma.strategySession.create({
