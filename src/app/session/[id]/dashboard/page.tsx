@@ -39,12 +39,24 @@ export default function DashboardPage() {
   const [logEntry, setLogEntry] = useState('');
   const [logs, setLogs] = useState<Array<{ text: string; date: string }>>([]);
   const [revCalc, setRevCalc] = useState({ price: '', customers: '', frequency: '1' });
+  const [experiments, setExperiments] = useState<Array<{ hypothesis: string; status: 'testing' | 'won' | 'lost'; result?: string }>>([]);
+  const [newExperiment, setNewExperiment] = useState('');
+  const [okrs, setOkrs] = useState<Array<{ objective: string; keyResults: Array<{ text: string; progress: number }> }>>([]);
+  const [newOkr, setNewOkr] = useState('');
+  const [milestones, setMilestones] = useState<Array<{ text: string; target: string; status: 'on-track' | 'at-risk' | 'behind' }>>([]);
+  const [newMilestone, setNewMilestone] = useState('');
 
   useEffect(() => {
     fetch(`/api/sessions/${id}/dashboard`).then(r => r.ok ? r.json() : null).then(d => { setData(d); setLoading(false); if (d) setNewName(d.session.name); }).catch(() => router.push('/'));
-    // Load logs from localStorage
+    // Load local state
     const saved = localStorage.getItem(`logs-${id}`);
     if (saved) setLogs(JSON.parse(saved));
+    const savedExp = localStorage.getItem(`experiments-${id}`);
+    if (savedExp) setExperiments(JSON.parse(savedExp));
+    const savedOkr = localStorage.getItem(`okrs-${id}`);
+    if (savedOkr) setOkrs(JSON.parse(savedOkr));
+    const savedMs = localStorage.getItem(`milestones-${id}`);
+    if (savedMs) setMilestones(JSON.parse(savedMs));
   }, [id, router]);
 
   const toggleAction = useCallback((idx: number) => {
@@ -66,6 +78,54 @@ export default function DashboardPage() {
     localStorage.setItem(`logs-${id}`, JSON.stringify(updated));
     setLogEntry('');
   }, [logEntry, logs, id]);
+
+  const addExperiment = useCallback(() => {
+    if (!newExperiment.trim()) return;
+    const updated = [...experiments, { hypothesis: newExperiment.trim(), status: 'testing' as const }];
+    setExperiments(updated);
+    localStorage.setItem(`experiments-${id}`, JSON.stringify(updated));
+    setNewExperiment('');
+  }, [newExperiment, experiments, id]);
+
+  const updateExperiment = useCallback((idx: number, status: 'won' | 'lost') => {
+    const updated = experiments.map((e, i) => i === idx ? { ...e, status } : e);
+    setExperiments(updated);
+    localStorage.setItem(`experiments-${id}`, JSON.stringify(updated));
+  }, [experiments, id]);
+
+  const addMilestone = useCallback(() => {
+    if (!newMilestone.trim()) return;
+    const updated = [...milestones, { text: newMilestone.trim(), target: 'This month', status: 'on-track' as const }];
+    setMilestones(updated);
+    localStorage.setItem(`milestones-${id}`, JSON.stringify(updated));
+    setNewMilestone('');
+  }, [newMilestone, milestones, id]);
+
+  const cycleMilestoneStatus = useCallback((idx: number) => {
+    const order: Array<'on-track' | 'at-risk' | 'behind'> = ['on-track', 'at-risk', 'behind'];
+    const updated = milestones.map((m, i) => {
+      if (i !== idx) return m;
+      const next = order[(order.indexOf(m.status) + 1) % 3];
+      return { ...m, status: next };
+    });
+    setMilestones(updated);
+    localStorage.setItem(`milestones-${id}`, JSON.stringify(updated));
+  }, [milestones, id]);
+
+  // Streak calculation from logs
+  const streakDays = (() => {
+    if (logs.length === 0) return 0;
+    let streak = 0;
+    const today = new Date().toDateString();
+    const dates = [...new Set(logs.map(l => new Date(l.date).toDateString()))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    for (let i = 0; i < dates.length; i++) {
+      const expected = new Date();
+      expected.setDate(expected.getDate() - i);
+      if (dates[i] === expected.toDateString()) streak++;
+      else break;
+    }
+    return streak;
+  })();
 
   if (loading || !data) return (
     <div className="min-h-screen bg-surface flex items-center justify-center">
@@ -335,6 +395,72 @@ export default function DashboardPage() {
             </div>
           </Section>
         )}
+
+        {/* Momentum Streak */}
+        {logs.length > 0 && (
+          <div className="glass rounded-xl p-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`text-lg font-bold ${streakDays >= 7 ? 'text-accent-green' : streakDays >= 3 ? 'text-accent-gold' : 'text-primary'}`}>{streakDays}</div>
+              <div>
+                <p className="text-[11px] text-text/80">day streak</p>
+                <p className="text-[9px] text-text-muted/40">{streakDays >= 7 ? 'On fire. Keep it going.' : streakDays >= 3 ? 'Building momentum.' : 'Log daily to build your streak.'}</p>
+              </div>
+            </div>
+            <div className="flex gap-0.5">
+              {[...Array(7)].map((_, i) => {
+                const d = new Date(); d.setDate(d.getDate() - (6 - i));
+                const hasLog = logs.some(l => new Date(l.date).toDateString() === d.toDateString());
+                return <div key={i} className={`w-2 h-2 rounded-sm ${hasLog ? 'bg-primary' : 'bg-surface-light'}`} title={d.toLocaleDateString()} />;
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Experiment Tracker */}
+        <Section title="Experiments" count={experiments.length > 0 ? `${experiments.filter(e => e.status === 'won').length}W/${experiments.filter(e => e.status === 'lost').length}L` : undefined} icon={<Lightbulb className="w-3.5 h-3.5 text-purple-400" />} expanded={expandedSection === 'experiments'} onToggle={() => setExpandedSection(expandedSection === 'experiments' ? null : 'experiments')}>
+          <div className="flex gap-2 mb-2">
+            <input value={newExperiment} onChange={e => setNewExperiment(e.target.value)} onKeyDown={e => e.key === 'Enter' && addExperiment()}
+              placeholder="Hypothesis: if I do X, then Y will happen..."
+              className="flex-1 bg-surface border border-border rounded px-2.5 py-1.5 text-[11px] text-text placeholder:text-text-muted/30 focus:outline-none focus:border-primary" />
+            <button onClick={addExperiment} disabled={!newExperiment.trim()} className="text-[10px] text-primary px-2 py-1.5 rounded hover:bg-primary/5 disabled:opacity-30">Add</button>
+          </div>
+          {experiments.length === 0 && <p className="text-[10px] text-text-muted/30 px-1">Test assumptions instead of guessing. Add your first experiment.</p>}
+          {experiments.map((exp, i) => (
+            <div key={i} className="flex items-start gap-2 px-1 py-1.5">
+              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${exp.status === 'won' ? 'bg-accent-green' : exp.status === 'lost' ? 'bg-red-400' : 'bg-accent-gold animate-pulse'}`} />
+              <p className={`text-[11px] flex-1 ${exp.status !== 'testing' ? 'text-text-muted/50' : 'text-text/80'}`}>{exp.hypothesis}</p>
+              {exp.status === 'testing' && (
+                <div className="flex gap-1 flex-shrink-0">
+                  <button onClick={() => updateExperiment(i, 'won')} className="text-[9px] text-accent-green px-1.5 py-0.5 rounded hover:bg-accent-green/10">won</button>
+                  <button onClick={() => updateExperiment(i, 'lost')} className="text-[9px] text-red-400 px-1.5 py-0.5 rounded hover:bg-red-400/10">lost</button>
+                </div>
+              )}
+              {exp.status !== 'testing' && <span className={`text-[9px] ${exp.status === 'won' ? 'text-accent-green' : 'text-red-400'}`}>{exp.status}</span>}
+            </div>
+          ))}
+        </Section>
+
+        {/* Milestones */}
+        <Section title="Milestones" count={milestones.length > 0 ? `${milestones.filter(m => m.status === 'on-track').length}/${milestones.length}` : undefined} icon={<CalendarDays className="w-3.5 h-3.5 text-accent-blue" />} expanded={expandedSection === 'milestones'} onToggle={() => setExpandedSection(expandedSection === 'milestones' ? null : 'milestones')}>
+          <div className="flex gap-2 mb-2">
+            <input value={newMilestone} onChange={e => setNewMilestone(e.target.value)} onKeyDown={e => e.key === 'Enter' && addMilestone()}
+              placeholder="Revenue milestone, launch target, growth goal..."
+              className="flex-1 bg-surface border border-border rounded px-2.5 py-1.5 text-[11px] text-text placeholder:text-text-muted/30 focus:outline-none focus:border-primary" />
+            <button onClick={addMilestone} disabled={!newMilestone.trim()} className="text-[10px] text-primary px-2 py-1.5 rounded hover:bg-primary/5 disabled:opacity-30">Add</button>
+          </div>
+          {milestones.length === 0 && <p className="text-[10px] text-text-muted/30 px-1">Set monthly targets to track your trajectory.</p>}
+          {milestones.map((ms, i) => (
+            <div key={i} className="flex items-center gap-2 px-1 py-1.5">
+              <button onClick={() => cycleMilestoneStatus(i)}
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${ms.status === 'on-track' ? 'bg-accent-green' : ms.status === 'at-risk' ? 'bg-accent-gold' : 'bg-red-400'}`}
+                title={`Status: ${ms.status}. Click to change.`} />
+              <p className="text-[11px] text-text/80 flex-1">{ms.text}</p>
+              <span className={`text-[9px] ${ms.status === 'on-track' ? 'text-accent-green' : ms.status === 'at-risk' ? 'text-accent-gold' : 'text-red-400'}`}>
+                {ms.status.replace('-', ' ')}
+              </span>
+            </div>
+          ))}
+        </Section>
 
         {/* Quick nav */}
         <div className="flex gap-2 pb-20">
