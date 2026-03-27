@@ -82,11 +82,24 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary hover:bg-primary-dark text-white flex items-center justify-center transition-all hover:scale-105"
-          style={{ boxShadow: '0 0 20px rgba(220,38,38,0.4), 0 4px 20px rgba(0,0,0,0.5)' }}
+          className="fixed bottom-6 right-6 z-50 group"
         >
-          <img src="/logo-64.png" alt="Sterling" className="w-7 h-7 rounded-lg" />
-          <div className="absolute inset-0 rounded-full border border-primary/50 ping-slow" />
+          {/* Outer glow ring */}
+          <div className="absolute inset-[-4px] rounded-2xl bg-gradient-to-br from-primary/30 to-primary/5 blur-sm group-hover:from-primary/50 group-hover:to-primary/10 transition-all" />
+          {/* Button body */}
+          <div className="relative w-12 h-12 rounded-2xl bg-surface-light border border-border/40 group-hover:border-primary/40 flex items-center justify-center transition-all group-hover:scale-105"
+            style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary group-hover:text-primary-light transition-colors">
+              <path d="M12 2C6.48 2 2 6 2 10.5c0 2.5 1.2 4.7 3 6.2V22l4.5-2.5c.8.2 1.6.3 2.5.3 5.52 0 10-4 10-8.5S17.52 2 12 2z" />
+              <circle cx="8" cy="10.5" r="1" fill="currentColor" />
+              <circle cx="12" cy="10.5" r="1" fill="currentColor" />
+              <circle cx="16" cy="10.5" r="1" fill="currentColor" />
+            </svg>
+          </div>
+          {/* Label */}
+          <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] text-text-muted/40 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity font-medium">
+            Ask Sterling
+          </span>
         </button>
       )}
 
@@ -97,8 +110,13 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
             <div className="flex items-center gap-2.5">
-              <img src="/logo-64.png" alt="Sterling" className="w-4 h-4 rounded-full" />
-              <span className="text-sm font-semibold text-text">Sterling</span>
+              <div className="w-5 h-5 rounded-md bg-primary/15 flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-primary">
+                  <path d="M12 2C6.48 2 2 6 2 10.5c0 2.5 1.2 4.7 3 6.2V22l4.5-2.5c.8.2 1.6.3 2.5.3 5.52 0 10-4 10-8.5S17.52 2 12 2z" />
+                </svg>
+              </div>
+              <span className="heading-sm text-text">Sterling</span>
+              <div className="status-live" />
             </div>
             <button
               onClick={() => setOpen(false)}
