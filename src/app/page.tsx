@@ -184,7 +184,7 @@ export default function Dashboard() {
         <div className="mb-8 sm:mb-10">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-text mb-2 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-bold text-text mb-2 tracking-tight text-glow-red">
                 {sessions.length === 0 ? 'Build your strategy.' : `Welcome back${session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}.`}
               </h2>
               <p className="text-text-muted text-sm sm:text-base max-w-xl leading-relaxed">
@@ -196,7 +196,7 @@ export default function Dashboard() {
             <div className="flex gap-2 flex-shrink-0">
               <button
                 onClick={handleNew}
-                className="bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors shadow-lg shadow-primary/20 flex items-center gap-2"
+                className="bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition-all flex items-center gap-2 hover:shadow-[0_0_25px_rgba(220,38,38,0.4)]"
               >
                 <Zap className="w-4 h-4" />
                 New Analysis
@@ -458,12 +458,12 @@ function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; l
 
 function StatCard({ label, value, icon, color }: { label: string; value: string; icon: React.ReactNode; color: string }) {
   return (
-    <div className="glass glass-glow rounded-xl p-3 sm:p-4 border-t-2 border-primary/30">
+    <div className="glass glass-glow rounded-xl p-3 sm:p-4 border-t-2 border-primary/30 card-lift corner-frame">
       <div className="flex items-center gap-2 mb-1">
         {icon}
         <span className="text-xs text-text-muted">{label}</span>
       </div>
-      <div className={`text-2xl font-bold ${color}`}>{value}</div>
+      <div className={`text-2xl font-bold metric-value animate-count ${color}`}>{value}</div>
     </div>
   );
 }
