@@ -105,7 +105,7 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed inset-4 sm:inset-auto sm:bottom-6 sm:right-6 z-50 sm:w-96 sm:h-[32rem] bg-surface sm:glass-strong flex flex-col animate-slide-up sm:corner-frame rounded-xl sm:rounded-2xl border border-border/20" style={{ boxShadow: '0 0 40px rgba(220,38,38,0.1), 0 8px 40px rgba(0,0,0,0.6)' }}>
+        <div className="fixed inset-4 sm:inset-auto sm:bottom-6 sm:right-6 z-50 sm:w-96 sm:h-[32rem] bg-surface-light flex flex-col animate-slide-up rounded-xl sm:rounded-2xl border border-border/20" style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.6)' }}>
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">

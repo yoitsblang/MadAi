@@ -226,9 +226,9 @@ Do NOT use emojis. Use text labels like [CRITICAL] [HIGH] [MEDIUM] [LOW] [OPPORT
   })();
 
   return (
-    <div className="min-h-screen bg-surface bg-grid">
+    <div className="min-h-screen bg-surface page-transition">
       {/* Header */}
-      <header className="border-b border-border/20 glass-strong sticky top-0 z-10 accent-line">
+      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button

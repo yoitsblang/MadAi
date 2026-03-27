@@ -643,7 +643,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
         </div>
 
         {/* Top bar */}
-        <div className="flex items-center border-b border-border/20 glass-strong flex-shrink-0 accent-line">
+        <div className="flex items-center border-b border-border/20 bg-surface/95 backdrop-blur-xl flex-shrink-0">
           <div className="flex-1 min-w-0">
             <ModuleHeader
               module={activeModule}
