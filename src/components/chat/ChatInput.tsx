@@ -100,9 +100,9 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
           placeholder={placeholder || 'Type your message...'}
           disabled={disabled}
           rows={1}
-          className="w-full bg-surface-light border border-border rounded-xl px-4 py-3 pr-10 text-text text-sm
-            placeholder:text-text-muted/50 resize-none focus:outline-none focus:border-primary
-            focus:ring-1 focus:ring-primary/30 disabled:opacity-50 transition-colors"
+          className="w-full bg-surface/80 border border-border/30 rounded-xl px-4 py-3 pr-10 text-text text-sm
+            placeholder:text-text-muted/30 resize-none focus:outline-none focus:border-primary/40
+            focus:ring-1 focus:ring-primary/20 disabled:opacity-50 transition-colors"
         />
         {/* Voice toggle inside input */}
         <button
@@ -121,7 +121,7 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
         disabled={disabled || !message.trim()}
         className="bg-primary hover:bg-primary-dark text-white rounded-xl px-5 py-3
           font-medium text-sm disabled:opacity-30 disabled:cursor-not-allowed
-          transition-colors flex-shrink-0"
+          transition-all flex-shrink-0 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)]"
       >
         Send
       </button>

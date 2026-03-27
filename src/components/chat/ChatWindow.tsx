@@ -45,7 +45,7 @@ export default function ChatWindow({ messages, onSend, isLoading, module, placeh
       </div>
 
       {/* Input area */}
-      <div className="border-t border-border px-4 py-4 bg-surface/80 backdrop-blur-sm">
+      <div className="border-t border-border/20 px-4 py-4 bg-surface/95 backdrop-blur-xl">
         <ChatInput
           onSend={onSend}
           disabled={isLoading}
@@ -136,18 +136,16 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 py-16">
-      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
-        <Brain className="w-8 h-8 text-primary" />
-      </div>
-      <h2 className="text-2xl font-bold text-text mb-2">{w.title}</h2>
-      <p className="text-text-muted max-w-md mb-8">{w.subtitle}</p>
+      <img src="/logo-200.png" alt="MadAi" className="w-14 h-14 rounded-xl mb-6" />
+      <h2 className="heading-lg text-text mb-2">{w.title}</h2>
+      <p className="text-sm text-text-muted max-w-md mb-8 leading-relaxed">{w.subtitle}</p>
       <div className="flex flex-wrap gap-2 justify-center max-w-lg">
         {w.prompts.map((prompt, i) => (
           <button
             key={i}
             onClick={() => onPromptClick(prompt)}
-            className="text-xs bg-surface-light border border-border rounded-lg px-3 py-2
-              text-text-muted hover:text-text hover:border-primary/50 transition-colors"
+            className="text-xs card-dark px-3.5 py-2.5
+              text-text-muted hover:text-text hover:border-primary/30 transition-all"
           >
             {prompt}
           </button>
