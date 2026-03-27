@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import SessionProvider from '@/components/providers/SessionProvider';
 import TermsGate from '@/components/ui/TermsGate';
+import { Toaster } from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -40,6 +41,20 @@ export default function RootLayout({
           <TermsGate>
             {children}
           </TermsGate>
+          <Toaster
+            theme="dark"
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#18181b',
+                border: '1px solid rgba(63,63,70,0.3)',
+                color: '#fafafa',
+                fontSize: '13px',
+                fontFamily: "'Space Grotesk', sans-serif",
+              },
+            }}
+            closeButton
+          />
         </SessionProvider>
       </body>
     </html>

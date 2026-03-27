@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { toast } from 'sonner';
 import {
   Zap, ChevronRight, BarChart2, TrendingUp, Sparkles,
   BookMarked, Trash2, MessageSquare, LayoutDashboard, Plus,
@@ -75,7 +76,13 @@ export default function Dashboard() {
 
   async function handleNew() {
     const res = await fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-    if (res.ok) { const s = await res.json(); router.push(`/session/${s.id}`); }
+    if (res.ok) {
+      const s = await res.json();
+      toast.success('New analysis created');
+      router.push(`/session/${s.id}`);
+    } else {
+      toast.error('Failed to create analysis');
+    }
   }
 
   async function handleDelete(e: React.MouseEvent, id: string) {
@@ -83,6 +90,7 @@ export default function Dashboard() {
     e.preventDefault();
     if (!confirm('Delete this project permanently?')) return;
     await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+    toast.success('Project deleted');
     loadSessions();
   }
 

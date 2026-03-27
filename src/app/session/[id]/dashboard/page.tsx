@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { toast } from 'sonner';
 import {
   ArrowLeft, ChevronDown, ChevronRight, AlertTriangle, Star, TrendingUp, Target, BarChart3,
   CheckCircle2, Circle, Zap, Edit3, Check, X, MessageSquare,
@@ -56,6 +57,7 @@ export default function DashboardPage() {
     await fetch(`/api/sessions/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName.trim() }) });
     setData(prev => prev ? { ...prev, session: { ...prev.session, name: newName.trim() } } : prev);
     setRenaming(false);
+    toast.success('Project renamed');
   }, [id, newName]);
 
   const addLog = useCallback(() => {
@@ -64,6 +66,7 @@ export default function DashboardPage() {
     setLogs(updated);
     localStorage.setItem(`logs-${id}`, JSON.stringify(updated));
     setLogEntry('');
+    toast.success('Progress logged');
   }, [logEntry, logs, id]);
 
   if (loading || !data) return (
