@@ -118,9 +118,8 @@ export default function LibraryPage() {
           <div className="flex items-center gap-3">
             <a href="/" className="text-text-muted hover:text-text transition-colors">&larr;</a>
             <div>
-                <h1 className="heading-sm text-text">Strategy Library</h1>
-                <p className="text-[10px] text-text-muted/50">Frameworks, principles, and intelligence</p>
-              </div>
+              <h1 className="heading-sm text-text">Strategy Library</h1>
+              <p className="text-[10px] text-text-muted/50">Frameworks, principles, and intelligence</p>
             </div>
           </div>
           <input
