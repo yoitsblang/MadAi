@@ -47,12 +47,69 @@ export default function CalendarPage() {
     try {
       const res = await fetch(`/api/calendar?start=${start}&end=${end}`);
       if (res.ok) {
-        setEvents(await res.json());
+        const loaded = await res.json();
+        if (loaded.length === 0) {
+          // Auto-seed calendar from active sessions
+          await seedFromSessions();
+        } else {
+          setEvents(loaded);
+        }
       }
     } catch {
-      // If not authed, use empty
       setEvents([]);
     }
+  }
+
+  async function seedFromSessions() {
+    try {
+      const sessRes = await fetch('/api/sessions');
+      if (!sessRes.ok) return;
+      const sessions = await sessRes.json();
+      const active = sessions.filter((s: { intakeComplete: boolean }) => s.intakeComplete);
+      if (active.length === 0) return;
+
+      // Get dashboard data for first active session to pull action items
+      const dashRes = await fetch(`/api/sessions/${active[0].id}/dashboard`);
+      if (!dashRes.ok) return;
+      const dash = await dashRes.json();
+
+      const today = new Date();
+      const seededEvents: Array<{ title: string; date: string; type: string; priority: string }> = [];
+
+      // Seed week 1: Quick wins from action items
+      if (dash.actionItems) {
+        dash.actionItems.slice(0, 3).forEach((item: { text: string; priority: string }, i: number) => {
+          const d = new Date(today);
+          d.setDate(d.getDate() + i + 1);
+          seededEvents.push({ title: item.text.slice(0, 60), date: d.toISOString(), type: 'campaign', priority: item.priority });
+        });
+      }
+
+      // Add review checkpoint at end of week
+      const reviewDate = new Date(today);
+      reviewDate.setDate(reviewDate.getDate() + 7);
+      seededEvents.push({ title: 'Weekly Review: What worked? What failed?', date: reviewDate.toISOString(), type: 'review', priority: 'high' });
+
+      // Add measurement checkpoint
+      const measureDate = new Date(today);
+      measureDate.setDate(measureDate.getDate() + 14);
+      seededEvents.push({ title: 'Measure results. Update Sterling with findings.', date: measureDate.toISOString(), type: 'research', priority: 'medium' });
+
+      // Save all seeded events
+      for (const evt of seededEvents) {
+        await fetch('/api/calendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(evt),
+        });
+      }
+
+      // Reload
+      const start = new Date(year, month, 1).toISOString();
+      const end = new Date(year, month + 1, 0).toISOString();
+      const reloadRes = await fetch(`/api/calendar?start=${start}&end=${end}`);
+      if (reloadRes.ok) setEvents(await reloadRes.json());
+    } catch { /* ignore seed failures */ }
   }
 
   async function handleAddEvent() {

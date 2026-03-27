@@ -1,24 +1,24 @@
 {
   "name": "MadAi - Strategic Marketing Intelligence",
   "short_name": "MadAi",
-  "description": "Turn any value proposition into better revenue, positioning, and execution. Deep strategy system combining business fundamentals, psychological insight, and market research.",
+  "description": "Find your business bottleneck. Fix it. Measure what changed. A founder operating system for strategic intelligence.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0f1117",
-  "theme_color": "#6366f1",
+  "background_color": "#09090b",
+  "theme_color": "#dc2626",
   "orientation": "any",
   "categories": ["business", "productivity"],
   "screenshots": [],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -26,8 +26,8 @@
   ],
   "shortcuts": [
     {
-      "name": "New Analysis",
-      "short_name": "New",
+      "name": "Diagnose Bottleneck",
+      "short_name": "Diagnose",
       "url": "/new",
       "icons": [{"src": "/icon-192.png", "sizes": "192x192"}]
     },
