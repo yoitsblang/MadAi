@@ -82,15 +82,18 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/25 flex items-center justify-center transition-all hover:scale-105"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary hover:bg-primary-dark text-white flex items-center justify-center transition-all hover:scale-105"
+          style={{ boxShadow: '0 0 20px rgba(220,38,38,0.4), 0 4px 20px rgba(0,0,0,0.5)' }}
         >
-          <img src="/logo-64.png" alt="Sterling" className="w-6 h-6 rounded-full" />
+          <img src="/logo-64.png" alt="Sterling" className="w-7 h-7 rounded-lg" />
+          <div className="absolute inset-0 rounded-full border border-primary/50 ping-slow" />
         </button>
       )}
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 h-[32rem] glass-strong flex flex-col shadow-2xl shadow-black/40 animate-slide-up">
+        <div className="fixed bottom-6 right-6 z-50 w-96 h-[32rem] glass-strong flex flex-col animate-slide-up corner-frame" style={{ boxShadow: '0 0 40px rgba(220,38,38,0.1), 0 8px 40px rgba(0,0,0,0.6)' }}>
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
             <div className="flex items-center gap-2.5">

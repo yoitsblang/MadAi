@@ -53,11 +53,11 @@ function LoginForm() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-      <div className="w-full max-w-sm accent-line-top">
+    <div className="min-h-screen bg-surface bg-grid flex items-center justify-center px-4">
+      <div className="w-full max-w-sm glass glass-glow rounded-2xl p-6 sm:p-8 corner-frame">
         <div className="text-center mb-8">
-          <img src="/logo-400.png" alt="MadAi" className="w-24 h-24 rounded-2xl mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-text">Welcome back</h1>
+          <img src="/logo-400.png" alt="MadAi" className="w-20 h-20 rounded-2xl mx-auto mb-4 float" />
+          <h1 className="text-2xl font-bold text-text text-glow-red">Welcome back</h1>
           <p className="text-sm text-text-muted mt-1">Sign in to MadAi</p>
         </div>
 
@@ -68,9 +68,9 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading || !csrfToken}
-            className="w-full flex items-center justify-center gap-3 bg-surface-light border border-border
-              hover:border-primary/40 rounded-xl py-3 text-sm font-medium text-text transition-colors
-              disabled:opacity-50 mb-4"
+            className="w-full flex items-center justify-center gap-3 glass-subtle border border-border/30
+              hover:border-primary/40 rounded-xl py-3 text-sm font-medium text-text transition-all
+              disabled:opacity-50 mb-4 card-lift"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -83,9 +83,9 @@ function LoginForm() {
         </form>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 h-px bg-border"></div>
-          <span className="text-xs text-text-muted">or sign in with email</span>
-          <div className="flex-1 h-px bg-border"></div>
+          <div className="flex-1 divider-red"></div>
+          <span className="text-xs text-text-muted/60">or sign in with email</span>
+          <div className="flex-1 divider-red"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,8 +102,8 @@ function LoginForm() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="w-full bg-surface-light border border-border rounded-xl px-4 py-3 text-sm text-text
-                placeholder:text-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+              className="w-full bg-surface/80 border border-border/30 rounded-xl px-4 py-3 text-sm text-text
+                placeholder:text-text-muted/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
               placeholder="you@example.com"
             />
           </div>
@@ -115,8 +115,8 @@ function LoginForm() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="w-full bg-surface-light border border-border rounded-xl px-4 py-3 text-sm text-text
-                placeholder:text-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+              className="w-full bg-surface/80 border border-border/30 rounded-xl px-4 py-3 text-sm text-text
+                placeholder:text-text-muted/30 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -125,7 +125,7 @@ function LoginForm() {
             type="submit"
             disabled={loading}
             className="w-full bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl py-3
-              text-sm transition-colors disabled:opacity-50"
+              text-sm transition-all disabled:opacity-50 hover:shadow-[0_0_20px_rgba(220,38,38,0.3)]"
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>

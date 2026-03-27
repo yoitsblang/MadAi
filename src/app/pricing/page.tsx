@@ -42,13 +42,13 @@ function PricingContent() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <header className="border-b border-border bg-surface/90 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b border-border/20 glass-strong sticky top-0 z-10 accent-line">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <button onClick={() => router.push('/')} className="text-text-muted hover:text-text">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <img src="/logo-400.png" alt="MadAi" className="w-8 h-8 rounded-lg" />
-          <h1 className="text-sm font-bold text-text">MadAi Pricing</h1>
+          <h1 className="text-sm font-bold text-text text-glow-red">MadAi Pricing</h1>
         </div>
       </header>
 
@@ -66,7 +66,7 @@ function PricingContent() {
         )}
 
         {user && (
-          <div className="bg-surface-light border border-border rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div className="glass rounded-xl p-4 mb-6 flex items-center justify-between glass-glow">
             <div>
               <span className="text-xs text-text-muted uppercase tracking-wider">Current Plan</span>
               <p className="text-sm font-bold text-text capitalize">{currentTier} {user.role === 'admin' && '(Admin)'}</p>

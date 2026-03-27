@@ -38,11 +38,11 @@ const MODULE_GROUPS = [
 
 export default function Sidebar({ activeModule, onModuleChange, intakeComplete, sessionName }: SidebarProps) {
   return (
-    <aside className="w-64 bg-surface border-r border-border flex flex-col h-full">
+    <aside className="w-64 glass-strong border-r border-border/20 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border/20 accent-line">
         <div className="flex items-center gap-2">
-          <img src="/logo-400.png" alt="MadAi" className="w-10 h-10 rounded-xl" />
+          <img src="/logo-400.png" alt="MadAi" className="w-10 h-10 rounded-xl float" />
           <div>
             <h1 className="text-sm font-bold text-text">MadAi</h1>
             <p className="text-xs text-text-muted">Strategic Intelligence</p>
