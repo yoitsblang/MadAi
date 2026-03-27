@@ -397,7 +397,7 @@ export default function Dashboard() {
             <h3 className="text-base font-semibold text-text mb-4">What MadAi does</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-10">
               {featureCards.map((cap, i) => (
-                <div key={i} className="bg-surface-light border border-border rounded-xl p-4 sm:p-5 hover:border-primary/20 transition-colors">
+                <div key={i} className="glass rounded-xl p-4 sm:p-5 border-glow card-lift">
                   <div className={`w-9 h-9 rounded-xl ${cap.bg} flex items-center justify-center mb-3`}>
                     <cap.Icon className={`w-5 h-5 ${cap.color}`} />
                   </div>

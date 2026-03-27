@@ -173,9 +173,9 @@ export default function DashboardPage() {
   const dayOfWeek = new Date().getDay(); // 0=Sun
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface bg-grid scanlines">
       {/* Header */}
-      <header className="border-b border-border/30 bg-surface sticky top-0 z-10">
+      <header className="border-b border-border/30 glass-strong sticky top-0 z-10 accent-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
             <button onClick={() => router.push('/')} className="text-text-muted hover:text-text flex-shrink-0"><ArrowLeft className="w-4 h-4" /></button>
@@ -202,8 +202,9 @@ export default function DashboardPage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-4">
         {/* Hero */}
-        <div className="rounded-xl p-5 sm:p-6 relative overflow-hidden border border-border/20 bg-surface-light/30">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div className="glass rounded-xl p-5 sm:p-6 relative overflow-hidden border-glow corner-frame glass-glow">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-gold/20 to-transparent" />
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1 min-w-0">
               <p className="text-[10px] text-text-muted/40 tracking-wide">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
@@ -218,7 +219,7 @@ export default function DashboardPage() {
               )}
             </div>
             <div className="flex-shrink-0 text-center">
-              <div className={`text-xl font-bold ${avgHealth >= 7 ? 'text-accent-green' : avgHealth >= 4 ? 'text-accent-gold' : avgHealth > 0 ? 'text-primary' : 'text-text-muted/20'}`}>
+              <div className={`text-xl font-bold metric-value animate-count ${avgHealth >= 7 ? 'text-accent-green text-glow-green' : avgHealth >= 4 ? 'text-accent-gold text-glow-gold' : avgHealth > 0 ? 'text-primary text-glow-red' : 'text-text-muted/20'}`}>
                 {avgHealth > 0 ? avgHealth.toFixed(1) : '--'}
               </div>
               <p className="text-[9px] text-text-muted/40">health</p>
@@ -226,10 +227,13 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-4 sm:gap-6 mt-4 pt-3 border-t border-border/10">
             {scores.map(s => (
-              <div key={s.label} className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.value > 0 ? s.color : '#3f3f46' }} />
+              <div key={s.label} className="flex items-center gap-2 card-lift rounded-lg px-2 py-1 -mx-2">
+                <div className="relative">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.value > 0 ? s.color : '#3f3f46', boxShadow: s.value > 0 ? `0 0 8px ${s.color}40` : 'none' }} />
+                  {s.value > 0 && <div className="absolute inset-0 w-2 h-2 rounded-full ping-slow" style={{ backgroundColor: s.color + '30' }} />}
+                </div>
                 <span className="text-[11px] text-text-muted/50">{s.label}</span>
-                <span className={`text-[11px] font-semibold ${s.value > 0 ? 'text-text' : 'text-text-muted/20'}`}>{s.value > 0 ? `${s.value}/10` : '--'}</span>
+                <span className={`text-[11px] font-semibold metric-value ${s.value > 0 ? 'text-text' : 'text-text-muted/20'}`}>{s.value > 0 ? `${s.value}/10` : '--'}</span>
               </div>
             ))}
           </div>
@@ -251,17 +255,18 @@ export default function DashboardPage() {
         <div className="flex items-center gap-1.5 px-1">
           {pipeline.stages.map(stage => {
             const done = pipeline.completed.includes(stage);
-            return <div key={stage} className={`flex-1 h-1 rounded-full ${done ? 'bg-primary' : 'bg-surface-light'}`} title={STAGE_LABELS[stage]} />;
+            return <div key={stage} className={`flex-1 h-1.5 rounded-full transition-all ${done ? 'bg-primary progress-glow' : 'bg-surface-light'}`} title={STAGE_LABELS[stage]} style={done ? { boxShadow: '0 0 8px rgba(220,38,38,0.3)' } : {}} />;
           })}
-          <span className="text-[9px] text-text-muted/40 ml-1">{pipeline.percentage}%</span>
+          <span className="text-[9px] text-text-muted/40 ml-1 metric-value">{pipeline.percentage}%</span>
         </div>
 
         {/* Smart suggestions */}
         {suggestions.length > 0 && (
-          <div className="rounded-lg px-4 py-3 border border-accent-gold/10 bg-accent-gold/[0.02]">
+          <div className="glass-subtle rounded-lg px-4 py-3 border border-accent-gold/15 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent-gold/30 to-transparent" />
             <div className="flex items-center gap-2 mb-1.5">
               <Lightbulb className="w-3 h-3 text-accent-gold/60" />
-              <span className="text-[10px] font-medium text-accent-gold/70">Sterling suggests</span>
+              <span className="text-[10px] font-medium text-accent-gold/70 text-glow-gold">Sterling suggests</span>
             </div>
             <div className="space-y-1">
               {suggestions.slice(0, 3).map((s, i) => (
@@ -317,10 +322,10 @@ export default function DashboardPage() {
             </div>
           </div>
           {monthlyRev > 0 && (
-            <div className="glass rounded-lg p-3 text-center">
+            <div className="glass rounded-lg p-3 text-center corner-frame data-grid">
               <p className="text-[10px] text-text-muted/50">Monthly revenue</p>
-              <p className="text-lg font-bold text-accent-green">${monthlyRev.toLocaleString()}</p>
-              <p className="text-[10px] text-text-muted/30">${(monthlyRev * 12).toLocaleString()}/year</p>
+              <p className="text-lg font-bold text-accent-green text-glow-green metric-value animate-count">${monthlyRev.toLocaleString()}</p>
+              <p className="text-[10px] text-text-muted/30 metric-value">${(monthlyRev * 12).toLocaleString()}/year</p>
             </div>
           )}
         </Section>
@@ -405,9 +410,9 @@ export default function DashboardPage() {
 
         {/* Momentum Streak */}
         {logs.length > 0 && (
-          <div className="glass rounded-xl p-3 flex items-center justify-between">
+          <div className="glass rounded-xl p-3 flex items-center justify-between corner-frame glass-glow">
             <div className="flex items-center gap-2">
-              <div className={`text-lg font-bold ${streakDays >= 7 ? 'text-accent-green' : streakDays >= 3 ? 'text-accent-gold' : 'text-primary'}`}>{streakDays}</div>
+              <div className={`text-lg font-bold metric-value ${streakDays >= 7 ? 'text-accent-green text-glow-green' : streakDays >= 3 ? 'text-accent-gold text-glow-gold' : 'text-primary text-glow-red'}`}>{streakDays}</div>
               <div>
                 <p className="text-[11px] text-text/80">day streak</p>
                 <p className="text-[9px] text-text-muted/40">{streakDays >= 7 ? 'On fire. Keep it going.' : streakDays >= 3 ? 'Building momentum.' : 'Log daily to build your streak.'}</p>
@@ -488,16 +493,21 @@ function Section({ title, icon, children, expanded, onToggle, count }: {
   expanded?: boolean; onToggle?: () => void; count?: string | number;
 }) {
   return (
-    <div className="rounded-xl overflow-hidden border border-border/15 bg-surface-light/20">
-      <button onClick={onToggle} className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.015] transition-colors">
+    <div className="glass rounded-xl overflow-hidden border-glow card-lift">
+      <button onClick={onToggle} className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] transition-colors">
         <div className="flex items-center gap-2">
           {icon}
           <span className="text-[13px] font-medium text-text/90">{title}</span>
-          {count !== undefined && <span className="text-[10px] text-text-muted/30 ml-1">{count}</span>}
+          {count !== undefined && <span className="text-[10px] text-text-muted/30 ml-1 metric-value">{count}</span>}
         </div>
-        <ChevronDown className={`w-3.5 h-3.5 text-text-muted/30 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-text-muted/30 transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
       </button>
-      {expanded && <div className="px-4 pb-4 animate-slide-up">{children}</div>}
+      {expanded && (
+        <div className="px-4 pb-4 animate-slide-up">
+          <div className="divider-red mb-3" />
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -522,5 +532,5 @@ function Goal({ label, value, color }: { label: string; value: string; color: st
 }
 
 function NavPill({ href, label }: { href: string; label: string }) {
-  return <a href={href} className="flex-1 text-center text-[10px] text-text-muted/50 hover:text-text py-2 rounded-lg hover:bg-surface-light transition-colors">{label}</a>;
+  return <a href={href} className="flex-1 text-center text-[10px] text-text-muted/50 hover:text-text py-2 rounded-lg glass-subtle hover:border-primary/20 transition-all card-lift">{label}</a>;
 }
