@@ -53,12 +53,12 @@ function LoginForm() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-surface bg-grid flex items-center justify-center px-4">
-      <div className="w-full max-w-sm glass glass-glow rounded-2xl p-6 sm:p-8 corner-frame">
-        <div className="text-center mb-8">
-          <img src="/logo-400.png" alt="MadAi" className="w-20 h-20 rounded-2xl mx-auto mb-4 float" />
-          <h1 className="text-2xl font-bold text-text text-glow-red">Welcome back</h1>
-          <p className="text-sm text-text-muted mt-1">Sign in to MadAi</p>
+    <div className="min-h-screen bg-surface flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-10">
+          <img src="/logo-200.png" alt="MadAi" className="w-16 h-16 rounded-xl mx-auto mb-5" />
+          <h1 className="heading-xl text-text">Welcome back</h1>
+          <p className="text-sm text-text-muted/60 mt-2">Sign in to MadAi</p>
         </div>
 
         {/* Google Sign In - uses native form POST to avoid client-side signIn issues */}
@@ -68,9 +68,9 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading || !csrfToken}
-            className="w-full flex items-center justify-center gap-3 glass-subtle border border-border/30
-              hover:border-primary/40 rounded-xl py-3 text-sm font-medium text-text transition-all
-              disabled:opacity-50 mb-4 card-lift"
+            className="w-full flex items-center justify-center gap-3 card-dark
+              hover:border-primary/30 rounded-xl py-3 text-sm font-medium text-text transition-all
+              disabled:opacity-50 mb-4"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -82,10 +82,10 @@ function LoginForm() {
           </button>
         </form>
 
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 divider-red"></div>
-          <span className="text-xs text-text-muted/60">or sign in with email</span>
-          <div className="flex-1 divider-red"></div>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="flex-1 h-px bg-border/20"></div>
+          <span className="text-[11px] text-text-muted/30">or</span>
+          <div className="flex-1 h-px bg-border/20"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
