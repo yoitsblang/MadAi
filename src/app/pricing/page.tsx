@@ -47,7 +47,7 @@ function PricingContent() {
           <button onClick={() => router.push('/')} className="text-text-muted hover:text-text">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <img src="/logo-400.png" alt="MadAi" className="w-6 h-6 rounded" />
+          <img src="/logo-400.png" alt="MadAi" className="w-8 h-8 rounded-lg" />
           <h1 className="text-sm font-bold text-text">MadAi Pricing</h1>
         </div>
       </header>

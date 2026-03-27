@@ -153,7 +153,7 @@ export default function Dashboard() {
       <header className="border-b border-border glass-strong sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo-400.png" alt="MadAi" className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl" />
+            <img src="/logo-400.png" alt="MadAi" className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl" />
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-text tracking-tight">MadAi</h1>
               <p className="text-[10px] sm:text-xs text-text-muted">Strategic Marketing Intelligence</p>

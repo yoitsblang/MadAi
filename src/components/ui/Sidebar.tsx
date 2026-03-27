@@ -42,7 +42,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <img src="/logo-400.png" alt="MadAi" className="w-8 h-8 rounded-lg" />
+          <img src="/logo-400.png" alt="MadAi" className="w-10 h-10 rounded-xl" />
           <div>
             <h1 className="text-sm font-bold text-text">MadAi</h1>
             <p className="text-xs text-text-muted">Strategic Intelligence</p>

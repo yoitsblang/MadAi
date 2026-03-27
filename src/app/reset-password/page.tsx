@@ -119,7 +119,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src="/logo-400.png" alt="MadAi" className="w-16 h-16 rounded-2xl mx-auto mb-4" />
+          <img src="/logo-400.png" alt="MadAi" className="w-24 h-24 rounded-2xl mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-text">Set New Password</h1>
           <p className="text-sm text-text-muted mt-1">Choose a strong password for your account</p>
         </div>
