@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import {
   FolderOpen, Calendar, BookOpen, User, Power,
   Target, Search, Scale, Map, Shield, FlaskConical, ClipboardList,
@@ -146,6 +147,7 @@ export default function Dashboard() {
     : 0;
 
   const activeProjects = sessions.filter(s => s.intakeComplete).length;
+  const [projectGridRef] = useAutoAnimate({ duration: 250 });
 
   return (
     <div className="min-h-screen bg-surface bg-grid">
@@ -242,7 +244,7 @@ export default function Dashboard() {
               <span className="text-xs text-text-muted">{sessions.length} project{sessions.length !== 1 ? 's' : ''}</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div ref={projectGridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {sortedSessions.map(s => {
                 let offering = '';
                 let businessType = '';

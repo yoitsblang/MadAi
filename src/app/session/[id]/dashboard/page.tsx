@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import {
   ArrowLeft, ChevronDown, AlertTriangle, Star, TrendingUp, Target, BarChart3,
   CheckCircle2, Circle, Zap, Clock, DollarSign, Edit3, Check, X,
@@ -538,8 +539,9 @@ function Section({ title, icon, children, expanded, onToggle, count }: {
   title: string; icon?: React.ReactNode; children: React.ReactNode;
   expanded?: boolean; onToggle?: () => void; count?: string | number;
 }) {
+  const [animRef] = useAutoAnimate({ duration: 200 });
   return (
-    <div className="glass rounded-xl overflow-hidden border-glow card-lift">
+    <div ref={animRef} className="glass rounded-xl overflow-hidden border-glow card-lift">
       <button onClick={onToggle} className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] transition-colors">
         <div className="flex items-center gap-2">
           {icon}
