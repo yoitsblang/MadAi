@@ -34,8 +34,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface bg-grid flex items-center justify-center p-4">
-      <div className="w-full max-w-sm glass glass-glow rounded-2xl p-6 sm:p-8 corner-frame">
+    <div className="min-h-screen bg-surface flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <img src="/logo-400.png" alt="MadAi" className="w-20 h-20 rounded-2xl mx-auto mb-4 float" />
           <h1 className="text-2xl font-bold text-text text-glow-red">Reset Password</h1>

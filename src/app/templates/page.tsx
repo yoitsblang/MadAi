@@ -69,8 +69,8 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
+    <div className="min-h-screen bg-surface page-transition">
+      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <a href="/" className="text-text-muted hover:text-text transition-colors">

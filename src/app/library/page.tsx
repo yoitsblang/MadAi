@@ -112,16 +112,14 @@ export default function LibraryPage() {
   const activeCat = CATEGORIES.find(c => c.id === activeCategory);
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-surface page-transition">
+      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
+        <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <a href="/" className="text-text-muted hover:text-text transition-colors">&larr;</a>
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-current" />
-              <div>
-                <h1 className="text-lg font-bold text-text">Strategy Library</h1>
-                <p className="text-xs text-text-muted">The intellectual backbone of MadAi</p>
+            <div>
+                <h1 className="heading-sm text-text">Strategy Library</h1>
+                <p className="text-[10px] text-text-muted/50">Frameworks, principles, and intelligence</p>
               </div>
             </div>
           </div>
@@ -130,27 +128,27 @@ export default function LibraryPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search library..."
-            className="bg-surface-light border border-border rounded-lg px-3 py-1.5 text-sm text-text
-              placeholder:text-text-muted/50 w-64 focus:outline-none focus:border-primary"
+            className="bg-surface/80 border border-border/20 rounded-lg px-3 py-2 text-sm text-text
+              placeholder:text-text-muted/30 w-48 sm:w-64 focus:outline-none focus:border-primary/30"
           />
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-6 flex gap-6">
-        {/* Category sidebar */}
-        <div className="w-56 flex-shrink-0">
-          <div className="sticky top-20 space-y-1">
+      <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row gap-6">
+        {/* Category sidebar — horizontal scroll on mobile, vertical on desktop */}
+        <div className="sm:w-48 flex-shrink-0">
+          <div className="flex sm:flex-col gap-1.5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 sm:sticky sm:top-16">
             {CATEGORIES.map(cat => (
               <button
                 key={cat.id}
                 onClick={() => { setActiveCategory(cat.id); setSearch(''); }}
-                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors flex items-center gap-2
+                className={`text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0
                   ${activeCategory === cat.id
-                    ? 'bg-primary/15 text-primary-light border border-primary/20'
-                    : 'text-text-muted hover:bg-surface-light hover:text-text'
+                    ? 'bg-primary/10 text-text border-l-2 border-primary'
+                    : 'text-text-muted/60 hover:bg-surface-light hover:text-text'
                   }`}
               >
-                <ModuleIcon name={cat.icon} className="w-4 h-4 text-current" />
+                <ModuleIcon name={cat.icon} className="w-3.5 h-3.5 text-current" />
                 {cat.label}
               </button>
             ))}
@@ -158,22 +156,22 @@ export default function LibraryPage() {
         </div>
 
         {/* Content area */}
-        <div className="flex-1">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-text flex items-center gap-2">
-              {activeCat && <ModuleIcon name={activeCat.icon} className="w-5 h-5 text-current" />}
+        <div className="flex-1 min-w-0">
+          <div className="mb-5">
+            <h2 className="heading-md text-text flex items-center gap-2">
+              {activeCat && <ModuleIcon name={activeCat.icon} className="w-4 h-4 text-current" />}
               {activeCat?.label}
             </h2>
-            <p className="text-sm text-text-muted mt-1">
+            <p className="text-xs text-text-muted/60 mt-1">
               {activeCat?.description}
             </p>
           </div>
 
           <div className="space-y-3">
             {filtered.map((entry, i) => (
-              <div key={i} className="bg-surface-light border border-border rounded-xl p-5">
-                <h3 className="text-sm font-semibold text-text mb-2">{entry.name}</h3>
-                <p className="text-sm text-text-muted leading-relaxed">{entry.content}</p>
+              <div key={i} className="card-dark p-4 sm:p-5">
+                <h3 className="heading-sm text-text mb-2">{entry.name}</h3>
+                <p className="text-xs sm:text-sm text-text-muted/70 leading-relaxed">{entry.content}</p>
               </div>
             ))}
             {filtered.length === 0 && (
