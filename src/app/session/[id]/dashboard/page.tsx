@@ -3,9 +3,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  ArrowLeft, BookMarked, MessageSquare, ChevronDown, ChevronRight,
-  AlertTriangle, Star, TrendingUp, Target, BarChart3,
-  CheckCircle2, Circle, Zap, Clock, ArrowUpRight,
+  ArrowLeft, ChevronDown, AlertTriangle, Star, TrendingUp, Target, BarChart3,
+  CheckCircle2, Circle, Zap, Clock, DollarSign, Edit3, Check, X,
+  Calculator, PenLine, ArrowUpRight, Lightbulb, CalendarDays,
 } from 'lucide-react';
 import FloatingChat from '@/components/dashboard/FloatingChat';
 
@@ -24,6 +24,8 @@ const STAGE_LABELS: Record<string, string> = {
   'platform-power': 'Platform', 'strategy-macro': 'Macro', 'strategy-meso': 'Meso', 'strategy-micro': 'Micro',
 };
 
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
 export default function DashboardPage() {
   const params = useParams();
   const router = useRouter();
@@ -32,18 +34,38 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>('actions');
   const [completedActions, setCompletedActions] = useState<Set<number>>(new Set());
+  const [renaming, setRenaming] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [logEntry, setLogEntry] = useState('');
+  const [logs, setLogs] = useState<Array<{ text: string; date: string }>>([]);
+  const [revCalc, setRevCalc] = useState({ price: '', customers: '', frequency: '1' });
 
   useEffect(() => {
-    fetch(`/api/sessions/${id}/dashboard`).then(r => r.ok ? r.json() : null).then(d => { setData(d); setLoading(false); }).catch(() => router.push('/'));
+    fetch(`/api/sessions/${id}/dashboard`).then(r => r.ok ? r.json() : null).then(d => { setData(d); setLoading(false); if (d) setNewName(d.session.name); }).catch(() => router.push('/'));
+    // Load logs from localStorage
+    const saved = localStorage.getItem(`logs-${id}`);
+    if (saved) setLogs(JSON.parse(saved));
   }, [id, router]);
 
   const toggleAction = useCallback((idx: number) => {
-    setCompletedActions(prev => {
-      const next = new Set(prev);
-      next.has(idx) ? next.delete(idx) : next.add(idx);
-      return next;
-    });
+    setCompletedActions(prev => { const n = new Set(prev); n.has(idx) ? n.delete(idx) : n.add(idx); return n; });
   }, []);
+
+  const handleRename = useCallback(async () => {
+    if (!newName.trim()) return;
+    await fetch(`/api/sessions/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: newName.trim() }) });
+    setData(prev => prev ? { ...prev, session: { ...prev.session, name: newName.trim() } } : prev);
+    setRenaming(false);
+  }, [id, newName]);
+
+  const addLog = useCallback(() => {
+    if (!logEntry.trim()) return;
+    const entry = { text: logEntry.trim(), date: new Date().toISOString() };
+    const updated = [entry, ...logs];
+    setLogs(updated);
+    localStorage.setItem(`logs-${id}`, JSON.stringify(updated));
+    setLogEntry('');
+  }, [logEntry, logs, id]);
 
   if (loading || !data) return (
     <div className="min-h-screen bg-surface flex items-center justify-center">
@@ -53,8 +75,6 @@ export default function DashboardPage() {
 
   const { metrics, pipeline, actionItems, risks, strengths, stageFindings } = data;
   const has = (v: string) => v && v.length > 0;
-
-  // Parse scores capped at 10
   const parseScore = (v: string) => { const n = parseInt(v) || 0; return n > 10 ? Math.min(Math.round(n / 10), 10) : Math.min(n, 10); };
   const scores = [
     { label: 'Value', value: parseScore(metrics.valueClarityScore), color: '#22c55e' },
@@ -64,7 +84,7 @@ export default function DashboardPage() {
   ];
   const avgHealth = scores.filter(s => s.value > 0).reduce((a, s) => a + s.value, 0) / (scores.filter(s => s.value > 0).length || 1);
 
-  // Categorize actions by stage area
+  // Categorize actions
   const actionsByCategory: Record<string, typeof actionItems> = {};
   for (const item of actionItems) {
     const cat = ['intake', 'value-diagnosis'].includes(item.stage) ? 'Foundation' :
@@ -74,44 +94,69 @@ export default function DashboardPage() {
     actionsByCategory[cat].push(item);
   }
 
+  // Revenue calculator
+  const monthlyRev = (parseFloat(revCalc.price) || 0) * (parseFloat(revCalc.customers) || 0) * (parseFloat(revCalc.frequency) || 1);
+
+  // Smart suggestions based on what's missing
+  const suggestions: string[] = [];
+  if (!has(metrics.activeChannels)) suggestions.push('Define your active channels — Sterling needs this for strategy.');
+  if (!has(metrics.revenueMonthly)) suggestions.push('Add your revenue data to unlock financial projections.');
+  if (parseScore(metrics.businessHealthScore) < 4) suggestions.push('Your business health is critical. Focus on the Operations section first.');
+  if (parseScore(metrics.sovereigntyScore) === 0) suggestions.push('Run the Platform & Power analysis to understand your dependencies.');
+  if (actionItems.length === 0) suggestions.push('Complete more stages to generate actionable priorities.');
+  const completedCount = completedActions.size;
+  const totalActions = actionItems.length;
+  if (completedCount > 0 && completedCount < totalActions) suggestions.push(`${totalActions - completedCount} actions remaining. Keep going.`);
+
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
+  const dayOfWeek = new Date().getDay(); // 0=Sun
 
   return (
     <div className="min-h-screen bg-surface bg-grid">
-      {/* Compact header */}
+      {/* Header */}
       <header className="border-b border-border/50 glass-strong sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-3 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <button onClick={() => router.push('/')} className="text-text-muted hover:text-text"><ArrowLeft className="w-4 h-4" /></button>
-            <img src="/logo-64.png" alt="" className="w-6 h-6 rounded-md" />
-            <span className="text-xs font-semibold text-text truncate max-w-[200px]">{metrics.businessName || 'Dashboard'}</span>
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button onClick={() => router.push('/')} className="text-text-muted hover:text-text flex-shrink-0"><ArrowLeft className="w-4 h-4" /></button>
+            <img src="/logo-64.png" alt="" className="w-6 h-6 rounded-md flex-shrink-0" />
+            {renaming ? (
+              <div className="flex items-center gap-1.5">
+                <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename()}
+                  className="text-xs font-semibold text-text bg-surface-light border border-primary/30 rounded px-2 py-1 focus:outline-none w-40" autoFocus />
+                <button onClick={handleRename} className="text-accent-green"><Check className="w-3.5 h-3.5" /></button>
+                <button onClick={() => setRenaming(false)} className="text-text-muted"><X className="w-3.5 h-3.5" /></button>
+              </div>
+            ) : (
+              <button onClick={() => setRenaming(true)} className="text-xs font-semibold text-text truncate max-w-[180px] sm:max-w-[300px] hover:text-primary transition-colors flex items-center gap-1" title="Click to rename">
+                {data.session.name} <Edit3 className="w-3 h-3 text-text-muted/30" />
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-1.5">
-            <a href={`/session/${id}`} className="text-[10px] text-text-muted hover:text-text px-2 py-1 rounded-md hover:bg-surface-light transition-colors">Chat</a>
-            <a href={`/brief/${id}`} className="text-[10px] text-primary hover:text-primary-light px-2 py-1 rounded-md hover:bg-primary/5 transition-colors">Brief</a>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <a href={`/session/${id}`} className="text-[10px] text-text-muted hover:text-text px-2 py-1 rounded-md hover:bg-surface-light">Chat</a>
+            <a href={`/brief/${id}`} className="text-[10px] text-primary hover:text-primary-light px-2 py-1 rounded-md hover:bg-primary/5">Brief</a>
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-3 py-4 space-y-3">
-        {/* Hero: Greeting + Scores inline */}
+        {/* Hero */}
         <div className="glass rounded-xl p-4 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-accent-gold to-primary opacity-60" />
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-[10px] text-text-muted/50">{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
               <h2 className="text-sm font-semibold text-text mt-0.5">{greeting}. Here's your focus.</h2>
-              {actionItems[0] && (
+              {actionItems[0] && !completedActions.has(0) && (
                 <p className="text-xs text-text-muted mt-1.5 leading-relaxed line-clamp-2">
-                  Top priority: <span className="text-primary font-medium">{actionItems[0].text.slice(0, 80)}{actionItems[0].text.length > 80 ? '...' : ''}</span>
+                  #1: <span className="text-primary font-medium">{actionItems[0].text.slice(0, 80)}{actionItems[0].text.length > 80 ? '...' : ''}</span>
                 </p>
               )}
               {has(metrics.primaryBottleneck) && (
                 <p className="text-[10px] text-red-400/70 mt-1">Bottleneck: {metrics.primaryBottleneck}</p>
               )}
             </div>
-            {/* Mini score ring */}
             <div className="flex-shrink-0 text-center">
               <div className={`text-xl font-bold ${avgHealth >= 7 ? 'text-accent-green' : avgHealth >= 4 ? 'text-accent-gold' : avgHealth > 0 ? 'text-primary' : 'text-text-muted/20'}`}>
                 {avgHealth > 0 ? avgHealth.toFixed(1) : '--'}
@@ -119,8 +164,6 @@ export default function DashboardPage() {
               <p className="text-[9px] text-text-muted/40">health</p>
             </div>
           </div>
-
-          {/* Inline score pills */}
           <div className="flex gap-2 mt-3">
             {scores.map(s => (
               <div key={s.label} className="flex items-center gap-1.5 text-[10px]">
@@ -132,7 +175,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Pipeline - compact */}
+        {/* Weekly focus bar */}
+        <div className="flex items-center gap-1 px-1">
+          {DAYS.map((d, i) => {
+            const isToday = (i + 1) % 7 === dayOfWeek;
+            return (
+              <div key={d} className={`flex-1 text-center py-1 rounded text-[9px] ${isToday ? 'bg-primary/15 text-primary font-semibold' : 'text-text-muted/20'}`}>
+                {d}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Pipeline */}
         <div className="flex items-center gap-1.5 px-1">
           {pipeline.stages.map(stage => {
             const done = pipeline.completed.includes(stage);
@@ -141,24 +196,35 @@ export default function DashboardPage() {
           <span className="text-[9px] text-text-muted/40 ml-1">{pipeline.percentage}%</span>
         </div>
 
-        {/* Action Items — Categorized */}
-        <Section title="What to do now" count={actionItems.length} icon={<Zap className="w-3.5 h-3.5 text-primary" />} defaultOpen expanded={expandedSection === 'actions'} onToggle={() => setExpandedSection(expandedSection === 'actions' ? null : 'actions')}>
+        {/* Smart suggestions */}
+        {suggestions.length > 0 && (
+          <div className="glass rounded-xl p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Lightbulb className="w-3.5 h-3.5 text-accent-gold" />
+              <span className="text-[10px] font-medium text-accent-gold">Sterling suggests</span>
+            </div>
+            {suggestions.slice(0, 3).map((s, i) => (
+              <p key={i} className="text-[11px] text-text-muted/70 leading-relaxed py-0.5 pl-5">{s}</p>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        <Section title="What to do now" count={`${completedCount}/${totalActions}`} icon={<Zap className="w-3.5 h-3.5 text-primary" />} expanded={expandedSection === 'actions'} onToggle={() => setExpandedSection(expandedSection === 'actions' ? null : 'actions')}>
           {Object.entries(actionsByCategory).map(([category, items]) => (
             <div key={category} className="mb-3 last:mb-0">
-              <p className="text-[10px] font-medium text-accent-gold/70 mb-1.5 px-1">{category}</p>
+              <p className="text-[10px] font-medium text-accent-gold/70 mb-1 px-1">{category}</p>
               {items.map((item, i) => {
-                const globalIdx = actionItems.indexOf(item);
-                const done = completedActions.has(globalIdx);
+                const gIdx = actionItems.indexOf(item);
+                const done = completedActions.has(gIdx);
                 return (
-                  <div key={i} onClick={() => toggleAction(globalIdx)}
-                    className={`flex items-start gap-2.5 px-2 py-2 rounded-lg cursor-pointer transition-all hover:bg-white/[0.02] ${done ? 'opacity-40' : ''}`}>
+                  <div key={i} onClick={() => toggleAction(gIdx)}
+                    className={`flex items-start gap-2.5 px-2 py-1.5 rounded-lg cursor-pointer transition-all hover:bg-white/[0.02] ${done ? 'opacity-30' : ''}`}>
                     {done ? <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" /> : <Circle className="w-3.5 h-3.5 text-border flex-shrink-0 mt-0.5" />}
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs leading-relaxed ${done ? 'line-through text-text-muted/40' : 'text-text/90'}`}>{item.text}</p>
-                    </div>
-                    <span className={`text-[8px] px-1.5 py-0.5 rounded flex-shrink-0 ${
-                      item.priority === 'high' ? 'bg-primary/15 text-primary' : 'bg-accent-gold/10 text-accent-gold/70'
-                    }`}>{item.priority === 'high' ? 'now' : 'soon'}</span>
+                    <p className={`text-[11px] leading-relaxed flex-1 ${done ? 'line-through text-text-muted/30' : 'text-text/80'}`}>{item.text}</p>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded flex-shrink-0 ${item.priority === 'high' ? 'bg-primary/15 text-primary' : 'bg-accent-gold/10 text-accent-gold/70'}`}>
+                      {item.priority === 'high' ? 'now' : 'soon'}
+                    </span>
                   </div>
                 );
               })}
@@ -166,7 +232,55 @@ export default function DashboardPage() {
           ))}
         </Section>
 
-        {/* Business snapshot — compact grid */}
+        {/* Revenue Calculator */}
+        <Section title="Revenue calculator" icon={<Calculator className="w-3.5 h-3.5 text-accent-gold" />} expanded={expandedSection === 'calc'} onToggle={() => setExpandedSection(expandedSection === 'calc' ? null : 'calc')}>
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <div>
+              <label className="text-[9px] text-text-muted/50">Price ($)</label>
+              <input value={revCalc.price} onChange={e => setRevCalc(p => ({ ...p, price: e.target.value }))} type="number" placeholder="20"
+                className="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs text-text focus:outline-none focus:border-primary" />
+            </div>
+            <div>
+              <label className="text-[9px] text-text-muted/50">Customers</label>
+              <input value={revCalc.customers} onChange={e => setRevCalc(p => ({ ...p, customers: e.target.value }))} type="number" placeholder="100"
+                className="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs text-text focus:outline-none focus:border-primary" />
+            </div>
+            <div>
+              <label className="text-[9px] text-text-muted/50">Purchases/mo</label>
+              <input value={revCalc.frequency} onChange={e => setRevCalc(p => ({ ...p, frequency: e.target.value }))} type="number" placeholder="1"
+                className="w-full bg-surface border border-border rounded px-2 py-1.5 text-xs text-text focus:outline-none focus:border-primary" />
+            </div>
+          </div>
+          {monthlyRev > 0 && (
+            <div className="glass rounded-lg p-3 text-center">
+              <p className="text-[10px] text-text-muted/50">Monthly revenue</p>
+              <p className="text-lg font-bold text-accent-green">${monthlyRev.toLocaleString()}</p>
+              <p className="text-[10px] text-text-muted/30">${(monthlyRev * 12).toLocaleString()}/year</p>
+            </div>
+          )}
+        </Section>
+
+        {/* Progress Log */}
+        <Section title="Progress log" count={logs.length > 0 ? `${logs.length}` : undefined} icon={<PenLine className="w-3.5 h-3.5 text-accent-green" />} expanded={expandedSection === 'log'} onToggle={() => setExpandedSection(expandedSection === 'log' ? null : 'log')}>
+          <div className="flex gap-2 mb-2">
+            <input value={logEntry} onChange={e => setLogEntry(e.target.value)} onKeyDown={e => e.key === 'Enter' && addLog()}
+              placeholder="What did you accomplish today?"
+              className="flex-1 bg-surface border border-border rounded px-2.5 py-1.5 text-[11px] text-text placeholder:text-text-muted/30 focus:outline-none focus:border-primary" />
+            <button onClick={addLog} disabled={!logEntry.trim()} className="text-[10px] text-primary px-2 py-1.5 rounded hover:bg-primary/5 disabled:opacity-30">Log</button>
+          </div>
+          {logs.length === 0 && <p className="text-[10px] text-text-muted/30 px-1">No entries yet. Log your progress to track momentum.</p>}
+          {logs.slice(0, 5).map((log, i) => (
+            <div key={i} className="flex items-start gap-2 px-1 py-1">
+              <CheckCircle2 className="w-3 h-3 text-accent-green/50 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-text/70">{log.text}</p>
+                <p className="text-[9px] text-text-muted/30">{new Date(log.date).toLocaleDateString()}</p>
+              </div>
+            </div>
+          ))}
+        </Section>
+
+        {/* Business snapshot */}
         <Section title="Your business" icon={<Target className="w-3.5 h-3.5 text-accent-gold" />} expanded={expandedSection === 'snapshot'} onToggle={() => setExpandedSection(expandedSection === 'snapshot' ? null : 'snapshot')}>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 px-1">
             <Metric label="Offering" value={metrics.offering} />
@@ -178,23 +292,23 @@ export default function DashboardPage() {
           </div>
         </Section>
 
-        {/* Strengths & Risks side by side */}
+        {/* Strengths & Risks */}
         {(strengths.length > 0 || risks.length > 0) && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {strengths.length > 0 && (
               <Section title="Strengths" icon={<Star className="w-3.5 h-3.5 text-accent-green" />} expanded={expandedSection === 'strengths'} onToggle={() => setExpandedSection(expandedSection === 'strengths' ? null : 'strengths')}>
-                {strengths.slice(0, 4).map((s, i) => <p key={i} className="text-[11px] text-text-muted/80 leading-relaxed px-1 py-0.5">+ {s}</p>)}
+                {strengths.slice(0, 4).map((s, i) => <p key={i} className="text-[11px] text-text-muted/70 leading-relaxed px-1 py-0.5">+ {s}</p>)}
               </Section>
             )}
             {risks.length > 0 && (
               <Section title="Risks" icon={<AlertTriangle className="w-3.5 h-3.5 text-red-400" />} expanded={expandedSection === 'risks'} onToggle={() => setExpandedSection(expandedSection === 'risks' ? null : 'risks')}>
-                {risks.slice(0, 4).map((r, i) => <p key={i} className="text-[11px] text-text-muted/80 leading-relaxed px-1 py-0.5">- {r}</p>)}
+                {risks.slice(0, 4).map((r, i) => <p key={i} className="text-[11px] text-text-muted/70 leading-relaxed px-1 py-0.5">- {r}</p>)}
               </Section>
             )}
           </div>
         )}
 
-        {/* Stage findings — compact accordion */}
+        {/* Stage details */}
         {Object.keys(stageFindings).length > 0 && (
           <Section title="Analysis details" icon={<BarChart3 className="w-3.5 h-3.5 text-text-muted/50" />} expanded={expandedSection === 'stages'} onToggle={() => setExpandedSection(expandedSection === 'stages' ? null : 'stages')}>
             {Object.entries(stageFindings).map(([stage, findings]) => findings.length > 0 && (
@@ -236,12 +350,10 @@ export default function DashboardPage() {
   );
 }
 
-// Collapsible section with clean toggle
-function Section({ title, icon, children, expanded, onToggle, count, defaultOpen }: {
+function Section({ title, icon, children, expanded, onToggle, count }: {
   title: string; icon?: React.ReactNode; children: React.ReactNode;
-  expanded?: boolean; onToggle?: () => void; count?: number; defaultOpen?: boolean;
+  expanded?: boolean; onToggle?: () => void; count?: string | number;
 }) {
-  const isOpen = defaultOpen ? expanded !== false : expanded;
   return (
     <div className="glass rounded-xl overflow-hidden">
       <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-white/[0.02] transition-colors">
@@ -250,9 +362,9 @@ function Section({ title, icon, children, expanded, onToggle, count, defaultOpen
           <span className="text-xs font-medium text-text">{title}</span>
           {count !== undefined && <span className="text-[9px] text-text-muted/30">{count}</span>}
         </div>
-        <ChevronDown className={`w-3.5 h-3.5 text-text-muted/30 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-text-muted/30 transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </button>
-      {isOpen && <div className="px-3 pb-3 animate-slide-up">{children}</div>}
+      {expanded && <div className="px-3 pb-3 animate-slide-up">{children}</div>}
     </div>
   );
 }
@@ -262,9 +374,7 @@ function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div className="py-0.5">
       <p className="text-[9px] text-text-muted/40">{label}</p>
-      <p className={`text-[11px] leading-snug ${v ? 'text-text/80' : 'text-text-muted/15'}`}>
-        {v ? (value.length > 60 ? value.slice(0, 60) + '...' : value) : '—'}
-      </p>
+      <p className={`text-[11px] leading-snug ${v ? 'text-text/80' : 'text-text-muted/15'}`}>{v ? (value.length > 60 ? value.slice(0, 60) + '...' : value) : '—'}</p>
     </div>
   );
 }
