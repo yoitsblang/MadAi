@@ -193,6 +193,80 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
+  // ─── EXTRACT BOTTLENECK ASSESSMENT ─────────────────────────────
+  let bottleneck: { primary: string; severity: number; confidence: string; evidence: string[]; upside: string; actions: string[] } | null = null;
+  const bnMatch = allText.match(/\[BOTTLENECK_ASSESSMENT\]\s*\n?PRIMARY:\s*(.+)\n?SEVERITY:\s*(\d+)\n?CONFIDENCE:\s*(.+)\n?EVIDENCE:\s*(.+)\n?UPSIDE:\s*(.+)\n?ACTIONS:\s*(.+)\n?\[\/BOTTLENECK_ASSESSMENT\]/i);
+  if (bnMatch) {
+    bottleneck = {
+      primary: bnMatch[1].trim(),
+      severity: parseInt(bnMatch[2]) || 5,
+      confidence: bnMatch[3].trim(),
+      evidence: bnMatch[4].split('|').map(e => e.trim()).filter(Boolean),
+      upside: bnMatch[5].trim(),
+      actions: bnMatch[6].split('|').map(a => a.trim()).filter(Boolean),
+    };
+  } else {
+    // Fallback: extract from memory or patterns
+    const bnFromMem = mem['primary_bottleneck'] || mem['bottleneck'];
+    if (bnFromMem) {
+      bottleneck = {
+        primary: bnFromMem,
+        severity: parseScore(metrics.businessHealthScore) > 0 ? (10 - parseScore(metrics.businessHealthScore)) : 6,
+        confidence: completedStages.length >= 3 ? '75%' : completedStages.length >= 2 ? '55%' : '35%',
+        evidence: risks.slice(0, 3),
+        upside: 'Improvement likely if addressed',
+        actions: actionItems.slice(0, 3).map(a => a.text),
+      };
+    }
+  }
+
+  // ─── EXTRACT STRUCTURED RECOMMENDATIONS ───────────────────────
+  const recommendations: Array<{ action: string; reason: string; outcome: string; difficulty: string; time: string; metric: string }> = [];
+  const recRegex = /\[RECOMMENDATION\]\s*\n?ACTION:\s*(.+)\n?REASON:\s*(.+)\n?OUTCOME:\s*(.+)\n?DIFFICULTY:\s*(.+)\n?TIME:\s*(.+)\n?METRIC:\s*(.+)\n?\[\/RECOMMENDATION\]/gi;
+  let recMatch;
+  while ((recMatch = recRegex.exec(allText)) !== null) {
+    recommendations.push({
+      action: recMatch[1].trim(),
+      reason: recMatch[2].trim(),
+      outcome: recMatch[3].trim(),
+      difficulty: recMatch[4].trim().toLowerCase(),
+      time: recMatch[5].trim(),
+      metric: recMatch[6].trim(),
+    });
+  }
+
+  // ─── BUILD CONSTRAINT MAP ─────────────────────────────────────
+  function parseScore(v: string): number { const n = parseInt(v) || 0; return n > 10 ? Math.min(Math.round(n / 10), 10) : Math.min(n, 10); }
+  const constraintMap = [
+    { label: 'Offer', score: parseScore(metrics.valueClarityScore), status: 'stable' as string },
+    { label: 'Audience', score: has(metrics.targetAudience) ? 6 : 0, status: 'stable' as string },
+    { label: 'Positioning', score: has(metrics.coreValueProp) ? 5 : 0, status: 'unknown' as string },
+    { label: 'Conversion', score: 0, status: 'unknown' as string },
+    { label: 'Fulfillment', score: parseScore(metrics.businessHealthScore), status: 'stable' as string },
+    { label: 'Retention', score: 0, status: 'unknown' as string },
+  ];
+  // Mark primary/secondary based on bottleneck
+  if (bottleneck) {
+    const bnLower = bottleneck.primary.toLowerCase();
+    for (const c of constraintMap) {
+      if (bnLower.includes(c.label.toLowerCase())) c.status = 'primary';
+      else if (c.score > 0 && c.score < 5) c.status = 'secondary';
+      else if (c.score >= 5) c.status = 'stable';
+    }
+  }
+
+  // ─── LEARNING FEED ────────────────────────────────────────────
+  const learnings: string[] = [];
+  for (const content of Object.values(stageSummaries)) {
+    const insightMatches = content.match(/(?:Key insight|Important|Critical finding|The real issue|What this means):\s*(.+?)(?:\n|$)/gi);
+    if (insightMatches) {
+      for (const m of insightMatches.slice(0, 2)) {
+        const clean = m.replace(/^(?:Key insight|Important|Critical finding|The real issue|What this means):\s*/i, '').trim().slice(0, 150);
+        if (clean.length > 15) learnings.push(clean);
+      }
+    }
+  }
+
   // Ensure first 2 items are high priority (AI lists most important first)
   if (actionItems.length > 0) actionItems[0].priority = 'high';
   if (actionItems.length > 1) actionItems[1].priority = 'high';
@@ -231,6 +305,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       opportunities: opportunities.slice(0, 4),
       threats: threats.slice(0, 4),
     },
+    bottleneck,
+    recommendations: recommendations.slice(0, 6),
+    constraintMap,
+    learnings: learnings.slice(0, 6),
     plans,
     planStats,
     memories: memories.map(m => ({ key: m.key, value: m.value, category: m.category })),
