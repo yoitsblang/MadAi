@@ -8,6 +8,7 @@ import {
   Calculator, PenLine, ArrowUpRight, Lightbulb, CalendarDays,
 } from 'lucide-react';
 import FloatingChat from '@/components/dashboard/FloatingChat';
+import { RadarChart, DonutChart, SwotQuadrant, ProgressRing } from '@/components/dashboard/Charts';
 
 interface DashboardData {
   session: { id: string; name: string };
@@ -17,6 +18,7 @@ interface DashboardData {
   actionItems: Array<{ text: string; priority: string; stage: string }>;
   risks: string[];
   strengths: string[];
+  swot?: { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[] };
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -274,6 +276,50 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
+        )}
+
+        {/* ═══ ANALYTICS ROW — Radar + Donut Scores + Pipeline Ring ═══ */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Radar Chart */}
+          <div className="glass rounded-xl p-4 flex flex-col items-center corner-frame">
+            <p className="text-[10px] font-medium text-text-muted/50 uppercase tracking-wider mb-2 self-start">Business Radar</p>
+            <RadarChart data={scores.map(s => ({ label: s.label, value: s.value, max: 10 }))} size={160} />
+          </div>
+
+          {/* Score Donuts */}
+          <div className="glass rounded-xl p-4 corner-frame">
+            <p className="text-[10px] font-medium text-text-muted/50 uppercase tracking-wider mb-3">Health Scores</p>
+            <div className="grid grid-cols-2 gap-3">
+              {scores.map(s => (
+                <div key={s.label} className="flex items-center gap-2">
+                  <DonutChart value={s.value} max={10} size={44} color={s.color} />
+                  <div>
+                    <p className="text-[10px] font-medium text-text/80">{s.label}</p>
+                    <p className="text-[9px] text-text-muted/40">{s.value > 0 ? `${s.value}/10` : 'N/A'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pipeline Progress */}
+          <div className="glass rounded-xl p-4 flex flex-col items-center justify-center corner-frame">
+            <p className="text-[10px] font-medium text-text-muted/50 uppercase tracking-wider mb-3 self-start">Pipeline</p>
+            <ProgressRing progress={pipeline.percentage} size={90} label="complete" />
+            <p className="text-[10px] text-text-muted/40 mt-2">{pipeline.completed.length} of {pipeline.total} stages</p>
+          </div>
+        </div>
+
+        {/* ═══ SWOT ANALYSIS ═══ */}
+        {data.swot && (data.swot.strengths.length > 0 || data.swot.weaknesses.length > 0 || data.swot.opportunities.length > 0 || data.swot.threats.length > 0) && (
+          <Section title="SWOT Analysis" icon={<Target className="w-3.5 h-3.5 text-accent-gold" />} expanded={expandedSection === 'swot'} onToggle={() => setExpandedSection(expandedSection === 'swot' ? null : 'swot')}>
+            <SwotQuadrant
+              strengths={data.swot.strengths}
+              weaknesses={data.swot.weaknesses}
+              opportunities={data.swot.opportunities}
+              threats={data.swot.threats}
+            />
+          </Section>
         )}
 
         {/* Actions */}

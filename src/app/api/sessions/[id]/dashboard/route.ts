@@ -163,6 +163,36 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
   }
 
+  // ─── EXTRACT SWOT DATA ──────────────────────────────────────────
+  const opportunities: string[] = [];
+  const threats: string[] = [];
+  const weaknesses: string[] = [];
+  for (const content of Object.values(stageSummaries)) {
+    const oppMatches = content.match(/\[OPPORTUNITY\][\s:—-]*(.+?)(?:\n|$)/g);
+    if (oppMatches) {
+      for (const m of oppMatches) {
+        const clean = m.replace(/\[OPPORTUNITY\][\s:—-]*/, '').trim().slice(0, 200);
+        if (clean.length > 10) opportunities.push(clean);
+      }
+    }
+    // Threats from RISK tags that mention external factors
+    const threatMatches = content.match(/(?:threat|competition|market risk|external risk|platform.*risk|algorithm|dependency).*?:?\s*(.+?)(?:\n|$)/gi);
+    if (threatMatches) {
+      for (const m of threatMatches.slice(0, 3)) {
+        const clean = m.trim().slice(0, 200);
+        if (clean.length > 10 && !threats.includes(clean)) threats.push(clean);
+      }
+    }
+    // Weaknesses from WEAK tags
+    const weakMatches = content.match(/\[(?:WEAK|FLAW|BLIND SPOT)\][\s:—-]*(.+?)(?:\n|$)/g);
+    if (weakMatches) {
+      for (const m of weakMatches) {
+        const clean = m.replace(/\[(?:WEAK|FLAW|BLIND SPOT)\][\s:—-]*/, '').trim().slice(0, 200);
+        if (clean.length > 10) weaknesses.push(clean);
+      }
+    }
+  }
+
   // Ensure first 2 items are high priority (AI lists most important first)
   if (actionItems.length > 0) actionItems[0].priority = 'high';
   if (actionItems.length > 1) actionItems[1].priority = 'high';
@@ -195,6 +225,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     actionItems: actionItems.slice(0, 15),
     risks: risks.slice(0, 8),
     strengths: strengths.slice(0, 8),
+    swot: {
+      strengths: strengths.slice(0, 4),
+      weaknesses: weaknesses.slice(0, 4),
+      opportunities: opportunities.slice(0, 4),
+      threats: threats.slice(0, 4),
+    },
     plans,
     planStats,
     memories: memories.map(m => ({ key: m.key, value: m.value, category: m.category })),
