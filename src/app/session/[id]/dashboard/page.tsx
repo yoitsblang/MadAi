@@ -3,13 +3,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-  ArrowLeft, BookMarked, MessageSquare, ChevronDown,
-  AlertTriangle, Star, ClipboardList, TrendingUp, Target, BarChart3,
+  ArrowLeft, BookMarked, MessageSquare, ChevronDown, ChevronRight,
+  AlertTriangle, Star, TrendingUp, Target, BarChart3,
+  CheckCircle2, Circle, Zap, Clock, ArrowUpRight,
 } from 'lucide-react';
-import PriorityActions from '@/components/dashboard/PriorityActions';
-import HealthScores from '@/components/dashboard/HealthScores';
-import FinanceTracker from '@/components/dashboard/FinanceTracker';
-import ChannelTracker from '@/components/dashboard/ChannelTracker';
 import FloatingChat from '@/components/dashboard/FloatingChat';
 
 interface DashboardData {
@@ -33,254 +30,254 @@ export default function DashboardPage() {
   const id = params.id as string;
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [finances, setFinances] = useState<Array<{ id: string; type: string; category: string; amount: number; date: string; description?: string }>>([]);
-  const [channels, setChannels] = useState<Array<{ id: string; platform: string; followers?: number; engagement?: number; posts?: number; revenue?: number }>>([]);
-  const [expandedStage, setExpandedStage] = useState<string | null>(null);
-  const [chatQuery, setChatQuery] = useState('');
+  const [expandedSection, setExpandedSection] = useState<string | null>('actions');
+  const [completedActions, setCompletedActions] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/sessions/${id}/dashboard`).then(r => r.ok ? r.json() : null),
-      fetch('/api/finance').then(r => r.ok ? r.json() : []),
-      fetch('/api/channels').then(r => r.ok ? r.json() : []),
-    ]).then(([d, f, c]) => {
-      setData(d);
-      setFinances(Array.isArray(f) ? f : []);
-      setChannels(Array.isArray(c) ? c : []);
-      setLoading(false);
-    }).catch(() => router.push('/'));
+    fetch(`/api/sessions/${id}/dashboard`).then(r => r.ok ? r.json() : null).then(d => { setData(d); setLoading(false); }).catch(() => router.push('/'));
   }, [id, router]);
 
-  const handleAddFinance = useCallback(async (entry: { type: string; category: string; amount: number; date: string; description?: string }) => {
-    const res = await fetch('/api/finance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...entry, sessionId: id }) });
-    if (res.ok) { const created = await res.json(); setFinances(prev => [created, ...prev]); }
-  }, [id]);
-
-  const handleAddChannel = useCallback(async (platform: string) => {
-    const res = await fetch('/api/channels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform, sessionId: id }) });
-    if (res.ok) { const created = await res.json(); setChannels(prev => [...prev, created]); }
-  }, [id]);
+  const toggleAction = useCallback((idx: number) => {
+    setCompletedActions(prev => {
+      const next = new Set(prev);
+      next.has(idx) ? next.delete(idx) : next.add(idx);
+      return next;
+    });
+  }, []);
 
   if (loading || !data) return (
     <div className="min-h-screen bg-surface flex items-center justify-center">
-      <div className="flex items-center gap-3 text-text-muted"><div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /> Loading...</div>
+      <div className="flex items-center gap-3 text-text-muted text-sm"><div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /> Loading...</div>
     </div>
   );
 
   const { metrics, pipeline, actionItems, risks, strengths, stageFindings } = data;
   const has = (v: string) => v && v.length > 0;
 
-  // Build action items for PriorityActions component
-  const actions = actionItems.map((item, i) => ({
-    id: `action-${i}`,
-    text: item.text,
-    priority: item.priority as 'high' | 'medium' | 'low',
-    stage: STAGE_LABELS[item.stage] || item.stage,
-    completed: false,
-    description: `From ${STAGE_LABELS[item.stage] || item.stage} analysis. ${item.priority === 'high' ? 'This is critical — do it this week.' : item.priority === 'medium' ? 'Important but not urgent. Schedule it.' : 'Lower priority. Do when you have bandwidth.'}`,
-  }));
-
-  // Build health scores — cap at 10
-  function parseScore(val: string): number {
-    const n = parseInt(val) || 0;
-    if (n > 10) return Math.min(Math.round(n / 10), 10); // 45 → 5, 100 → 10
-    return Math.min(n, 10);
-  }
+  // Parse scores capped at 10
+  const parseScore = (v: string) => { const n = parseInt(v) || 0; return n > 10 ? Math.min(Math.round(n / 10), 10) : Math.min(n, 10); };
   const scores = [
-    { label: 'Value Clarity', value: parseScore(metrics.valueClarityScore), maxValue: 10, color: '#22c55e', module: 'value-diagnosis' },
-    { label: 'Business Health', value: parseScore(metrics.businessHealthScore), maxValue: 10, color: '#3b82f6', module: 'business-logic' },
-    { label: 'Sovereignty', value: parseScore(metrics.sovereigntyScore), maxValue: 10, color: '#f59e0b', module: 'platform-power' },
-    { label: 'Moat', value: parseScore(metrics.moatScore), maxValue: 10, color: '#818cf8', module: 'strategy-macro' },
+    { label: 'Value', value: parseScore(metrics.valueClarityScore), color: '#22c55e' },
+    { label: 'Health', value: parseScore(metrics.businessHealthScore), color: '#dc2626' },
+    { label: 'Sovereignty', value: parseScore(metrics.sovereigntyScore), color: '#d4a843' },
+    { label: 'Moat', value: parseScore(metrics.moatScore), color: '#3b82f6' },
   ];
+  const avgHealth = scores.filter(s => s.value > 0).reduce((a, s) => a + s.value, 0) / (scores.filter(s => s.value > 0).length || 1);
 
-  // Time-aware greeting
+  // Categorize actions by stage area
+  const actionsByCategory: Record<string, typeof actionItems> = {};
+  for (const item of actionItems) {
+    const cat = ['intake', 'value-diagnosis'].includes(item.stage) ? 'Foundation' :
+      ['business-logic', 'platform-power'].includes(item.stage) ? 'Operations' :
+      ['strategy-macro', 'strategy-meso', 'strategy-micro'].includes(item.stage) ? 'Strategy' : 'General';
+    if (!actionsByCategory[cat]) actionsByCategory[cat] = [];
+    actionsByCategory[cat].push(item);
+  }
+
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-  // Focus indicator — find the #1 priority
-  const topAction = actions.find(a => !a.completed);
-  const overallHealth = scores.reduce((sum, s) => sum + s.value, 0) / scores.filter(s => s.value > 0).length || 0;
-  const healthLabel = overallHealth >= 7 ? 'Strong' : overallHealth >= 4 ? 'Needs Work' : overallHealth > 0 ? 'Critical' : 'Not Scored';
+  const greeting = hour < 12 ? 'Morning' : hour < 17 ? 'Afternoon' : 'Evening';
 
   return (
-    <div className="min-h-screen bg-surface">
-      {/* Header */}
-      <header className="border-b border-border glass-strong sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.push('/')} className="text-text-muted hover:text-text transition-colors"><ArrowLeft className="w-5 h-5" /></button>
-            <div>
-              <h1 className="text-sm font-bold text-text">{metrics.businessName || 'Strategy Dashboard'}</h1>
-              {has(metrics.businessType) && <p className="text-[10px] text-text-muted">{metrics.businessType}</p>}
-            </div>
+    <div className="min-h-screen bg-surface bg-grid">
+      {/* Compact header */}
+      <header className="border-b border-border/50 glass-strong sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-3 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <button onClick={() => router.push('/')} className="text-text-muted hover:text-text"><ArrowLeft className="w-4 h-4" /></button>
+            <img src="/logo-64.png" alt="" className="w-6 h-6 rounded-md" />
+            <span className="text-xs font-semibold text-text truncate max-w-[200px]">{metrics.businessName || 'Dashboard'}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <a href={`/session/${id}`} className="text-xs glass rounded-lg px-3 py-1.5 text-text-muted hover:text-text transition-colors flex items-center gap-1.5"><MessageSquare className="w-3.5 h-3.5" /> Chat</a>
-            <a href={`/brief/${id}`} className="text-xs bg-primary/10 text-primary-light border border-primary/20 rounded-lg px-3 py-1.5 hover:bg-primary/20 transition-colors flex items-center gap-1.5"><BookMarked className="w-3.5 h-3.5" /> Brief</a>
+          <div className="flex items-center gap-1.5">
+            <a href={`/session/${id}`} className="text-[10px] text-text-muted hover:text-text px-2 py-1 rounded-md hover:bg-surface-light transition-colors">Chat</a>
+            <a href={`/brief/${id}`} className="text-[10px] text-primary hover:text-primary-light px-2 py-1 rounded-md hover:bg-primary/5 transition-colors">Brief</a>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-5">
-        {/* Greeting + Focus */}
-        <div className="glass glass-glow rounded-2xl p-6 animate-slide-up accent-line-top">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs text-text-muted/60">{today}</p>
-              <h2 className="text-lg font-bold text-text mt-0.5">{greeting}.</h2>
-              {topAction && (
-                <p className="text-sm text-text-muted mt-2 max-w-xl leading-relaxed">
-                  Your top priority right now: <span className="text-primary-light font-medium">{topAction.text.length > 80 ? topAction.text.slice(0, 80) + '...' : topAction.text}</span>
+      <main className="max-w-5xl mx-auto px-3 py-4 space-y-3">
+        {/* Hero: Greeting + Scores inline */}
+        <div className="glass rounded-xl p-4 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-accent-gold to-primary opacity-60" />
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] text-text-muted/50">{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</p>
+              <h2 className="text-sm font-semibold text-text mt-0.5">{greeting}. Here's your focus.</h2>
+              {actionItems[0] && (
+                <p className="text-xs text-text-muted mt-1.5 leading-relaxed line-clamp-2">
+                  Top priority: <span className="text-primary font-medium">{actionItems[0].text.slice(0, 80)}{actionItems[0].text.length > 80 ? '...' : ''}</span>
                 </p>
               )}
               {has(metrics.primaryBottleneck) && (
-                <p className="text-xs text-red-400/80 mt-1.5">Bottleneck: {metrics.primaryBottleneck}</p>
+                <p className="text-[10px] text-red-400/70 mt-1">Bottleneck: {metrics.primaryBottleneck}</p>
               )}
             </div>
-            <div className="text-right flex-shrink-0 ml-4">
-              <div className={`text-2xl font-bold ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-primary' : 'text-text-muted/30'}`}>
-                {overallHealth > 0 ? overallHealth.toFixed(1) : '--'}
+            {/* Mini score ring */}
+            <div className="flex-shrink-0 text-center">
+              <div className={`text-xl font-bold ${avgHealth >= 7 ? 'text-accent-green' : avgHealth >= 4 ? 'text-accent-gold' : avgHealth > 0 ? 'text-primary' : 'text-text-muted/20'}`}>
+                {avgHealth > 0 ? avgHealth.toFixed(1) : '--'}
               </div>
-              <p className={`text-[10px] font-medium uppercase tracking-widest ${overallHealth >= 7 ? 'text-accent-green' : overallHealth >= 4 ? 'text-accent-amber' : overallHealth > 0 ? 'text-primary' : 'text-text-muted/30'}`}>
-                {healthLabel}
-              </p>
-              <p className="text-[9px] text-text-muted/40 mt-0.5">Overall Health</p>
+              <p className="text-[9px] text-text-muted/40">health</p>
             </div>
           </div>
-        </div>
 
-        {/* Pipeline */}
-        <div className="glass glass-glow rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold text-text uppercase tracking-widest">Strategy Pipeline</h2>
-            <span className="text-lg font-bold text-primary-light">{pipeline.percentage}%</span>
-          </div>
-          <div className="w-full h-1.5 bg-surface rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-gradient-to-r from-primary via-red-500 to-accent-gold rounded-full transition-all duration-700" style={{ width: `${pipeline.percentage}%` }} />
-          </div>
-          <div className="flex gap-1.5">
-            {pipeline.stages.map(stage => {
-              const done = pipeline.completed.includes(stage);
-              return (
-                <a key={stage} href={`/session/${id}`} className={`flex-1 text-center rounded-lg py-2 text-[10px] font-medium transition-all ${done ? 'glass text-primary' : 'bg-surface/50 text-text-muted/20'}`}>
-                  {STAGE_LABELS[stage]}
-                </a>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Priority Actions — FIRST THING USER SEES */}
-        <PriorityActions
-          actions={actions}
-          onToggle={() => {}}
-          onAskSterling={(text) => setChatQuery(text)}
-        />
-
-        {/* Health Scores */}
-        <HealthScores scores={scores} sessionId={id} />
-
-        {/* Business Snapshot + Risks/Strengths */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Snapshot */}
-          <div className="glass glass-glow rounded-2xl p-5">
-            <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 flex items-center gap-2"><Target className="w-4 h-4 text-accent-gold" /> Business Snapshot</h3>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-              <Field label="Offering" value={metrics.offering} />
-              <Field label="Audience" value={metrics.targetAudience} />
-              <Field label="Revenue" value={metrics.revenueMonthly} />
-              <Field label="Price Point" value={metrics.pricePoint} />
-              <Field label="Channels" value={metrics.activeChannels} />
-              <Field label="Value Prop" value={metrics.coreValueProp} />
-            </div>
-            {has(metrics.primaryBottleneck) && (
-              <div className="mt-4 p-3 rounded-xl bg-red-500/5 border border-red-500/10 flex items-start gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-                <div><span className="text-[9px] font-bold text-red-400 uppercase tracking-widest">Bottleneck</span><p className="text-xs text-text-muted mt-0.5 leading-relaxed">{metrics.primaryBottleneck}</p></div>
-              </div>
-            )}
-          </div>
-
-          {/* Strengths & Risks */}
-          <div className="space-y-4">
-            {strengths.length > 0 && (
-              <div className="glass rounded-2xl p-5">
-                <h3 className="text-xs font-bold text-accent-green uppercase tracking-widest mb-3 flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> Strengths</h3>
-                {strengths.slice(0, 5).map((s, i) => <p key={i} className="text-xs text-text-muted leading-relaxed py-1 border-b border-border/20 last:border-0">+ {s}</p>)}
-              </div>
-            )}
-            {risks.length > 0 && (
-              <div className="glass rounded-2xl p-5">
-                <h3 className="text-xs font-bold text-red-400 uppercase tracking-widest mb-3 flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5" /> Risks</h3>
-                {risks.slice(0, 5).map((r, i) => <p key={i} className="text-xs text-text-muted leading-relaxed py-1 border-b border-border/20 last:border-0">- {r}</p>)}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Finance + Channel Trackers */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <FinanceTracker entries={finances} onAdd={handleAddFinance} />
-          <ChannelTracker channels={channels} onAdd={handleAddChannel} />
-        </div>
-
-        {/* Stage Details (expandable) */}
-        {Object.keys(stageFindings).length > 0 && (
-          <div className="glass rounded-2xl overflow-hidden">
-            <h3 className="text-xs font-bold text-text uppercase tracking-widest px-5 pt-5 pb-2 flex items-center gap-2"><ClipboardList className="w-4 h-4 text-accent-gold" /> Stage Analysis</h3>
-            {Object.entries(stageFindings).map(([stage, findings]) => findings.length > 0 && (
-              <div key={stage} className="border-t border-border/20">
-                <button onClick={() => setExpandedStage(expandedStage === stage ? null : stage)} className="w-full px-5 py-3 flex items-center justify-between hover:bg-surface/30 transition-colors">
-                  <span className="text-xs font-medium text-text">{STAGE_LABELS[stage] || stage}</span>
-                  <div className="flex items-center gap-2"><span className="text-[10px] text-text-muted/50">{findings.length}</span><ChevronDown className={`w-3.5 h-3.5 text-text-muted transition-transform ${expandedStage === stage ? 'rotate-180' : ''}`} /></div>
-                </button>
-                {expandedStage === stage && (
-                  <div className="px-5 pb-4 space-y-2 animate-slide-up">
-                    {findings.map((f, i) => <p key={i} className="text-xs text-text-muted leading-relaxed pl-3 border-l-2 border-primary/20">{f}</p>)}
-                  </div>
-                )}
+          {/* Inline score pills */}
+          <div className="flex gap-2 mt-3">
+            {scores.map(s => (
+              <div key={s.label} className="flex items-center gap-1.5 text-[10px]">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.value > 0 ? s.color : '#3f3f46' }} />
+                <span className="text-text-muted/60">{s.label}</span>
+                <span className={`font-semibold ${s.value > 0 ? 'text-text' : 'text-text-muted/20'}`}>{s.value > 0 ? s.value : '--'}</span>
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Pipeline - compact */}
+        <div className="flex items-center gap-1.5 px-1">
+          {pipeline.stages.map(stage => {
+            const done = pipeline.completed.includes(stage);
+            return <div key={stage} className={`flex-1 h-1 rounded-full ${done ? 'bg-primary' : 'bg-surface-light'}`} title={STAGE_LABELS[stage]} />;
+          })}
+          <span className="text-[9px] text-text-muted/40 ml-1">{pipeline.percentage}%</span>
+        </div>
+
+        {/* Action Items — Categorized */}
+        <Section title="What to do now" count={actionItems.length} icon={<Zap className="w-3.5 h-3.5 text-primary" />} defaultOpen expanded={expandedSection === 'actions'} onToggle={() => setExpandedSection(expandedSection === 'actions' ? null : 'actions')}>
+          {Object.entries(actionsByCategory).map(([category, items]) => (
+            <div key={category} className="mb-3 last:mb-0">
+              <p className="text-[10px] font-medium text-accent-gold/70 mb-1.5 px-1">{category}</p>
+              {items.map((item, i) => {
+                const globalIdx = actionItems.indexOf(item);
+                const done = completedActions.has(globalIdx);
+                return (
+                  <div key={i} onClick={() => toggleAction(globalIdx)}
+                    className={`flex items-start gap-2.5 px-2 py-2 rounded-lg cursor-pointer transition-all hover:bg-white/[0.02] ${done ? 'opacity-40' : ''}`}>
+                    {done ? <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" /> : <Circle className="w-3.5 h-3.5 text-border flex-shrink-0 mt-0.5" />}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs leading-relaxed ${done ? 'line-through text-text-muted/40' : 'text-text/90'}`}>{item.text}</p>
+                    </div>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded flex-shrink-0 ${
+                      item.priority === 'high' ? 'bg-primary/15 text-primary' : 'bg-accent-gold/10 text-accent-gold/70'
+                    }`}>{item.priority === 'high' ? 'now' : 'soon'}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </Section>
+
+        {/* Business snapshot — compact grid */}
+        <Section title="Your business" icon={<Target className="w-3.5 h-3.5 text-accent-gold" />} expanded={expandedSection === 'snapshot'} onToggle={() => setExpandedSection(expandedSection === 'snapshot' ? null : 'snapshot')}>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 px-1">
+            <Metric label="Offering" value={metrics.offering} />
+            <Metric label="Audience" value={metrics.targetAudience} />
+            <Metric label="Revenue" value={metrics.revenueMonthly} />
+            <Metric label="Price" value={metrics.pricePoint} />
+            <Metric label="Channels" value={metrics.activeChannels} />
+            <Metric label="Value prop" value={metrics.coreValueProp} />
+          </div>
+        </Section>
+
+        {/* Strengths & Risks side by side */}
+        {(strengths.length > 0 || risks.length > 0) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {strengths.length > 0 && (
+              <Section title="Strengths" icon={<Star className="w-3.5 h-3.5 text-accent-green" />} expanded={expandedSection === 'strengths'} onToggle={() => setExpandedSection(expandedSection === 'strengths' ? null : 'strengths')}>
+                {strengths.slice(0, 4).map((s, i) => <p key={i} className="text-[11px] text-text-muted/80 leading-relaxed px-1 py-0.5">+ {s}</p>)}
+              </Section>
+            )}
+            {risks.length > 0 && (
+              <Section title="Risks" icon={<AlertTriangle className="w-3.5 h-3.5 text-red-400" />} expanded={expandedSection === 'risks'} onToggle={() => setExpandedSection(expandedSection === 'risks' ? null : 'risks')}>
+                {risks.slice(0, 4).map((r, i) => <p key={i} className="text-[11px] text-text-muted/80 leading-relaxed px-1 py-0.5">- {r}</p>)}
+              </Section>
+            )}
+          </div>
+        )}
+
+        {/* Stage findings — compact accordion */}
+        {Object.keys(stageFindings).length > 0 && (
+          <Section title="Analysis details" icon={<BarChart3 className="w-3.5 h-3.5 text-text-muted/50" />} expanded={expandedSection === 'stages'} onToggle={() => setExpandedSection(expandedSection === 'stages' ? null : 'stages')}>
+            {Object.entries(stageFindings).map(([stage, findings]) => findings.length > 0 && (
+              <details key={stage} className="group">
+                <summary className="flex items-center justify-between px-1 py-1.5 text-xs text-text-muted cursor-pointer hover:text-text transition-colors list-none">
+                  <span>{STAGE_LABELS[stage]}</span>
+                  <span className="text-[9px] text-text-muted/30">{findings.length}</span>
+                </summary>
+                <div className="pl-3 pb-2 space-y-1">
+                  {findings.map((f, i) => <p key={i} className="text-[11px] text-text-muted/60 leading-relaxed border-l border-primary/10 pl-2">{f}</p>)}
+                </div>
+              </details>
+            ))}
+          </Section>
         )}
 
         {/* Goals */}
         {(has(metrics.goal30d) || has(metrics.goal6m) || has(metrics.goal1y)) && (
-          <div className="glass glass-glow rounded-2xl p-5">
-            <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-accent-gold" /> Goals & Trajectory</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {has(metrics.goal30d) && <GoalCard tf="30 Days" goal={metrics.goal30d} c="text-accent-green border-accent-green/20" />}
-              {has(metrics.goal6m) && <GoalCard tf="6 Months" goal={metrics.goal6m} c="text-accent-blue border-accent-blue/20" />}
-              {has(metrics.goal1y) && <GoalCard tf="1 Year" goal={metrics.goal1y} c="text-primary-light border-primary/20" />}
+          <Section title="Goals" icon={<TrendingUp className="w-3.5 h-3.5 text-accent-gold" />} expanded={expandedSection === 'goals'} onToggle={() => setExpandedSection(expandedSection === 'goals' ? null : 'goals')}>
+            <div className="space-y-2 px-1">
+              {has(metrics.goal30d) && <Goal label="30d" value={metrics.goal30d} color="text-accent-green" />}
+              {has(metrics.goal6m) && <Goal label="6m" value={metrics.goal6m} color="text-accent-blue" />}
+              {has(metrics.goal1y) && <Goal label="1y" value={metrics.goal1y} color="text-primary-light" />}
             </div>
-          </div>
+          </Section>
         )}
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pb-20">
-          <QA href={`/session/${id}`} label="Continue Strategy" />
-          <QA href={`/brief/${id}`} label="Master Brief" />
-          <QA href="/plans" label="Action Plans" />
-          <QA href="/" label="All Projects" />
+        {/* Quick nav */}
+        <div className="flex gap-2 pb-20">
+          <NavPill href={`/session/${id}`} label="Chat" />
+          <NavPill href={`/brief/${id}`} label="Brief" />
+          <NavPill href="/memories" label="Memory" />
+          <NavPill href="/" label="Home" />
         </div>
       </main>
 
-      {/* Floating Sterling Chat */}
-      <FloatingChat sessionId={id} businessName={metrics.businessName || ''} initialQuery={chatQuery} />
+      <FloatingChat sessionId={id} businessName={metrics.businessName || ''} />
     </div>
   );
 }
 
-function Field({ label, value }: { label: string; value: string }) {
-  const has = value && value.length > 0;
-  return (<div><span className="text-[9px] text-text-muted/40 uppercase tracking-widest">{label}</span><p className={`text-xs leading-relaxed mt-0.5 ${has ? 'text-text' : 'text-text-muted/20 italic'}`}>{has ? (value.length > 100 ? value.slice(0, 100) + '...' : value) : 'Not captured'}</p></div>);
+// Collapsible section with clean toggle
+function Section({ title, icon, children, expanded, onToggle, count, defaultOpen }: {
+  title: string; icon?: React.ReactNode; children: React.ReactNode;
+  expanded?: boolean; onToggle?: () => void; count?: number; defaultOpen?: boolean;
+}) {
+  const isOpen = defaultOpen ? expanded !== false : expanded;
+  return (
+    <div className="glass rounded-xl overflow-hidden">
+      <button onClick={onToggle} className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-white/[0.02] transition-colors">
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="text-xs font-medium text-text">{title}</span>
+          {count !== undefined && <span className="text-[9px] text-text-muted/30">{count}</span>}
+        </div>
+        <ChevronDown className={`w-3.5 h-3.5 text-text-muted/30 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && <div className="px-3 pb-3 animate-slide-up">{children}</div>}
+    </div>
+  );
 }
 
-function GoalCard({ tf, goal, c }: { tf: string; goal: string; c: string }) {
-  return (<div className={`p-3 rounded-xl glass border ${c.split(' ')[1]}`}><span className={`text-[9px] font-bold uppercase tracking-widest ${c.split(' ')[0]}`}>{tf}</span><p className="text-xs text-text-muted mt-1.5 leading-relaxed">{goal.length > 120 ? goal.slice(0, 120) + '...' : goal}</p></div>);
+function Metric({ label, value }: { label: string; value: string }) {
+  const v = value && value.length > 0;
+  return (
+    <div className="py-0.5">
+      <p className="text-[9px] text-text-muted/40">{label}</p>
+      <p className={`text-[11px] leading-snug ${v ? 'text-text/80' : 'text-text-muted/15'}`}>
+        {v ? (value.length > 60 ? value.slice(0, 60) + '...' : value) : '—'}
+      </p>
+    </div>
+  );
 }
 
-function QA({ href, label }: { href: string; label: string }) {
-  return <a href={href} className="glass rounded-xl p-3 text-xs font-medium text-text-muted hover:text-text hover:border-primary/30 transition-colors text-center">{label}</a>;
+function Goal({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <div className="flex gap-2">
+      <span className={`text-[10px] font-semibold ${color} w-6 flex-shrink-0`}>{label}</span>
+      <p className="text-[11px] text-text-muted/70 leading-relaxed">{value.length > 100 ? value.slice(0, 100) + '...' : value}</p>
+    </div>
+  );
+}
+
+function NavPill({ href, label }: { href: string; label: string }) {
+  return <a href={href} className="flex-1 text-center text-[10px] text-text-muted/50 hover:text-text py-2 rounded-lg hover:bg-surface-light transition-colors">{label}</a>;
 }
