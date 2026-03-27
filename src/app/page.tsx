@@ -165,7 +165,7 @@ export default function Dashboard() {
             <NavLink href="/calendar" icon={<Calendar className="w-4 h-4" />} label="Calendar" />
             <NavLink href="/library" icon={<BookOpen className="w-4 h-4" />} label="Library" />
             <NavLink href="/profile" icon={session?.user?.image
-              ? <img src={session.user.image} alt="" className="w-5 h-5 rounded-full" />
+              ? <img src={session.user.image} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
               : <User className="w-4 h-4" />} label={session?.user?.name?.split(' ')[0] || 'Profile'} />
             <button
               onClick={() => signOut()}
@@ -449,9 +449,9 @@ export default function Dashboard() {
 
 function NavLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
   return (
-    <a href={href} className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-2 sm:px-3 py-2 flex items-center gap-1.5 rounded-lg hover:bg-surface-light">
-      <span className="sm:hidden">{icon}</span>
-      <span className="hidden sm:flex items-center gap-1.5">{icon}{label}</span>
+    <a href={href} className="text-xs sm:text-sm text-text-muted hover:text-text transition-colors px-1.5 sm:px-3 py-2 flex items-center gap-1.5 rounded-lg hover:bg-surface-light flex-shrink-0">
+      <span className="flex-shrink-0">{icon}</span>
+      <span className="hidden sm:inline">{label}</span>
     </a>
   );
 }
