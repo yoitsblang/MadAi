@@ -84,3 +84,30 @@ export async function DELETE(req: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
+
+// PATCH /api/memory - Update a memory value
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { id, value, key } = await req.json();
+  if (!id && !key) {
+    return NextResponse.json({ error: 'id or key required' }, { status: 400 });
+  }
+
+  if (id) {
+    const memory = await prisma.aiMemory.update({
+      where: { id, userId: session.user.id },
+      data: { value, updatedAt: new Date() },
+    });
+    return NextResponse.json(memory);
+  }
+
+  const memory = await prisma.aiMemory.updateMany({
+    where: { userId: session.user.id, key },
+    data: { value, updatedAt: new Date() },
+  });
+  return NextResponse.json({ success: true, count: memory.count });
+}

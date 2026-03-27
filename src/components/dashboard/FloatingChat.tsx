@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain, X, Send } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -44,15 +44,16 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
     setLoading(true);
 
     try {
+      const allMessages = [...messages, userMsg].map(m => ({ role: m.role, content: m.content }));
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId,
           module: 'general',
-          message: text,
-          businessContext: { businessName },
-          pageContext: 'dashboard',
+          messages: allMessages,
+          businessContext: `Dashboard consultation for: ${businessName}`,
+          ethicalStance: 'balanced',
         }),
       });
 
@@ -83,7 +84,7 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
           onClick={() => setOpen(true)}
           className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/25 flex items-center justify-center transition-all hover:scale-105"
         >
-          <Brain className="w-6 h-6" />
+          <img src="/logo-64.png" alt="Sterling" className="w-6 h-6 rounded-full" />
         </button>
       )}
 
@@ -93,7 +94,7 @@ export default function FloatingChat({ sessionId, businessName }: FloatingChatPr
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
             <div className="flex items-center gap-2.5">
-              <Brain className="w-4.5 h-4.5 text-primary-light" />
+              <img src="/logo-64.png" alt="Sterling" className="w-4 h-4 rounded-full" />
               <span className="text-sm font-semibold text-text">Sterling</span>
             </div>
             <button

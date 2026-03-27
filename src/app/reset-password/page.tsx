@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Brain, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 function ResetForm() {
@@ -119,9 +119,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-4">
-            <Brain className="w-7 h-7 text-primary-light" />
-          </div>
+          <img src="/logo-400.png" alt="MadAi" className="w-16 h-16 rounded-2xl mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-text">Set New Password</h1>
           <p className="text-sm text-text-muted mt-1">Choose a strong password for your account</p>
         </div>

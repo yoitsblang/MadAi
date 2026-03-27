@@ -3,7 +3,7 @@
 import React from 'react';
 import { MODULE_INFO, ModuleType } from '@/lib/types/business';
 import { ModuleIcon } from '@/lib/icons';
-import { Brain, Lock, ArrowLeft, BookOpen, Settings } from 'lucide-react';
+import { Lock, ArrowLeft, BookOpen, Settings } from 'lucide-react';
 
 interface SidebarProps {
   activeModule: ModuleType;
@@ -42,9 +42,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <Brain className="w-5 h-5 text-primary-light" />
-          </div>
+          <img src="/logo-400.png" alt="MadAi" className="w-8 h-8 rounded-lg" />
           <div>
             <h1 className="text-sm font-bold text-text">MadAi</h1>
             <p className="text-xs text-text-muted">Strategic Intelligence</p>

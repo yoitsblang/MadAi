@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
-  Brain, FolderOpen, Calendar, BookOpen, User, Power,
+  FolderOpen, Calendar, BookOpen, User, Power,
   Target, Search, Scale, Map, Shield, FlaskConical, ClipboardList,
   TrendingUp, Zap, ChevronRight, BarChart2,
   CheckCircle2, Lock, Clock, Sparkles, BookMarked,
@@ -153,9 +153,7 @@ export default function Dashboard() {
       <header className="border-b border-border glass-strong sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/20">
-              <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-primary-light" />
-            </div>
+            <img src="/logo-400.png" alt="MadAi" className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl" />
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-text tracking-tight">MadAi</h1>
               <p className="text-[10px] sm:text-xs text-text-muted">Strategic Marketing Intelligence</p>
@@ -354,10 +352,11 @@ export default function Dashboard() {
                       </div>
                     )}
 
-                    {/* Delete button */}
+                    {/* Delete button — always visible */}
                     <button
                       onClick={(e) => handleDelete(e, s.id)}
-                      className="absolute top-3 right-3 text-text-muted/20 hover:text-accent-red opacity-0 group-hover:opacity-100 transition-all w-6 h-6 flex items-center justify-center rounded-md hover:bg-accent-red/10"
+                      className="absolute top-3 right-3 text-text-muted/40 hover:text-red-400 transition-all w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-500/10 text-xs"
+                      title="Delete project"
                     >
                       ✕
                     </button>

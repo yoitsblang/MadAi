@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Brain, CheckCircle2, Zap, Crown, ArrowLeft, CreditCard, Sparkles } from 'lucide-react';
+import { CheckCircle2, Zap, Crown, ArrowLeft, CreditCard, Sparkles } from 'lucide-react';
 import { TIER_CONFIG } from '@/lib/tiers';
 
 function PricingContent() {
@@ -47,7 +47,7 @@ function PricingContent() {
           <button onClick={() => router.push('/')} className="text-text-muted hover:text-text">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <Brain className="w-6 h-6 text-primary-light" />
+          <img src="/logo-400.png" alt="MadAi" className="w-6 h-6 rounded" />
           <h1 className="text-sm font-bold text-text">MadAi Pricing</h1>
         </div>
       </header>

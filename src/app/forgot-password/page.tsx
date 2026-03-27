@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Brain, ArrowLeft, Mail } from 'lucide-react';
+import { ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ForgotPasswordPage() {
@@ -37,9 +37,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-4">
-            <Brain className="w-7 h-7 text-primary-light" />
-          </div>
+          <img src="/logo-400.png" alt="MadAi" className="w-16 h-16 rounded-2xl mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-text">Reset Password</h1>
           <p className="text-sm text-text-muted mt-1">Enter your email to receive a reset link</p>
         </div>
