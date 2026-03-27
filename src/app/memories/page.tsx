@@ -65,8 +65,8 @@ export default function MemoriesPage() {
   if (loading) return <div className="min-h-screen bg-surface flex items-center justify-center"><div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
 
   return (
-    <div className="min-h-screen bg-surface bg-grid">
-      <header className="border-b border-border glass-strong sticky top-0 z-10">
+    <div className="min-h-screen bg-surface page-transition">
+      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => router.push('/')} className="text-text-muted hover:text-text"><ArrowLeft className="w-5 h-5" /></button>
