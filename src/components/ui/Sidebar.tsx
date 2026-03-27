@@ -38,26 +38,23 @@ const MODULE_GROUPS = [
 
 export default function Sidebar({ activeModule, onModuleChange, intakeComplete, sessionName }: SidebarProps) {
   return (
-    <aside className="w-64 glass-strong border-r border-border/20 flex flex-col h-full">
+    <aside className="w-60 bg-surface border-r border-border/15 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-border/20 accent-line">
-        <div className="flex items-center gap-2">
-          <img src="/logo-400.png" alt="MadAi" className="w-10 h-10 rounded-xl float" />
-          <div>
-            <h1 className="text-sm font-bold text-text">MadAi</h1>
-            <p className="text-xs text-text-muted">Strategic Intelligence</p>
-          </div>
-        </div>
+      <div className="px-4 py-3 border-b border-border/15">
+        <a href="/" className="flex items-center gap-2.5">
+          <img src="/logo-200.png" alt="MadAi" className="w-8 h-8 rounded-lg" />
+          <span className="heading-sm text-text">MadAi</span>
+        </a>
         {sessionName && (
-          <p className="text-xs text-primary-light mt-2 truncate">{sessionName}</p>
+          <p className="text-[11px] text-text-muted/50 mt-2 truncate">{sessionName}</p>
         )}
       </div>
 
       {/* Module navigation */}
-      <nav className="flex-1 overflow-y-auto p-2">
+      <nav className="flex-1 overflow-y-auto px-2 py-3">
         {MODULE_GROUPS.map(group => (
-          <div key={group.label} className="mb-3">
-            <div className="text-[10px] font-semibold text-accent-gold/60 uppercase tracking-wider px-3 py-1">
+          <div key={group.label} className="mb-4">
+            <div className="label-xs text-accent-gold/50 px-3 mb-1">
               {group.label}
             </div>
             {group.modules.map(module => {
@@ -70,19 +67,19 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
                   key={module}
                   onClick={() => !isLocked && onModuleChange(module)}
                   disabled={isLocked}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all text-sm
+                  className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-left transition-all text-[13px]
                     ${isActive
-                      ? 'bg-primary/10 text-primary-light border-l-2 border-primary'
+                      ? 'bg-primary/8 text-text border-l-2 border-primary ml-[-1px]'
                       : isLocked
-                        ? 'text-text-muted/30 cursor-not-allowed'
-                        : 'text-text-muted hover:bg-surface-light hover:text-text'
+                        ? 'text-text-muted/25 cursor-not-allowed'
+                        : 'text-text-muted/70 hover:bg-surface-light hover:text-text'
                     }`}
                 >
                   <span className={`${isLocked ? 'opacity-30' : ''}`}>
                     <ModuleIcon name={info.icon} className="w-4 h-4 text-current" />
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className={`text-xs font-medium truncate ${isActive ? 'text-primary-light' : ''}`}>
+                    <div className={`text-[12px] font-medium truncate ${isActive ? 'text-text' : ''}`}>
                       {info.label}
                     </div>
                   </div>
