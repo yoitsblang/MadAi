@@ -96,10 +96,15 @@ export default function Dashboard() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="flex items-center gap-3 text-text-muted">
-          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <span className="text-sm">Loading...</span>
+      <div className="min-h-screen bg-surface page-transition">
+        <div className="border-b border-border/20 h-14" />
+        <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-8 space-y-6">
+          <div><div className="skeleton h-3 w-32 mb-3" /><div className="skeleton h-9 w-72" /></div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[1,2,3,4].map(i => <div key={i} className="skeleton h-20" />)}
+          </div>
+          <div className="skeleton h-4 w-32 mt-4" />
+          <div className="space-y-3">{[1,2].map(i => <div key={i} className="skeleton h-24" />)}</div>
         </div>
       </div>
     );

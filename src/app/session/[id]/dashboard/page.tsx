@@ -70,8 +70,24 @@ export default function DashboardPage() {
   }, [logEntry, logs, id]);
 
   if (loading || !data) return (
-    <div className="min-h-screen bg-surface flex items-center justify-center">
-      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+    <div className="min-h-screen bg-surface page-transition">
+      <div className="border-b border-border/20 h-12" />
+      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 py-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div><div className="skeleton h-3 w-24 mb-2" /><div className="skeleton h-7 w-64" /></div>
+          <div className="skeleton w-14 h-14 rounded-full" />
+        </div>
+        <div className="skeleton h-2 w-full rounded-full" />
+        <div className="skeleton h-20 w-full" />
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+          <div className="space-y-3">
+            <div className="skeleton h-32" /><div className="skeleton h-24" /><div className="skeleton h-24" />
+          </div>
+          <div className="space-y-3">
+            <div className="skeleton h-64" /><div className="skeleton h-40" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 
