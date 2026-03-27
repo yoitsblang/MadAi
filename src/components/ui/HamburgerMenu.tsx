@@ -48,7 +48,7 @@ export default function HamburgerMenu({ sessionId, activeModule, onModuleChange,
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-1 w-64 glass-strong rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-up">
+        <div className="absolute top-full right-0 mt-1 w-64 bg-surface-light border border-border/20 rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-up">
           {/* Dashboard link */}
           <a href={`/session/${sessionId}/dashboard`}
             className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-primary-light hover:bg-primary/10 transition-colors border-b border-border/20">

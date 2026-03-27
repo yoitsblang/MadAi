@@ -41,8 +41,8 @@ function PricingContent() {
   const currentTier = user?.subscriptionTier || 'free';
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="border-b border-border/20 glass-strong sticky top-0 z-10 accent-line">
+    <div className="min-h-screen bg-surface page-transition">
+      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
           <button onClick={() => router.push('/')} className="text-text-muted hover:text-text">
             <ArrowLeft className="w-5 h-5" />
@@ -66,7 +66,7 @@ function PricingContent() {
         )}
 
         {user && (
-          <div className="glass rounded-xl p-4 mb-6 flex items-center justify-between glass-glow">
+          <div className="card-dark p-4 mb-6 flex items-center justify-between">
             <div>
               <span className="text-xs text-text-muted uppercase tracking-wider">Current Plan</span>
               <p className="text-sm font-bold text-text capitalize">{currentTier} {user.role === 'admin' && '(Admin)'}</p>

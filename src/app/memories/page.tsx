@@ -96,7 +96,7 @@ export default function MemoriesPage() {
         {/* Memory List */}
         <div className="space-y-2">
           {filtered.map(m => (
-            <div key={m.id} className="glass rounded-xl p-4 group">
+            <div key={m.id} className="card-dark p-4 group">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
