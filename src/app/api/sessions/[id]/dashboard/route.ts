@@ -236,6 +236,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   // ─── BUILD CONSTRAINT MAP ─────────────────────────────────────
+  function has(v: string): boolean { return Boolean(v && v.trim().length > 0); }
   function parseScore(v: string): number { const n = parseInt(v) || 0; return n > 10 ? Math.min(Math.round(n / 10), 10) : Math.min(n, 10); }
   const constraintMap = [
     { label: 'Offer', score: parseScore(metrics.valueClarityScore), status: 'stable' as string },
