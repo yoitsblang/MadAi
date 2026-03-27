@@ -127,12 +127,15 @@ export default function Dashboard() {
             <span className="heading-sm text-text hidden sm:block">MadAi</span>
           </div>
 
-          <div className="flex items-center gap-1">
-            <NavIcon href="/plans" icon={<ClipboardList className="w-4 h-4" />} label="Plans" />
-            <NavIcon href="/library" icon={<BookOpen className="w-4 h-4" />} label="Library" />
-            <NavIcon href="/calendar" icon={<Calendar className="w-4 h-4" />} label="Calendar" />
-            <NavIcon href="/templates" icon={<FolderOpen className="w-4 h-4" />} label="Templates" />
-            <div className="w-px h-5 bg-border/20 mx-1" />
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            {/* Desktop nav — hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-1">
+              <NavIcon href="/plans" icon={<ClipboardList className="w-4 h-4" />} label="Plans" />
+              <NavIcon href="/library" icon={<BookOpen className="w-4 h-4" />} label="Library" />
+              <NavIcon href="/calendar" icon={<Calendar className="w-4 h-4" />} label="Calendar" />
+              <NavIcon href="/templates" icon={<FolderOpen className="w-4 h-4" />} label="Templates" />
+              <div className="w-px h-5 bg-border/20 mx-1" />
+            </div>
             <NotificationBell />
             <a href="/profile" className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-light transition-colors">
               {session?.user?.image ? (
@@ -156,17 +159,17 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
               <h1 className="heading-xl text-text">
-                {sessions.length === 0 ? 'Build your strategy.' : `${greeting}, ${userName}.`}
+                {sessions.length === 0 ? 'Diagnose. Fix. Grow.' : `${greeting}, ${userName}.`}
               </h1>
               <p className="text-text-muted text-sm mt-2 max-w-lg leading-relaxed">
                 {sessions.length === 0
-                  ? 'Deep strategic analysis combining business fundamentals, live research, and psychological insight.'
-                  : 'Your strategic command center. Analysis, plans, and execution.'}
+                  ? 'Find your business bottleneck. Get a fix. Measure what changed.'
+                  : 'Find the constraint. Fix it. Measure what changed.'}
               </p>
             </div>
             <button onClick={handleNew}
               className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-xl px-6 py-3 text-sm transition-all hover:shadow-[0_0_25px_rgba(220,38,38,0.3)] flex-shrink-0">
-              <Plus className="w-4 h-4" /> New Analysis
+              <Plus className="w-4 h-4" /> Diagnose bottleneck
             </button>
           </div>
         </div>
