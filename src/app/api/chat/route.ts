@@ -583,6 +583,73 @@ async function extractAndSaveMemories(
           }
         } catch (e) { console.error('Auto-scorecard error:', e); }
       }
+
+      // Auto-generate experiments from testable recommendations
+      if (completedStage === 'strategy-meso' || completedStage === 'strategy-micro') {
+        try {
+          const recentMsg = await prisma.message.findFirst({
+            where: { role: 'assistant', module: completedStage },
+            orderBy: { createdAt: 'desc' },
+            select: { sessionId: true, content: true },
+          });
+          if (recentMsg) {
+            // Parse experiment-like recommendations (lines with "test", "try", "experiment")
+            const lines = recentMsg.content.split('\n');
+            const testable = lines.filter(l =>
+              /(?:test|try|experiment|A\/B|split test|validate|hypothesis|measure)/i.test(l) &&
+              l.trim().length > 20
+            ).slice(0, 3);
+
+            for (const line of testable) {
+              const clean = line.replace(/^\d+\.\s*\*?\*?/, '').replace(/\*\*/g, '').trim().slice(0, 200);
+              await prisma.experiment.create({
+                data: {
+                  sessionId: recentMsg.sessionId,
+                  hypothesis: `If we ${clean.toLowerCase()}, it will improve results`,
+                  change: clean,
+                  metric: 'Conversion or engagement rate',
+                  passCondition: 'Measurable improvement within 7 days',
+                  failCondition: 'No change or negative impact after 7 days',
+                  winAction: 'Make it permanent and iterate',
+                  status: 'backlog',
+                  duration: '7 days',
+                  priority: 'medium',
+                },
+              });
+            }
+          }
+        } catch (e) { console.error('Auto-experiment error:', e); }
+      }
+
+      // Auto-generate decisions from strategy analysis
+      if (completedStage === 'strategy-macro' || completedStage === 'value-diagnosis') {
+        try {
+          const recentMsg = await prisma.message.findFirst({
+            where: { role: 'assistant', module: completedStage },
+            orderBy: { createdAt: 'desc' },
+            select: { sessionId: true, content: true },
+          });
+          if (recentMsg) {
+            const decisionPatterns = recentMsg.content.match(/(?:should you|consider whether|decision.*?:|the question is|you need to decide).*?(?:\n|$)/gi);
+            if (decisionPatterns) {
+              for (const d of decisionPatterns.slice(0, 3)) {
+                const clean = d.replace(/^(?:should you|consider whether|decision.*?:|the question is|you need to decide)[:\s]*/i, '').trim().slice(0, 200);
+                if (clean.length > 15) {
+                  await prisma.decision.create({
+                    data: {
+                      sessionId: recentMsg.sessionId,
+                      question: clean,
+                      tradeoffSummary: 'Analyze tradeoffs with Sterling',
+                      recommendation: 'Ask Sterling for a deeper analysis',
+                      confidence: 'medium',
+                    },
+                  });
+                }
+              }
+            }
+          }
+        } catch (e) { console.error('Auto-decision error:', e); }
+      }
     }
   }
 }
