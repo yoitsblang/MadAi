@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(netstat -ano)",
+      "Bash(ls \"C:\\\\Users\\\\bslan\\\\Documents\\\\ClaudeProjects\\\\MadAi\\\\node_modules\\\\.bin\\\\next\"*)",
+      "Bash(ls \"C:/Users/bslan/Documents/ClaudeProjects/MadAi/node_modules/.bin/\"next*)",
+      "Bash(cmd /c \"npx next dev --port 52085\")",
+      "Bash(taskkill /PID 6200 /F)",
+      "Bash(cmd.exe /c \"taskkill /PID 6200 /F\")",
+      "Bash(TASKKILL //PID 6200 //F)",
+      "Bash(npx vercel:*)",
+      "Bash(printf 'https://mad-ai-one.vercel.app')",
+      "Bash(printf 'true')",
+      "Bash(node -e \":*)",
+      "Bash(node -e \"console.log\\(require\\(''@auth/prisma-adapter/package.json''\\).version\\)\")",
+      "Bash(npx next:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(source .env.turso)",
+      "Bash(TURSO_DATABASE_URL=\"libsql://madai-yoitsblang.aws-us-east-1.turso.io\" TURSO_AUTH_TOKEN=\"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NzQyMjY0OTIsImlkIjoiMDE5ZDE4MjMtMzgwMS03ZjdmLTljZTMtMTgyZWZhY2RhMzQwIiwicmlkIjoiZmNjMDU2ZGMtMmUwNS00NWU1LTg2M2YtOTI5ZmRjMDVkODBmIn0.NqUitfXn4FBSa7qfJQMv1KWhy-bUHtimkY7hMcs1f4sW7UT1dpXdbzwFh3de8WgiEhcPQZEBGMKPrUC3Zr31CA\" node -e \":*)"
+    ]
+  }
+}
