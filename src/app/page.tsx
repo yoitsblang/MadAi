@@ -81,10 +81,8 @@ export default function CommandCenter() {
     loadProjectData(s.id);
   }
 
-  async function handleNew() {
-    const r = await fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-    if (r.ok) { const s = await r.json(); toast.success('Project created'); router.push(`/session/${s.id}`); }
-    else toast.error('Failed');
+  function handleNew() {
+    router.push('/new-project');
   }
 
   async function handleDelete(e: React.MouseEvent, id: string) {
