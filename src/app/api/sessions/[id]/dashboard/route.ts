@@ -272,6 +272,43 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (actionItems.length > 0) actionItems[0].priority = 'high';
   if (actionItems.length > 1) actionItems[1].priority = 'high';
 
+  // ─── LOAD EXPERIMENTS, DECISIONS, SCORECARD ──────────────────
+  const experiments = await prisma.experiment.findMany({
+    where: { sessionId: id },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  const decisions = await prisma.decision.findMany({
+    where: { sessionId: id },
+    orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+  });
+
+  const scorecard = await prisma.founderScorecard.findFirst({
+    where: { sessionId: id },
+    orderBy: { generatedAt: 'desc' },
+  });
+
+  const weeklyReviews = await prisma.weeklyReview.findMany({
+    where: { sessionId: id },
+    orderBy: { weekOf: 'desc' },
+    take: 4,
+  });
+
+  // Auto-generate decisions from AI analysis if none exist
+  const autoDecisions: Array<{ question: string; recommendation: string; confidence: string }> = [];
+  if (decisions.length === 0 && actionItems.length > 0) {
+    // Extract decision-like patterns from AI text
+    const decPatterns = allText.match(/(?:Should you|Consider whether|Decision needed|The question is|You need to decide).*?(?:\n|$)/gi);
+    if (decPatterns) {
+      for (const d of decPatterns.slice(0, 4)) {
+        const clean = d.replace(/^(?:Should you|Consider whether|Decision needed|The question is|You need to decide)[:\s]*/i, '').trim();
+        if (clean.length > 10) {
+          autoDecisions.push({ question: clean.slice(0, 150), recommendation: 'Ask Sterling for analysis', confidence: 'medium' });
+        }
+      }
+    }
+  }
+
   const planStats = plans.length > 0 ? {
     totalItems: plans[0].items.length,
     completedItems: plans[0].items.filter(i => i.status === 'completed').length,
@@ -313,5 +350,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     plans,
     planStats,
     memories: memories.map(m => ({ key: m.key, value: m.value, category: m.category })),
+    experiments,
+    decisions: decisions.length > 0 ? decisions : autoDecisions.map((d, i) => ({ id: `auto-${i}`, ...d, status: 'pending', tradeoffSummary: '', downsideOfDelay: '' })),
+    scorecard,
+    weeklyReviews,
   });
 }
