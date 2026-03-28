@@ -12,6 +12,8 @@ import {
 import FloatingChat from '@/components/dashboard/FloatingChat';
 import ConstraintMap from '@/components/dashboard/ConstraintMap';
 import SprintBuilder from '@/components/dashboard/SprintBuilder';
+import ExperimentLab from '@/components/dashboard/ExperimentLab';
+import FounderScorecardWidget from '@/components/dashboard/FounderScorecard';
 
 interface Bottleneck { primary: string; severity: number; confidence: string; evidence: string[]; upside: string; actions: string[]; }
 interface Recommendation { action: string; reason: string; outcome: string; difficulty: string; time: string; metric: string; }
@@ -336,6 +338,14 @@ export default function DashboardPage() {
             <Zap className="w-4 h-4 text-blue-500" /> 7-Day Sprint
           </h3>
           <SprintBuilder sessionId={id} actionItems={actionItems} />
+        </div>
+
+        {/* ═══ EXPERIMENT LAB + SCORECARD ═══ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-[#0a0a0f] border border-purple-500/10 rounded-xl p-5">
+            <ExperimentLab sessionId={id} />
+          </div>
+          <FounderScorecardWidget sessionId={id} />
         </div>
 
         {/* ═══ STRENGTHS + RISKS ═══ */}
