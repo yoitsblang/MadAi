@@ -5,11 +5,12 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
-  Plus, Trash2, ChevronRight, LayoutDashboard, MessageSquare,
-  BookMarked, Power, Bell, Search, User, TrendingUp,
-  Zap, Target, BarChart2, Activity, ArrowUpRight, ArrowDownRight,
-  Calendar, ClipboardList, BookOpen, FolderOpen, Settings,
-  Cpu, Shield, FlaskConical, Scale, Map, Eye,
+  Plus, Trash2, ChevronRight, ChevronDown, Power, Bell, User,
+  TrendingUp, Zap, Target, Activity, ArrowUpRight, AlertTriangle,
+  Calendar, ClipboardList, BookOpen, FolderOpen, Settings, Eye,
+  Crosshair, Shield, FlaskConical, Scale, Map, MessageSquare,
+  BarChart2, Edit3, Check, X, Cpu, Layers, Beaker, Archive,
+  Clock, ArrowRight, Lightbulb, Ban, HelpCircle, Gauge,
 } from 'lucide-react';
 import NotificationBell from '@/components/ui/NotificationBell';
 
@@ -20,368 +21,453 @@ interface SessionItem {
   _count: { messages: number };
 }
 
-const STAGES = ['intake','value-diagnosis','business-logic','platform-power','strategy-macro','strategy-meso','strategy-micro'];
-
-function stageCount(s: SessionItem): number {
-  if (!s.intakeComplete) return 0;
-  return Math.min(STAGES.length, 1 + Math.floor(s._count.messages / 25));
-}
-function score(s: SessionItem): number { return Math.round((stageCount(s) / STAGES.length) * 100); }
-function relTime(d: string): string {
-  const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
+interface ProjectData {
+  bottleneck: { primary: string; severity: number; confidence: string; upside: string; evidence: string[]; actions: string[] } | null;
+  actionItems: Array<{ text: string; priority: string; stage: string }>;
+  metrics: Record<string, string>;
+  risks: string[];
+  strengths: string[];
+  learnings: string[];
+  recommendations: Array<{ action: string; reason: string; outcome: string; difficulty: string; time: string; metric: string }>;
+  decisions: Array<{ question: string; recommendation: string; confidence: string }>;
 }
 
-/* ═══ SVG CHARTS ═══ */
-function DonutChart({ value, size = 80, color = '#dc2626' }: { value: number; size?: number; color?: string }) {
-  const r = (size - 8) / 2;
-  const c = 2 * Math.PI * r;
-  const offset = c - (value / 100) * c;
-  return (
-    <svg width={size} height={size} className="transform -rotate-90">
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(63,63,70,0.3)" strokeWidth={6} />
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={6}
-        strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
-        style={{ transition: 'stroke-dashoffset 1s ease', filter: `drop-shadow(0 0 6px ${color}40)` }} />
-      <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central"
-        className="fill-text text-sm font-bold transform rotate-90" style={{ transformOrigin: 'center' }}>
-        {value}%
-      </text>
-    </svg>
-  );
-}
-
-function MiniAreaChart({ data, color = '#dc2626', h = 40, w = 120 }: { data: number[]; color?: string; h?: number; w?: number }) {
-  if (data.length < 2) return null;
-  const max = Math.max(...data, 1);
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - (v / max) * (h - 4)}`).join(' ');
-  const area = `0,${h} ${pts} ${w},${h}`;
-  return (
-    <svg width={w} height={h} className="overflow-visible">
-      <defs>
-        <linearGradient id={`ag-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon points={area} fill={`url(#ag-${color.replace('#','')})`} />
-      <polyline points={pts} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round"
-        style={{ filter: `drop-shadow(0 0 4px ${color}60)` }} />
-    </svg>
-  );
-}
-
-function MiniBarChart({ data, color = '#dc2626', h = 40, w = 100 }: { data: number[]; color?: string; h?: number; w?: number }) {
-  const max = Math.max(...data, 1);
-  const bw = Math.max(4, (w / data.length) - 2);
-  return (
-    <svg width={w} height={h}>
-      {data.map((v, i) => {
-        const bh = (v / max) * (h - 2);
-        return <rect key={i} x={i * (bw + 2)} y={h - bh} width={bw} height={bh} rx={2}
-          fill={color} opacity={0.6 + (i / data.length) * 0.4}
-          style={{ filter: `drop-shadow(0 0 3px ${color}30)` }} />;
-      })}
-    </svg>
-  );
-}
-
-/* ═══ MAIN PAGE ═══ */
-export default function Dashboard() {
+/* ═══ MAIN COMMAND CENTER ═══ */
+export default function CommandCenter() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [sessions, setSessions] = useState<SessionItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeProject, setActiveProject] = useState<SessionItem | null>(null);
+  const [projectData, setProjectData] = useState<ProjectData | null>(null);
+  const [loadingData, setLoadingData] = useState(false);
+  const [completedActions, setCompletedActions] = useState<Set<number>>(new Set());
+  const [showEvidence, setShowEvidence] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
 
-  useEffect(() => { if (status === 'authenticated') load(); }, [status]);
+  useEffect(() => { if (status === 'authenticated') loadSessions(); }, [status]);
 
-  async function load() {
-    try { const r = await fetch('/api/sessions'); if (r.ok) setSessions(await r.json()); } catch {}
+  async function loadSessions() {
+    try {
+      const r = await fetch('/api/sessions');
+      if (r.ok) {
+        const data = await r.json();
+        setSessions(data);
+        // Auto-select most recent project
+        if (data.length > 0) {
+          const sorted = [...data].sort((a: SessionItem, b: SessionItem) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+          setActiveProject(sorted[0]);
+          loadProjectData(sorted[0].id);
+        }
+      }
+    } catch {}
     setLoading(false);
+  }
+
+  async function loadProjectData(id: string) {
+    setLoadingData(true);
+    try {
+      const r = await fetch(`/api/sessions/${id}/dashboard`);
+      if (r.ok) setProjectData(await r.json());
+    } catch {}
+    setLoadingData(false);
+  }
+
+  function selectProject(s: SessionItem) {
+    setActiveProject(s);
+    setProjectData(null);
+    setCompletedActions(new Set());
+    loadProjectData(s.id);
   }
 
   async function handleNew() {
     const r = await fetch('/api/sessions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
     if (r.ok) { const s = await r.json(); toast.success('Project created'); router.push(`/session/${s.id}`); }
-    else toast.error('Failed to create project');
+    else toast.error('Failed');
   }
 
   async function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation(); e.preventDefault();
-    if (!confirm('Delete this project permanently?')) return;
+    if (!confirm('Delete this project?')) return;
     await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
-    toast.success('Deleted'); load();
+    toast.success('Deleted');
+    if (activeProject?.id === id) { setActiveProject(null); setProjectData(null); }
+    loadSessions();
   }
+
+  async function handleRename(id: string) {
+    if (!renameValue.trim()) return;
+    await fetch(`/api/sessions/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: renameValue.trim() }) });
+    setRenamingId(null); toast.success('Renamed'); loadSessions();
+  }
+
+  const userName = session?.user?.name?.split(' ')[0] || 'Operator';
+  const bn = projectData?.bottleneck;
+  const actions = projectData?.actionItems || [];
+  const topMoves = actions.slice(0, 3);
+  const metrics = projectData?.metrics || {};
+  const risks = projectData?.risks || [];
+  const learnings = projectData?.learnings || [];
+  const decisions = projectData?.decisions || [];
 
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-[#050507]">
-        <div className="h-14 border-b border-red-900/20" />
-        <div className="max-w-[1440px] mx-auto p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {[1,2,3,4].map(i => <div key={i} className="h-28 rounded-xl bg-[#0a0a0f] border border-red-900/10 animate-pulse" />)}
-          </div>
+        <div className="h-12 border-b border-red-900/20" />
+        <div className="max-w-[900px] mx-auto p-4 space-y-4">
+          {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-[#0a0a0f] border border-red-900/10 animate-pulse" />)}
         </div>
       </div>
     );
   }
 
-  const sorted = [...sessions].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  const active = sessions.filter(s => s.intakeComplete).length;
-  const avg = sessions.length > 0 ? Math.round(sessions.reduce((a, s) => a + score(s), 0) / sessions.length) : 0;
-  const total = sessions.length;
-  const complete = sessions.filter(s => stageCount(s) >= 7).length;
-  const userName = session?.user?.name?.split(' ')[0] || 'Operator';
-
-  // Fake trend data for charts
-  const trendData = [20, 35, 28, 45, 42, 58, 65, 72];
-  const barData = [45, 62, 38, 75, 55, 68, 82];
+  // No projects — show onboarding
+  if (sessions.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#050507] text-white">
+        <Header userName={userName} userImage={session?.user?.image} onSignOut={() => signOut()} />
+        <main className="max-w-[700px] mx-auto px-4 py-12 text-center">
+          <div className="mb-8">
+            <img src="/logo-200.png" alt="MAD" className="w-20 h-20 rounded-xl mx-auto mb-6 border border-red-900/30" />
+            <h1 className="text-3xl font-bold mb-2">Find the bottleneck. <span className="text-red-500">Fix it.</span></h1>
+            <p className="text-zinc-600 text-sm max-w-md mx-auto">MadAi diagnoses your business constraint, builds a sprint to fix it, and tracks what actually moves the needle.</p>
+          </div>
+          <button onClick={handleNew}
+            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl px-8 py-4 text-sm transition-all
+              shadow-[0_0_40px_rgba(220,38,38,0.3)] border border-red-500/50">
+            <Crosshair className="w-5 h-5" /> DIAGNOSE MY BUSINESS
+          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12">
+            {[
+              { Icon: Crosshair, t: 'Bottleneck Detection', d: 'AI finds what\'s actually limiting your growth.' },
+              { Icon: Zap, t: '7-Day Sprints', d: 'Instant execution plan. Tasks, deadlines, metrics.' },
+              { Icon: Beaker, t: 'Experiment Engine', d: 'Test hypotheses. Track what works. Kill what doesn\'t.' },
+            ].map((f, i) => (
+              <div key={i} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5 text-left">
+                <f.Icon className="w-5 h-5 text-red-500 mb-3" />
+                <h3 className="text-sm font-bold text-white mb-1">{f.t}</h3>
+                <p className="text-[11px] text-zinc-600 leading-relaxed">{f.d}</p>
+              </div>
+            ))}
+          </div>
+        </main>
+        <BottomNav active="command" onNew={handleNew} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#050507] text-white">
-      {/* ═══ TOP BAR ═══ */}
-      <header className="border-b border-red-900/30 bg-[#050507]/95 backdrop-blur-xl sticky top-0 z-50">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/logo-200.png" alt="MAD" className="w-10 h-10 rounded-lg" />
-            <nav className="hidden md:flex items-center gap-1">
-              <NavBtn href="/" label="Overview" active />
-              <NavBtn href="/plans" label="Plans" />
-              <NavBtn href="/library" label="Library" />
-              <NavBtn href="/calendar" label="Calendar" />
-              <NavBtn href="/templates" label="Templates" />
-            </nav>
-          </div>
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-            <a href="/profile" className="w-8 h-8 rounded-full overflow-hidden border border-red-900/30 hover:border-red-500/50 transition-colors">
-              {session?.user?.image
-                ? <img src={session.user.image} alt="" className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-[#0a0a0f] flex items-center justify-center text-xs text-zinc-500">{userName[0]}</div>
-              }
-            </a>
-            <button onClick={() => signOut()} className="p-1.5 text-zinc-600 hover:text-red-500 transition-colors hidden md:block" title="Sign out">
-              <Power className="w-4 h-4" />
+      <Header userName={userName} userImage={session?.user?.image} onSignOut={() => signOut()} />
+
+      <main className="max-w-[900px] mx-auto px-4 py-5 pb-24 space-y-5">
+        {/* ═══ PROJECT SWITCHER ═══ */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {sessions.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map(s => (
+            <button key={s.id} onClick={() => selectProject(s)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                activeProject?.id === s.id
+                  ? 'bg-red-500/10 text-red-400 border-red-500/30'
+                  : 'text-zinc-600 border-zinc-800/50 hover:border-red-900/30 hover:text-zinc-400'
+              }`}>
+              {s.name.length > 20 ? s.name.slice(0, 20) + '...' : s.name}
             </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-[1440px] mx-auto px-4 md:px-8 py-6 pb-24 md:pb-8">
-
-        {/* ═══ COMMAND HEADER ═══ */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-red-500/60 mb-1 font-mono">
-              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })} / COMMAND CENTER
-            </p>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-              {total === 0 ? (
-                <><span className="text-white">Find the bottleneck.</span> <span className="text-red-500">Fix it.</span></>
-              ) : (
-                <><span className="text-white">{userName},</span> <span className="text-red-500">{active} active</span> <span className="text-zinc-600">/ {total} total</span></>
-              )}
-            </h1>
-          </div>
-          <button onClick={handleNew}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl px-6 py-3 text-sm transition-all
-              shadow-[0_0_30px_rgba(220,38,38,0.3)] hover:shadow-[0_0_50px_rgba(220,38,38,0.5)] flex-shrink-0 border border-red-500/50">
-            <Plus className="w-4 h-4" /> NEW PROJECT
+          ))}
+          <button onClick={handleNew} className="flex-shrink-0 w-8 h-8 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-zinc-700 hover:text-red-400 hover:border-red-500/30 transition-colors">
+            <Plus className="w-4 h-4" />
           </button>
         </div>
 
-        {/* ═══ METRIC CARDS ═══ */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-          <MetricCard label="PROJECTS" value={total} trend="+1" up icon={<BarChart2 className="w-4 h-4" />}
-            chart={<MiniBarChart data={barData} h={32} w={80} />} />
-          <MetricCard label="ACTIVE" value={active} trend={active > 0 ? 'live' : '—'} up={active > 0} icon={<Zap className="w-4 h-4" />}
-            chart={<MiniAreaChart data={trendData} h={32} w={80} />} />
-          <MetricCard label="AVG PROGRESS" value={`${avg}%`} trend={avg > 50 ? '+' : ''} up={avg > 50} icon={<TrendingUp className="w-4 h-4" />}
-            chart={<DonutChart value={avg} size={44} />} />
-          <MetricCard label="COMPLETED" value={complete} trend={complete > 0 ? 'done' : '—'} up={complete > 0} icon={<Target className="w-4 h-4" />}
-            chart={<MiniAreaChart data={[10,15,20,25,35,40,complete * 14]} color="#22c55e" h={32} w={80} />} />
-        </div>
+        {/* Project actions */}
+        {activeProject && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              {renamingId === activeProject.id ? (
+                <div className="flex items-center gap-1.5">
+                  <input value={renameValue} onChange={e => setRenameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename(activeProject.id)}
+                    className="text-sm font-bold bg-[#0a0a0f] border border-red-500/30 rounded-lg px-3 py-1 text-white focus:outline-none w-48" autoFocus />
+                  <button onClick={() => handleRename(activeProject.id)} className="text-green-500"><Check className="w-4 h-4" /></button>
+                  <button onClick={() => setRenamingId(null)} className="text-zinc-600"><X className="w-4 h-4" /></button>
+                </div>
+              ) : (
+                <h2 className="text-lg font-bold text-white truncate">{activeProject.name}</h2>
+              )}
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button onClick={() => { setRenamingId(activeProject.id); setRenameValue(activeProject.name); }}
+                className="p-1.5 rounded-lg text-zinc-700 hover:text-white hover:bg-white/5 transition-colors" title="Rename">
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+              <a href={`/session/${activeProject.id}`} className="p-1.5 rounded-lg text-zinc-700 hover:text-white hover:bg-white/5 transition-colors" title="Chat">
+                <MessageSquare className="w-3.5 h-3.5" />
+              </a>
+              <a href={`/session/${activeProject.id}/dashboard`} className="p-1.5 rounded-lg text-zinc-700 hover:text-white hover:bg-white/5 transition-colors" title="Dashboard">
+                <BarChart2 className="w-3.5 h-3.5" />
+              </a>
+              <button onClick={e => handleDelete(e, activeProject.id)}
+                className="p-1.5 rounded-lg text-zinc-800 hover:text-red-400 hover:bg-red-500/5 transition-colors" title="Delete">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
-        {/* ═══ PROJECTS GRID ═══ */}
-        {sorted.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Your Projects</h2>
-              <span className="text-[10px] font-mono text-red-500/40">{total} REGISTERED</span>
+        {loadingData && (
+          <div className="space-y-4">
+            {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-[#0a0a0f] border border-red-900/10 animate-pulse" />)}
+          </div>
+        )}
+
+        {projectData && !loadingData && (
+          <>
+            {/* ═══ BOTTLENECK HERO ═══ */}
+            {bn ? (
+              <div className="bg-[#0a0a0f] border border-red-500/30 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(220,38,38,0.08)]">
+                <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent" />
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(220,38,38,0.6)]" />
+                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-red-500">CURRENT BOTTLENECK</span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-3">{bn.primary}</h3>
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    <Chip label="Severity" value={`${bn.severity}/10`} color="red" />
+                    <Chip label="Confidence" value={bn.confidence} color="zinc" />
+                    <Chip label="Upside" value={bn.upside} color="green" />
+                  </div>
+                  <div className="flex gap-2">
+                    <a href={`/session/${activeProject?.id}`}
+                      className="text-xs bg-red-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-red-500 transition-all shadow-[0_0_15px_rgba(220,38,38,0.2)] border border-red-500/50">
+                      FIX THIS NOW
+                    </a>
+                    <button onClick={() => setShowEvidence(!showEvidence)}
+                      className="text-xs text-zinc-500 hover:text-white px-3 py-2 rounded-lg border border-zinc-800 hover:border-red-500/30 transition-all flex items-center gap-1">
+                      <Eye className="w-3 h-3" /> {showEvidence ? 'Hide' : 'Why'}
+                    </button>
+                  </div>
+                  {showEvidence && bn.evidence.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-red-900/20 space-y-1.5 animate-slide-up">
+                      {bn.evidence.map((e, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-zinc-500">
+                          <div className="w-1 h-1 rounded-full bg-red-500/50 mt-1.5 flex-shrink-0" />
+                          {e}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-[#0a0a0f] border border-red-900/20 rounded-xl p-6 text-center">
+                <Crosshair className="w-6 h-6 text-red-500/20 mx-auto mb-2" />
+                <p className="text-sm font-bold text-white mb-1">No bottleneck identified yet</p>
+                <p className="text-[11px] text-zinc-700 mb-3">Complete the analysis to identify your #1 constraint.</p>
+                <a href={`/session/${activeProject?.id}`} className="inline-flex items-center gap-1.5 text-xs bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(220,38,38,0.2)] border border-red-500/50">
+                  <Zap className="w-3.5 h-3.5" /> Continue Analysis
+                </a>
+              </div>
+            )}
+
+            {/* ═══ TODAY'S 3 MOVES ═══ */}
+            {topMoves.length > 0 && (
+              <div>
+                <SectionHead icon={<Zap className="w-4 h-4 text-red-500" />} title="What to do now" meta={`${completedActions.size}/${actions.length}`} />
+                <div className="space-y-2">
+                  {topMoves.map((item, i) => {
+                    const done = completedActions.has(i);
+                    const rec = projectData.recommendations[i];
+                    return (
+                      <div key={i} className={`bg-[#0a0a0f] border rounded-xl p-4 transition-all ${done ? 'border-green-500/10 opacity-30' : 'border-red-900/15 hover:border-red-500/25'}`}>
+                        <div className="flex items-start gap-3">
+                          <button onClick={() => { const n = new Set(completedActions); n.has(i) ? n.delete(i) : n.add(i); setCompletedActions(n); }} className="mt-0.5 flex-shrink-0">
+                            {done ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Circle className="w-5 h-5 text-zinc-700" />}
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm ${done ? 'line-through text-zinc-700' : 'text-zinc-200'}`}>{item.text}</p>
+                            {rec && !done && (
+                              <div className="flex flex-wrap gap-3 mt-1.5 text-[10px] text-zinc-700">
+                                <span><Clock className="w-3 h-3 inline mr-0.5" />{rec.time}</span>
+                                <span><ArrowUpRight className="w-3 h-3 inline mr-0.5" />{rec.outcome.slice(0, 35)}</span>
+                              </div>
+                            )}
+                          </div>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                            item.priority === 'high' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-amber-500/10 text-amber-500/60 border border-amber-500/15'
+                          }`}>{item.priority === 'high' ? 'NOW' : 'NEXT'}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {actions.length > 3 && (
+                    <a href={`/session/${activeProject?.id}/dashboard`} className="block text-center text-[10px] text-zinc-700 hover:text-red-400 transition-colors py-1">
+                      + {actions.length - 3} more actions <ChevronRight className="w-3 h-3 inline" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ═══ DO NOT WASTE TIME ═══ */}
+            {risks.length > 0 && (
+              <div className="bg-[#0a0a0f] border border-amber-500/15 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Ban className="w-4 h-4 text-amber-500/60" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500/60">DO NOT WASTE TIME ON</span>
+                </div>
+                <p className="text-xs text-zinc-500 leading-relaxed">{risks[0]}</p>
+              </div>
+            )}
+
+            {/* ═══ HEALTH METRIC STRIP ═══ */}
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              <MetricChip label="Revenue" value={metrics.revenueMonthly} />
+              <MetricChip label="Price" value={metrics.pricePoint} />
+              <MetricChip label="Channels" value={metrics.activeChannels} />
+              <MetricChip label="Audience" value={metrics.targetAudience} />
+              <MetricChip label="Delivery" value={metrics.offering ? 'Active' : 'Unknown'} />
+              <MetricChip label="Trust" value={metrics.coreValueProp ? 'Defined' : 'Weak'} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {sorted.map(s => {
-                const sc = score(s);
-                const st = stageCount(s);
-                let offering = '';
-                try { const p = JSON.parse(s.profileJson || '{}'); offering = p.offering || p.description || ''; } catch {}
-
-                return (
-                  <div key={s.id} onClick={() => router.push(`/session/${s.id}/dashboard`)}
-                    className="relative bg-[#0a0a0f] border border-red-900/20 rounded-xl overflow-hidden cursor-pointer
-                      hover:border-red-500/40 transition-all group hover:shadow-[0_0_30px_rgba(220,38,38,0.08)]">
-                    {/* Red top accent */}
-                    <div className="h-[2px] bg-gradient-to-r from-transparent via-red-600 to-transparent" />
-
-                    <div className="p-4 md:p-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-white text-sm truncate group-hover:text-red-400 transition-colors">{s.name}</h3>
-                          {offering && <p className="text-[11px] text-zinc-600 truncate mt-0.5">{offering.slice(0, 60)}</p>}
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0 ml-3">
-                          <DonutChart value={sc} size={36} />
-                        </div>
-                      </div>
-
-                      {/* Stage pills */}
-                      <div className="flex gap-1 mb-3">
-                        {STAGES.map((stage, i) => (
-                          <div key={stage} className={`flex-1 h-1.5 rounded-full transition-all ${
-                            i < st ? 'bg-red-500 shadow-[0_0_4px_rgba(220,38,38,0.5)]' :
-                            i === st ? 'bg-red-500/30' :
-                            'bg-zinc-800'
-                          }`} />
-                        ))}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-zinc-600">
-                          {!s.intakeComplete ? 'INTAKE' : st >= 7 ? 'COMPLETE' : `STAGE ${st+1}/7`}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[9px] text-zinc-700">{relTime(s.updatedAt)}</span>
-                          <button onClick={e => handleDelete(e, s.id)}
-                            className="p-1 rounded hover:bg-red-500/10 text-zinc-700 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </div>
+            {/* ═══ DECISIONS WAITING ═══ */}
+            {decisions.length > 0 && (
+              <div>
+                <SectionHead icon={<HelpCircle className="w-4 h-4 text-blue-500" />} title="Decisions waiting" />
+                <div className="space-y-2">
+                  {decisions.slice(0, 3).map((d, i) => (
+                    <div key={i} className="bg-[#0a0a0f] border border-blue-500/10 rounded-xl p-3 flex items-start gap-3">
+                      <HelpCircle className="w-4 h-4 text-blue-500/40 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs text-zinc-300">{d.question}</p>
+                        <p className="text-[10px] text-zinc-600 mt-0.5">{d.recommendation} — {d.confidence} confidence</p>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ═══ NEW USER SHOWCASE ═══ */}
-        {sessions.length === 0 && (
-          <div className="mb-10">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-400 mb-5">CAPABILITIES</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { Icon: Target, t: 'Bottleneck Detection', d: 'Find what\'s actually limiting growth.', c: '#dc2626' },
-                { Icon: Activity, t: 'Business Health Score', d: 'Kaufman 5-part framework analysis.', c: '#dc2626' },
-                { Icon: Shield, t: 'Platform Sovereignty', d: 'Know if you own your business or rent it.', c: '#f59e0b' },
-                { Icon: Map, t: 'Full Strategy Pipeline', d: 'Macro positioning to micro execution.', c: '#3b82f6' },
-                { Icon: Scale, t: 'Ethical Intelligence', d: 'Maximize profit through real value.', c: '#22c55e' },
-                { Icon: FlaskConical, t: 'Experiment Engine', d: 'Test hypotheses, track what works.', c: '#a855f7' },
-              ].map((cap, i) => (
-                <div key={i} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5 hover:border-red-500/30 transition-all group">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
-                    style={{ background: `${cap.c}15`, border: `1px solid ${cap.c}30` }}>
-                    <cap.Icon className="w-5 h-5" style={{ color: cap.c }} />
-                  </div>
-                  <h3 className="font-bold text-white text-sm mb-1">{cap.t}</h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">{cap.d}</p>
+                  ))}
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* ═══ RECENT SIGNALS ═══ */}
+            {learnings.length > 0 && (
+              <div>
+                <SectionHead icon={<Activity className="w-4 h-4 text-amber-500" />} title="Recent signals" />
+                <div className="space-y-1">
+                  {learnings.slice(0, 4).map((l, i) => (
+                    <div key={i} className="flex items-start gap-2 py-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500/30 mt-1.5 flex-shrink-0" />
+                      <p className="text-[11px] text-zinc-600 leading-relaxed">{l}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ═══ QUICK ACTIONS DOCK ═══ */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <QuickBtn href={`/session/${activeProject?.id}`} icon={<Crosshair className="w-4 h-4" />} label="Diagnose" />
+              <QuickBtn href={`/session/${activeProject?.id}/dashboard`} icon={<BarChart2 className="w-4 h-4" />} label="Full Dashboard" />
+              <QuickBtn href={`/brief/${activeProject?.id}`} icon={<BookMarked className="w-4 h-4" />} label="Strategy Brief" />
+              <QuickBtn href={`/session/${activeProject?.id}`} icon={<Lightbulb className="w-4 h-4" />} label="Ask Sterling" />
             </div>
-          </div>
+          </>
         )}
-
-        {/* ═══ QUICK ACCESS STRIP ═══ */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { href: '/plans', Icon: ClipboardList, label: 'Action Plans', c: '#dc2626' },
-            { href: '/library', Icon: BookOpen, label: 'Strategy Library', c: '#f59e0b' },
-            { href: '/templates', Icon: FolderOpen, label: 'Templates', c: '#22c55e' },
-            { href: '/calendar', Icon: Calendar, label: 'Calendar', c: '#3b82f6' },
-          ].map((q, i) => (
-            <a key={i} href={q.href}
-              className="bg-[#0a0a0f] border border-red-900/10 rounded-xl p-4 hover:border-red-500/30 transition-all group flex items-center gap-3">
-              <q.Icon className="w-5 h-5 text-zinc-600 group-hover:text-red-400 transition-colors" />
-              <span className="text-xs text-zinc-500 group-hover:text-white transition-colors">{q.label}</span>
-              <ChevronRight className="w-3 h-3 text-zinc-800 ml-auto group-hover:text-zinc-500 transition-colors" />
-            </a>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-red-900/10 mt-10 pt-6 text-center">
-          <p className="text-[9px] text-zinc-800 font-mono tracking-wider">MAD AI — STRATEGIC INTELLIGENCE SYSTEM</p>
-        </div>
       </main>
 
-      {/* ═══ MOBILE BOTTOM NAV ═══ */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#050507]/95 backdrop-blur-xl border-t border-red-900/30 z-50">
-        <div className="flex items-center justify-around py-2 px-2">
-          <MobileNav href="/" Icon={LayoutDashboard} label="Home" active />
-          <MobileNav href="/plans" Icon={ClipboardList} label="Plans" />
-          <button onClick={handleNew} className="w-12 h-12 rounded-xl bg-red-600 flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.4)] -mt-4 border border-red-500/50">
-            <Plus className="w-5 h-5 text-white" />
-          </button>
-          <MobileNav href="/library" Icon={BookOpen} label="Library" />
-          <MobileNav href="/profile" Icon={User} label="Profile" />
-        </div>
-      </nav>
+      <BottomNav active="command" onNew={handleNew} />
     </div>
   );
 }
 
 /* ═══ SUB-COMPONENTS ═══ */
 
-function NavBtn({ href, label, active }: { href: string; label: string; active?: boolean }) {
+function Header({ userName, userImage, onSignOut }: { userName: string; userImage?: string | null; onSignOut: () => void }) {
   return (
-    <a href={href} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-      active ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'text-zinc-500 hover:text-white hover:bg-white/5'
-    }`}>{label}</a>
+    <header className="border-b border-red-900/30 bg-[#050507]/95 backdrop-blur-xl sticky top-0 z-50">
+      <div className="max-w-[900px] mx-auto px-4 h-12 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img src="/logo-200.png" alt="MAD" className="w-8 h-8 rounded-lg" />
+          <span className="text-[10px] text-zinc-600 hidden sm:block">Strategic Intelligence</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <a href="/profile" className="w-7 h-7 rounded-full overflow-hidden border border-red-900/30">
+            {userImage ? <img src={userImage} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#0a0a0f] flex items-center justify-center text-[10px] text-zinc-600">{userName[0]}</div>}
+          </a>
+          <button onClick={onSignOut} className="p-1 text-zinc-800 hover:text-red-500 transition-colors hidden sm:block"><Power className="w-3.5 h-3.5" /></button>
+        </div>
+      </div>
+    </header>
   );
 }
 
-function MetricCard({ label, value, trend, up, icon, chart }: {
-  label: string; value: string | number; trend: string; up: boolean;
-  icon: React.ReactNode; chart: React.ReactNode;
-}) {
+function BottomNav({ active, onNew }: { active: string; onNew: () => void }) {
   return (
-    <div className="bg-[#0a0a0f] border border-red-900/20 rounded-xl p-4 relative overflow-hidden">
-      {/* Red top line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-red-600/60 to-transparent" />
-
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <div className="text-red-500/60">{icon}</div>
-          <span className="text-[9px] font-bold uppercase tracking-[0.15em] text-zinc-500">{label}</span>
-        </div>
-        {trend !== '—' && (
-          <div className={`flex items-center gap-0.5 text-[9px] font-mono ${up ? 'text-green-500' : 'text-red-400'}`}>
-            {up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-            {trend}
-          </div>
-        )}
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#050507]/95 backdrop-blur-xl border-t border-red-900/30 z-50">
+      <div className="max-w-[900px] mx-auto flex items-center justify-around py-1.5 px-2">
+        <BNavItem href="/" icon={<Crosshair />} label="Command" active={active === 'command'} />
+        <BNavItem href="/plans" icon={<ClipboardList />} label="Work" active={active === 'work'} />
+        <button onClick={onNew} className="w-11 h-11 rounded-xl bg-red-600 flex items-center justify-center shadow-[0_0_20px_rgba(220,38,38,0.4)] -mt-3 border border-red-500/50">
+          <Plus className="w-5 h-5 text-white" />
+        </button>
+        <BNavItem href="/library" icon={<Beaker />} label="Analyze" active={active === 'analyze'} />
+        <BNavItem href="/templates" icon={<Archive />} label="Vault" active={active === 'vault'} />
       </div>
+    </nav>
+  );
+}
 
-      <div className="flex items-end justify-between">
-        <span className="text-2xl md:text-3xl font-bold text-white font-mono tracking-tight"
-          style={{ textShadow: '0 0 20px rgba(220,38,38,0.15)' }}>
-          {value}
-        </span>
-        <div className="opacity-60">{chart}</div>
-      </div>
+function BNavItem({ href, icon, label, active }: { href: string; icon: React.ReactNode; label: string; active?: boolean }) {
+  return (
+    <a href={href} className="flex flex-col items-center gap-0.5 py-1 px-2">
+      <div className={`w-5 h-5 ${active ? 'text-red-500' : 'text-zinc-700'}`}>{icon}</div>
+      <span className={`text-[8px] font-medium tracking-wider ${active ? 'text-red-400' : 'text-zinc-700'}`}>{label}</span>
+    </a>
+  );
+}
+
+function SectionHead({ icon, title, meta }: { icon: React.ReactNode; title: string; meta?: string }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">{icon} {title}</h3>
+      {meta && <span className="text-[9px] font-mono text-zinc-700">{meta}</span>}
     </div>
   );
 }
 
-function MobileNav({ href, Icon, label, active }: { href: string; Icon: React.ComponentType<{className?: string}>; label: string; active?: boolean }) {
+function Chip({ label, value, color }: { label: string; value: string; color: 'red' | 'green' | 'zinc' }) {
+  const colors = {
+    red: 'bg-red-500/5 border-red-500/15 text-red-400',
+    green: 'bg-green-500/5 border-green-500/15 text-green-400',
+    zinc: 'bg-white/[0.02] border-zinc-800/50 text-zinc-300',
+  };
   return (
-    <a href={href} className="flex flex-col items-center gap-0.5 py-1 px-3">
-      <Icon className={`w-5 h-5 ${active ? 'text-red-500' : 'text-zinc-600'}`} />
-      <span className={`text-[9px] ${active ? 'text-red-400' : 'text-zinc-700'}`}>{label}</span>
+    <div className={`border rounded-lg px-3 py-1.5 ${colors[color]}`}>
+      <span className="text-[8px] text-zinc-600 uppercase tracking-wider block">{label}</span>
+      <span className="text-sm font-bold font-mono">{value}</span>
+    </div>
+  );
+}
+
+function MetricChip({ label, value }: { label: string; value?: string }) {
+  const has = value && value.length > 0;
+  return (
+    <div className={`rounded-lg p-2.5 text-center ${has ? 'bg-[#0a0a0f] border border-red-900/10' : 'bg-[#080809] border border-zinc-900/30'}`}>
+      <span className="text-[8px] uppercase tracking-wider text-zinc-700 block mb-0.5">{label}</span>
+      <span className={`text-[10px] font-medium ${has ? 'text-zinc-400' : 'text-zinc-800'}`}>
+        {has ? (value.length > 12 ? value.slice(0, 12) + '..' : value) : '—'}
+      </span>
+    </div>
+  );
+}
+
+function QuickBtn({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <a href={href} className="bg-[#0a0a0f] border border-red-900/10 rounded-xl p-3 flex items-center gap-2 hover:border-red-500/25 transition-all group">
+      <div className="text-zinc-700 group-hover:text-red-400 transition-colors">{icon}</div>
+      <span className="text-[10px] text-zinc-600 group-hover:text-white transition-colors">{label}</span>
     </a>
   );
 }
+
+function BookMarkedIcon() { return <BookMarked className="w-3.5 h-3.5" />; }
+function CheckCircle2Icon() { return <CheckCircle2 className="w-5 h-5" />; }
