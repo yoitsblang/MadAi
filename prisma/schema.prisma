@@ -115,6 +115,10 @@ model StrategySession {
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages      Message[]
   conversations Conversation[]
+  experiments   Experiment[]
+  decisions     Decision[]
+  weeklyReviews WeeklyReview[]
+  scorecards    FounderScorecard[]
 
   @@index([userId])
 }
@@ -275,6 +279,93 @@ model FinanceEntry {
 
   @@index([userId, date])
   @@index([userId, type])
+}
+
+// ============ EXPERIMENTS ============
+
+model Experiment {
+  id          String   @id @default(cuid())
+  sessionId   String
+  hypothesis  String   // "If I add a welcome PDF, conversion will increase by 10%"
+  change      String   // What specifically to change/test
+  metric      String   // What to measure
+  passCondition String // "Conversion > 2.5%"
+  failCondition String // "No change after 7 days"
+  winAction   String?  // What to do if it wins
+  status      String   @default("backlog") // backlog, running, won, lost, archived
+  duration    String?  // "7 days", "2 weeks"
+  deadline    DateTime?
+  verdict     String?  // Final conclusion
+  results     String?  // JSON: actual metrics observed
+  priority    String   @default("medium")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  session StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, status])
+}
+
+// ============ DECISIONS ============
+
+model Decision {
+  id             String   @id @default(cuid())
+  sessionId      String
+  question       String   // "Should I raise prices?"
+  tradeoffSummary String  // "Higher revenue per sale vs potential churn"
+  recommendation String   // "Yes, raise by 20%"
+  downsideOfDelay String? // "Every week at current price costs ~$X"
+  confidence     String   @default("medium") // low, medium, high
+  status         String   @default("pending") // pending, decided, deferred
+  decidedAction  String?  // What was actually decided
+  decidedAt      DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  session StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, status])
+}
+
+// ============ WEEKLY REVIEWS ============
+
+model WeeklyReview {
+  id          String   @id @default(cuid())
+  sessionId   String
+  weekOf      DateTime // Start of the week
+  improved    String   // JSON array of what improved
+  stalled     String   // JSON array of what stalled
+  completed   String   // JSON array of completed items
+  newBottleneck String? // Updated bottleneck after review
+  bestNextMove String?  // Recommended next action
+  metrics     String?  // JSON snapshot of key metrics
+  notes       String?  // User's own notes
+  createdAt   DateTime @default(now())
+
+  session StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, weekOf])
+}
+
+// ============ FOUNDER SCORECARD ============
+
+model FounderScorecard {
+  id              String   @id @default(cuid())
+  sessionId       String
+  clarity         Int      @default(0) // 1-10
+  trust           Int      @default(0)
+  conversion      Int      @default(0)
+  retention       Int      @default(0)
+  delivery        Int      @default(0)
+  channelHealth   Int      @default(0)
+  audienceOwnership Int    @default(0)
+  executionSpeed  Int      @default(0)
+  reasoning       String?  // JSON: per-dimension reasoning
+  generatedAt     DateTime @default(now())
+
+  session StrategySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, generatedAt])
 }
 
 // ============ CHANNEL TRACKING ============

@@ -10,6 +10,7 @@ import { ETHICS_PROMPT } from '@/lib/ai/prompts/ethics';
 import { MACRO_STRATEGY_PROMPT, MESO_STRATEGY_PROMPT, MICRO_STRATEGY_PROMPT } from '@/lib/ai/prompts/strategy';
 import { RESEARCH_PROMPT, TIMING_PROMPT } from '@/lib/ai/prompts/research';
 import { INNOVATION_PROMPT, TEACHING_PROMPT } from '@/lib/ai/prompts/innovation';
+import { RED_TEAM_SYSTEM_PROMPT } from '@/lib/ai/prompts/redteam';
 import { buildSystemPrompt } from '@/lib/ai/prompts/general';
 
 import { getModelForContext } from '@/lib/ai/config';
@@ -33,6 +34,7 @@ const MODULE_PROMPTS: Record<string, string> = {
   'timing': TIMING_PROMPT,
   'innovation': INNOVATION_PROMPT,
   'teaching': TEACHING_PROMPT,
+  'red-team': RED_TEAM_SYSTEM_PROMPT,
   'general': '',
 };
 
