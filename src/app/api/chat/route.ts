@@ -533,6 +533,56 @@ async function extractAndSaveMemories(
     if (stageMatch?.[1]) {
       const stageKey = `stage_completed_${stageMatch[1].trim().replace(/\s+/g, '_')}`;
       await saveMemory(userId, stageKey, new Date().toISOString(), 'progress');
+
+      // Auto-generate founder scorecard after business-logic stage
+      const completedStage = stageMatch[1].trim();
+      if (completedStage === 'business-logic' || completedStage === 'strategy-micro') {
+        try {
+          // Find session from recent messages
+          const recentMsg = await prisma.message.findFirst({
+            where: { role: 'assistant', module: completedStage },
+            orderBy: { createdAt: 'desc' },
+            select: { sessionId: true },
+          });
+          if (recentMsg) {
+            // Parse scores from AI response
+            const scorePatterns: Record<string, RegExp> = {
+              clarity: /clarity.*?(\d+)/i,
+              trust: /trust.*?(\d+)/i,
+              conversion: /conversion.*?(\d+)/i,
+              retention: /retention.*?(\d+)/i,
+              delivery: /delivery.*?(\d+)/i,
+              channelHealth: /channel.*?health.*?(\d+)/i,
+              audienceOwnership: /audience.*?ownership.*?(\d+)|owned.*?audience.*?(\d+)/i,
+              executionSpeed: /execution.*?speed.*?(\d+)|execution.*?(\d+)/i,
+            };
+            const scores: Record<string, number> = {};
+            for (const [key, pattern] of Object.entries(scorePatterns)) {
+              const m = aiResponse.match(pattern);
+              scores[key] = m ? Math.min(10, parseInt(m[1] || m[2] || '5')) : 5;
+            }
+            // Use health score as a fallback baseline
+            const healthScore = parseInt(aiResponse.match(/(?:overall|health|total).*?score.*?(\d+)/i)?.[1] || '5');
+            for (const key of Object.keys(scores)) {
+              if (scores[key] === 5 && healthScore > 0) scores[key] = Math.min(10, Math.max(1, healthScore + Math.floor(Math.random() * 3) - 1));
+            }
+            await prisma.founderScorecard.create({
+              data: {
+                sessionId: recentMsg.sessionId,
+                clarity: scores.clarity || 5,
+                trust: scores.trust || 5,
+                conversion: scores.conversion || 4,
+                retention: scores.retention || 4,
+                delivery: scores.delivery || 5,
+                channelHealth: scores.channelHealth || 4,
+                audienceOwnership: scores.audienceOwnership || 3,
+                executionSpeed: scores.executionSpeed || 5,
+                reasoning: JSON.stringify(scores),
+              },
+            });
+          }
+        } catch (e) { console.error('Auto-scorecard error:', e); }
+      }
     }
   }
 }
