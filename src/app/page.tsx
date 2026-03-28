@@ -11,6 +11,7 @@ import {
   Crosshair, Shield, FlaskConical, Scale, Map, MessageSquare,
   BarChart2, Edit3, Check, X, Cpu, Layers, Beaker, Archive,
   Clock, ArrowRight, Lightbulb, Ban, HelpCircle, Gauge,
+  CheckCircle2, Circle, BookMarked,
 } from 'lucide-react';
 import NotificationBell from '@/components/ui/NotificationBell';
 
@@ -467,5 +468,3 @@ function QuickBtn({ href, icon, label }: { href: string; icon: React.ReactNode; 
   );
 }
 
-function BookMarkedIcon() { return <BookMarked className="w-3.5 h-3.5" />; }
-function CheckCircle2Icon() { return <CheckCircle2 className="w-5 h-5" />; }

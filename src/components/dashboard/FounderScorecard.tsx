@@ -64,7 +64,7 @@ export default function FounderScorecardWidget({ sessionId }: { sessionId: strin
       </div>
       <div className="space-y-2">
         {DIMENSIONS.map(d => (
-          <ScoreBar key={d.key} score={(scorecard as Record<string, number>)[d.key] || 0} label={d.label} />
+          <ScoreBar key={d.key} score={(scorecard as unknown as Record<string, number>)[d.key] || 0} label={d.label} />
         ))}
       </div>
     </div>
