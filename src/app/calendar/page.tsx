@@ -15,12 +15,12 @@ interface CalendarEvent {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  campaign: 'bg-primary/20 text-primary-light border-primary/30',
-  post: 'bg-accent-blue/20 text-accent-blue border-accent-blue/30',
-  launch: 'bg-accent-amber/20 text-accent-amber border-accent-amber/30',
-  review: 'bg-accent-green/20 text-accent-green border-accent-green/30',
-  research: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  custom: 'bg-surface-lighter text-text-muted border-border',
+  campaign: 'bg-red-500/15 text-red-400 border-red-500/20',
+  post: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+  launch: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
+  review: 'bg-green-500/15 text-green-400 border-green-500/20',
+  research: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
+  custom: 'bg-[#111116] text-zinc-500 border-zinc-800',
 };
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -49,7 +49,6 @@ export default function CalendarPage() {
       if (res.ok) {
         const loaded = await res.json();
         if (loaded.length === 0) {
-          // Auto-seed calendar from active sessions
           await seedFromSessions();
         } else {
           setEvents(loaded);
@@ -68,7 +67,6 @@ export default function CalendarPage() {
       const active = sessions.filter((s: { intakeComplete: boolean }) => s.intakeComplete);
       if (active.length === 0) return;
 
-      // Get dashboard data for first active session to pull action items
       const dashRes = await fetch(`/api/sessions/${active[0].id}/dashboard`);
       if (!dashRes.ok) return;
       const dash = await dashRes.json();
@@ -76,7 +74,6 @@ export default function CalendarPage() {
       const today = new Date();
       const seededEvents: Array<{ title: string; date: string; type: string; priority: string }> = [];
 
-      // Seed week 1: Quick wins from action items
       if (dash.actionItems) {
         dash.actionItems.slice(0, 3).forEach((item: { text: string; priority: string }, i: number) => {
           const d = new Date(today);
@@ -85,17 +82,14 @@ export default function CalendarPage() {
         });
       }
 
-      // Add review checkpoint at end of week
       const reviewDate = new Date(today);
       reviewDate.setDate(reviewDate.getDate() + 7);
       seededEvents.push({ title: 'Weekly Review: What worked? What failed?', date: reviewDate.toISOString(), type: 'review', priority: 'high' });
 
-      // Add measurement checkpoint
       const measureDate = new Date(today);
       measureDate.setDate(measureDate.getDate() + 14);
       seededEvents.push({ title: 'Measure results. Update Sterling with findings.', date: measureDate.toISOString(), type: 'research', priority: 'medium' });
 
-      // Save all seeded events
       for (const evt of seededEvents) {
         await fetch('/api/calendar', {
           method: 'POST',
@@ -104,7 +98,6 @@ export default function CalendarPage() {
         });
       }
 
-      // Reload
       const start = new Date(year, month, 1).toISOString();
       const end = new Date(year, month + 1, 0).toISOString();
       const reloadRes = await fetch(`/api/calendar?start=${start}&end=${end}`);
@@ -155,29 +148,29 @@ export default function CalendarPage() {
     day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
   return (
-    <div className="min-h-screen bg-surface">
-      <header className="border-b border-border bg-surface/80 backdrop-blur-sm sticky top-0 z-10">
+    <div className="min-h-screen bg-[#050507]">
+      <header className="border-b border-red-900/20 bg-[#050507]/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-text-muted hover:text-text transition-colors">&larr;</a>
+            <a href="/" className="text-zinc-600 hover:text-white transition-colors">&larr;</a>
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-current" />
-              <h1 className="text-lg font-bold text-text">Marketing Calendar</h1>
+              <Calendar className="w-5 h-5 text-red-400" />
+              <h1 className="text-lg font-bold text-white">Marketing Calendar</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
-              className="text-text-muted hover:text-text px-2 py-1"
+              className="text-zinc-600 hover:text-white px-2 py-1"
             >
               &larr;
             </button>
-            <span className="text-sm font-semibold text-text min-w-[140px] text-center">
+            <span className="text-sm font-semibold text-white min-w-[140px] text-center">
               {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </span>
             <button
               onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
-              className="text-text-muted hover:text-text px-2 py-1"
+              className="text-zinc-600 hover:text-white px-2 py-1"
             >
               &rarr;
             </button>
@@ -189,18 +182,16 @@ export default function CalendarPage() {
         {/* Day headers */}
         <div className="grid grid-cols-7 gap-1 mb-1">
           {DAYS.map(d => (
-            <div key={d} className="text-center text-xs font-medium text-text-muted py-2">{d}</div>
+            <div key={d} className="text-center text-xs font-medium text-zinc-600 py-2">{d}</div>
           ))}
         </div>
 
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1">
-          {/* Empty cells before first day */}
           {Array.from({ length: firstDay }).map((_, i) => (
-            <div key={`empty-${i}`} className="min-h-[100px] bg-surface-light/30 rounded-lg" />
+            <div key={`empty-${i}`} className="min-h-[100px] bg-[#0a0a0f]/30 rounded-lg" />
           ))}
 
-          {/* Day cells */}
           {Array.from({ length: daysInMonth }).map((_, i) => {
             const day = i + 1;
             const dayEvents = getEventsForDay(day);
@@ -213,11 +204,11 @@ export default function CalendarPage() {
                 }}
                 className={`min-h-[100px] p-1.5 rounded-lg border cursor-pointer transition-colors
                   ${isToday(day)
-                    ? 'bg-primary/10 border-primary/30'
-                    : 'bg-surface-light border-border hover:border-primary/20'
+                    ? 'bg-red-500/10 border-red-500/30'
+                    : 'bg-[#0a0a0f] border-red-900/10 hover:border-red-500/25'
                   }`}
               >
-                <div className={`text-xs font-medium mb-1 ${isToday(day) ? 'text-primary-light' : 'text-text-muted'}`}>
+                <div className={`text-xs font-medium mb-1 ${isToday(day) ? 'text-red-400' : 'text-zinc-600'}`}>
                   {day}
                 </div>
                 <div className="space-y-0.5">
@@ -233,7 +224,7 @@ export default function CalendarPage() {
                     </div>
                   ))}
                   {dayEvents.length > 3 && (
-                    <div className="text-[10px] text-text-muted/50 px-1">+{dayEvents.length - 3} more</div>
+                    <div className="text-[10px] text-zinc-700 px-1">+{dayEvents.length - 3} more</div>
                   )}
                 </div>
               </div>
@@ -243,33 +234,33 @@ export default function CalendarPage() {
 
         {/* Upcoming events list */}
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-text mb-3">Upcoming Tasks</h2>
+          <h2 className="text-sm font-semibold text-white mb-3">Upcoming Tasks</h2>
           <div className="space-y-2">
             {events
               .filter(e => e.status !== 'completed' && new Date(e.date) >= new Date())
               .slice(0, 10)
               .map(evt => (
-                <div key={evt.id} className="flex items-center gap-3 bg-surface-light border border-border rounded-lg px-4 py-2.5">
+                <div key={evt.id} className="flex items-center gap-3 bg-[#0a0a0f] border border-red-900/15 rounded-lg px-4 py-2.5">
                   <button
                     onClick={() => toggleEventStatus(evt)}
-                    className="w-4 h-4 rounded border border-border hover:border-primary flex-shrink-0"
+                    className="w-4 h-4 rounded border border-zinc-700 hover:border-red-500 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm text-text">{evt.title}</span>
+                    <span className="text-sm text-white">{evt.title}</span>
                     {evt.description && (
-                      <span className="text-xs text-text-muted ml-2">{evt.description}</span>
+                      <span className="text-xs text-zinc-600 ml-2">{evt.description}</span>
                     )}
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full border ${TYPE_COLORS[evt.type] || TYPE_COLORS.custom}`}>
                     {evt.type}
                   </span>
-                  <span className="text-xs text-text-muted">
+                  <span className="text-xs text-zinc-600">
                     {new Date(evt.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               ))}
             {events.filter(e => e.status !== 'completed').length === 0 && (
-              <p className="text-sm text-text-muted/50 text-center py-8">
+              <p className="text-sm text-zinc-700 text-center py-8">
                 No upcoming tasks. Generate a strategy to populate your calendar.
               </p>
             )}
@@ -279,9 +270,10 @@ export default function CalendarPage() {
 
       {/* Add event modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" onClick={() => setShowAddModal(false)}>
-          <div className="bg-surface-light border border-border rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <h3 className="text-base font-semibold text-text mb-4">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4" onClick={() => setShowAddModal(false)}>
+          <div className="bg-[#0a0a0f] border border-red-900/30 rounded-2xl p-6 w-full max-w-md relative overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
+            <h3 className="text-base font-semibold text-white mb-4">
               Add Event — {selectedDate?.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </h3>
             <div className="space-y-3">
@@ -290,22 +282,22 @@ export default function CalendarPage() {
                 value={newEvent.title}
                 onChange={e => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Event title"
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text
-                  placeholder:text-text-muted/50 focus:outline-none focus:border-primary"
+                className="w-full bg-[#050507] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white
+                  placeholder:text-zinc-700 focus:outline-none focus:border-red-500/40"
               />
               <textarea
                 value={newEvent.description}
                 onChange={e => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="Description (optional)"
                 rows={2}
-                className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text
-                  placeholder:text-text-muted/50 focus:outline-none focus:border-primary resize-none"
+                className="w-full bg-[#050507] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white
+                  placeholder:text-zinc-700 focus:outline-none focus:border-red-500/40 resize-none"
               />
               <div className="flex gap-3">
                 <select
                   value={newEvent.type}
                   onChange={e => setNewEvent(prev => ({ ...prev, type: e.target.value }))}
-                  className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary"
+                  className="flex-1 bg-[#050507] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/40"
                 >
                   <option value="campaign">Campaign</option>
                   <option value="post">Content Post</option>
@@ -317,7 +309,7 @@ export default function CalendarPage() {
                 <select
                   value={newEvent.priority}
                   onChange={e => setNewEvent(prev => ({ ...prev, priority: e.target.value }))}
-                  className="flex-1 bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary"
+                  className="flex-1 bg-[#050507] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/40"
                 >
                   <option value="low">Low Priority</option>
                   <option value="medium">Medium</option>
@@ -328,15 +320,15 @@ export default function CalendarPage() {
               <div className="flex gap-2 pt-2">
                 <button
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 border border-border text-text-muted rounded-lg py-2 text-sm hover:bg-surface transition-colors"
+                  className="flex-1 border border-red-900/20 text-zinc-500 rounded-lg py-2 text-sm hover:bg-[#050507] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddEvent}
                   disabled={!newEvent.title}
-                  className="flex-1 bg-primary hover:bg-primary-dark text-white rounded-lg py-2 text-sm
-                    transition-colors disabled:opacity-50"
+                  className="flex-1 bg-red-600 hover:bg-red-500 text-white rounded-lg py-2 text-sm
+                    transition-colors disabled:opacity-50 border border-red-500/50"
                 >
                   Add Event
                 </button>

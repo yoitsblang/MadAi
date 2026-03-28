@@ -45,7 +45,7 @@ export default function ChatWindow({ messages, onSend, isLoading, module, placeh
       </div>
 
       {/* Input area */}
-      <div className="border-t border-border/20 px-4 py-4 bg-surface/95 backdrop-blur-xl">
+      <div className="border-t border-red-900/20 px-4 py-4 bg-[#050507]/95 backdrop-blur-xl">
         <ChatInput
           onSend={onSend}
           disabled={isLoading}
@@ -136,16 +136,16 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center px-4 py-16">
-      <img src="/logo-200.png" alt="MadAi" className="w-14 h-14 rounded-xl mb-6" />
-      <h2 className="heading-lg text-text mb-2">{w.title}</h2>
-      <p className="text-sm text-text-muted max-w-md mb-8 leading-relaxed">{w.subtitle}</p>
+      <img src="/logo-200.png" alt="MadAi" className="w-14 h-14 rounded-xl mb-6 border border-red-900/30" />
+      <h2 className="text-xl font-bold text-white mb-2">{w.title}</h2>
+      <p className="text-sm text-zinc-500 max-w-md mb-8 leading-relaxed">{w.subtitle}</p>
       <div className="flex flex-wrap gap-2 justify-center max-w-lg">
         {w.prompts.map((prompt, i) => (
           <button
             key={i}
             onClick={() => onPromptClick(prompt)}
-            className="text-xs card-dark px-3.5 py-2.5
-              text-text-muted hover:text-text hover:border-primary/30 transition-all"
+            className="text-xs bg-[#0a0a0f] border border-red-900/15 rounded-xl px-3.5 py-2.5
+              text-zinc-500 hover:text-white hover:border-red-500/30 transition-all"
           >
             {prompt}
           </button>

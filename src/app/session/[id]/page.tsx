@@ -560,9 +560,9 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
 
   if (initialLoading || !session) {
     return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="flex items-center gap-3 text-text-muted">
-          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#050507] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-zinc-500">
+          <div className="w-5 h-5 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
           Loading session...
         </div>
       </div>
@@ -593,7 +593,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
   const progressPct = Math.round((completedStages.length / STAGE_FLOW.length) * 100);
 
   return (
-    <div className="h-screen flex overflow-hidden bg-surface">
+    <div className="h-screen flex overflow-hidden bg-[#050507]">
       {/* Upgrade Prompt Modal */}
       {upgradePrompt && (
         <UpgradePrompt
@@ -616,12 +616,12 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
 
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Mobile module nav */}
-        <div className="md:hidden border-b border-border">
+        <div className="md:hidden border-b border-red-900/20">
           <div className="flex items-center gap-1 px-2 py-2 overflow-x-auto scrollbar-none">
-            <a href="/" className="text-text-muted hover:text-text px-2 py-1 flex-shrink-0 text-base">←</a>
+            <a href="/" className="text-zinc-600 hover:text-white px-2 py-1 flex-shrink-0 text-base">←</a>
             {mobileModuleGroups.map((group, groupIdx) => (
               <React.Fragment key={groupIdx}>
-                <span className="text-[8px] text-text-muted/30 px-0.5 flex-shrink-0">·</span>
+                <span className="text-[8px] text-zinc-800 px-0.5 flex-shrink-0">·</span>
                 {group.modules.map(mod => {
                   const info = MODULE_INFO[mod];
                   const isLocked = mod !== 'intake' && mod !== 'general' && !session.intakeComplete;
@@ -630,7 +630,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                       onClick={() => !isLocked && handleModuleChange(mod)}
                       disabled={isLocked}
                       className={`text-[10px] px-2 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 transition-colors flex items-center gap-1
-                        ${activeModule === mod ? 'bg-primary/20 text-primary-light font-medium' : 'text-text-muted'}
+                        ${activeModule === mod ? 'bg-red-500/15 text-red-400 font-medium' : 'text-zinc-600'}
                         ${isLocked ? 'opacity-25 cursor-not-allowed' : ''}`}>
                       <ModuleIcon name={info.icon} className="w-3 h-3" />
                       {info.label}
@@ -643,7 +643,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
         </div>
 
         {/* Top bar */}
-        <div className="flex items-center border-b border-border/20 bg-surface/95 backdrop-blur-xl flex-shrink-0">
+        <div className="flex items-center border-b border-red-900/20 bg-[#050507]/95 backdrop-blur-xl flex-shrink-0">
           <div className="flex-1 min-w-0">
             <ModuleHeader
               module={activeModule}
@@ -660,29 +660,29 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                   <AlertTriangle className="w-3.5 h-3.5" /> Critical
                 </button>
                 <button onClick={handleGeneratePlan} disabled={isLoading}
-                  className="text-xs bg-primary/10 text-primary-light hover:bg-primary/20 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-40"
+                  className="text-xs bg-red-500/10 text-red-400 hover:bg-red-500/20 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-40"
                   title="Generate Action Plan">
                   <ClipboardList className="w-3.5 h-3.5" /> Plan
                 </button>
                 <a href={`/brief/${id}`}
-                  className="text-xs bg-surface-light hover:bg-primary/10 text-text-muted hover:text-primary-light border border-border hover:border-primary/30 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                  className="text-xs bg-[#0a0a0f] hover:bg-red-500/10 text-zinc-500 hover:text-red-400 border border-red-900/20 hover:border-red-500/30 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
                   title="Master Strategy Brief">
                   <BookMarked className="w-3.5 h-3.5" /> Brief
                 </a>
               </>
             )}
             <button onClick={() => handleExport('md')}
-              className="text-xs text-text-muted hover:text-text px-2 py-1.5 transition-colors" title="Export .md">
+              className="text-xs text-zinc-600 hover:text-white px-2 py-1.5 transition-colors" title="Export .md">
               <FileText className="w-4 h-4" />
             </button>
             <button onClick={() => handleExport('json')}
-              className="text-xs text-text-muted hover:text-text px-2 py-1.5 transition-colors" title="Export .json">
+              className="text-xs text-zinc-600 hover:text-white px-2 py-1.5 transition-colors" title="Export .json">
               <Clipboard className="w-4 h-4" />
             </button>
             {/* Credit balance */}
             {userCredits !== null && (
-              <div className="text-[10px] text-text-muted/60 flex items-center gap-1 pl-2 border-l border-border/30">
-                <Zap className="w-3 h-3 text-accent-amber" />
+              <div className="text-[10px] text-zinc-600 flex items-center gap-1 pl-2 border-l border-red-900/20">
+                <Zap className="w-3 h-3 text-amber-500" />
                 {userCredits >= 999999 ? 'Unlimited' : userCredits}
               </div>
             )}
@@ -698,7 +698,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
 
         {/* Pipeline progress bar */}
         {session.intakeComplete && (
-          <div className="px-4 py-1.5 bg-surface/60 border-b border-border/40 flex-shrink-0">
+          <div className="px-4 py-1.5 bg-[#050507]/60 border-b border-red-900/15 flex-shrink-0">
             <div className="flex items-center gap-2">
               <div className="flex gap-1 flex-1">
                 {STAGE_FLOW.map(stage => {
@@ -710,15 +710,15 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                       onClick={() => handleModuleChange(stage)}
                       title={MODULE_INFO[stage]?.label}
                       className={`flex-1 h-1.5 rounded-full transition-all ${
-                        done ? 'bg-accent-green' :
-                        current ? 'bg-primary animate-pulse' :
-                        'bg-surface-light hover:bg-primary/20'
+                        done ? 'bg-green-500' :
+                        current ? 'bg-red-500 animate-pulse shadow-[0_0_6px_rgba(220,38,38,0.4)]' :
+                        'bg-zinc-800 hover:bg-red-500/20'
                       }`}
                     />
                   );
                 })}
               </div>
-              <span className="text-[10px] text-text-muted/50 flex-shrink-0">{completedStages.length}/{STAGE_FLOW.length}</span>
+              <span className="text-[10px] text-zinc-700 flex-shrink-0">{completedStages.length}/{STAGE_FLOW.length}</span>
             </div>
           </div>
         )}
@@ -726,11 +726,11 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
         {/* ═══ STAGE COMPLETE TOAST ═══ — compact floating notification */}
         {stageComplete && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md animate-fade-in">
-            <div className="bg-surface border border-accent-green/30 rounded-xl shadow-lg shadow-black/20 px-4 py-3">
+            <div className="bg-[#0a0a0f] border border-green-500/30 rounded-xl shadow-lg shadow-black/20 px-4 py-3">
               <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-accent-green flex-shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-text truncate">
+                  <p className="text-xs font-semibold text-white truncate">
                     {MODULE_INFO[stageComplete.stage]?.label} complete
                   </p>
                 </div>
@@ -738,17 +738,17 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                   <button
                     onClick={() => handleAcceptStage(stageComplete.nextStage!)}
                     disabled={isLoading}
-                    className="text-xs font-semibold bg-accent-green text-white px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0 hover:bg-accent-green/90 active:scale-95 transition-all disabled:opacity-40">
+                    className="text-xs font-semibold bg-green-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0 hover:bg-green-500 active:scale-95 transition-all disabled:opacity-40">
                     Continue <ArrowRight className="w-3 h-3" />
                   </button>
                 ) : (
                   <a href={`/session/${id}/dashboard`}
-                    className="text-xs font-semibold bg-accent-green text-white px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0">
+                    className="text-xs font-semibold bg-green-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 flex-shrink-0">
                     Dashboard <ArrowRight className="w-3 h-3" />
                   </a>
                 )}
                 <button onClick={() => setStageComplete(null)}
-                  className="text-text-muted/40 hover:text-text-muted p-0.5 transition-colors flex-shrink-0">
+                  className="text-zinc-700 hover:text-zinc-500 p-0.5 transition-colors flex-shrink-0">
                   <span className="text-sm leading-none">&#x2715;</span>
                 </button>
               </div>
@@ -758,9 +758,9 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
 
         {/* Pending kickoff indicator */}
         {pendingKickoff && (
-          <div className="flex-shrink-0 px-4 py-2 bg-primary/5 border-b border-primary/10 flex items-center gap-2">
-            <div className="w-3 h-3 border border-primary/40 border-t-primary rounded-full animate-spin" />
-            <span className="text-xs text-text-muted/70">
+          <div className="flex-shrink-0 px-4 py-2 bg-red-500/5 border-b border-red-500/10 flex items-center gap-2">
+            <div className="w-3 h-3 border border-red-500/40 border-t-red-500 rounded-full animate-spin" />
+            <span className="text-xs text-zinc-500">
               Starting {MODULE_INFO[pendingKickoff.module]?.label}...
             </span>
           </div>
@@ -773,28 +773,28 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
           const isCurrentDone = completedStages.includes(activeModule);
           if (!isCurrentDone && activeModule !== 'intake') return null;
           return (
-            <div className="flex-shrink-0 px-4 py-2.5 bg-primary/5 border-b border-primary/10 flex items-center justify-between">
+            <div className="flex-shrink-0 px-4 py-2.5 bg-red-500/5 border-b border-red-500/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-accent-green" />
-                <span className="text-xs text-text">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span className="text-xs text-white">
                   {MODULE_INFO[activeModule]?.label} complete.
                   {nextStage ? ` Next: ${MODULE_INFO[nextStage]?.label}` : ' All stages done!'}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <a href="/" className="text-xs text-text-muted border border-border hover:border-primary/30 px-3 py-1 rounded-lg transition-colors">
+                <a href="/" className="text-xs text-zinc-500 border border-red-900/20 hover:border-red-500/30 px-3 py-1 rounded-lg transition-colors">
                   Save & Exit
                 </a>
                 {nextStage ? (
                   <button
                     onClick={() => handleAcceptStage(nextStage)}
                     disabled={isLoading}
-                    className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-40">
+                    className="text-xs font-semibold bg-gradient-to-r from-green-600 to-red-600 text-white px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-40">
                     Continue <ArrowRight className="w-3 h-3" />
                   </button>
                 ) : (
                   <a href={`/session/${id}/dashboard`}
-                    className="text-xs font-semibold bg-gradient-to-r from-accent-green to-primary text-white px-4 py-1.5 rounded-lg flex items-center gap-1.5">
+                    className="text-xs font-semibold bg-gradient-to-r from-green-600 to-red-600 text-white px-4 py-1.5 rounded-lg flex items-center gap-1.5">
                     View Dashboard <ArrowRight className="w-3 h-3" />
                   </a>
                 )}

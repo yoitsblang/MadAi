@@ -112,14 +112,14 @@ export default function LibraryPage() {
   const activeCat = CATEGORIES.find(c => c.id === activeCategory);
 
   return (
-    <div className="min-h-screen bg-surface page-transition">
-      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
+    <div className="min-h-screen bg-[#050507]">
+      <header className="border-b border-red-900/20 bg-[#050507]/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-text-muted hover:text-text transition-colors">&larr;</a>
+            <a href="/" className="text-zinc-600 hover:text-white transition-colors">&larr;</a>
             <div>
-              <h1 className="heading-sm text-text">Strategy Library</h1>
-              <p className="text-[10px] text-text-muted/50">Frameworks, principles, and intelligence</p>
+              <h1 className="text-sm font-bold text-white">Strategy Library</h1>
+              <p className="text-[10px] text-zinc-700">Frameworks, principles, and intelligence</p>
             </div>
           </div>
           <input
@@ -127,14 +127,14 @@ export default function LibraryPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search library..."
-            className="bg-surface/80 border border-border/20 rounded-lg px-3 py-2 text-sm text-text
-              placeholder:text-text-muted/30 w-48 sm:w-64 focus:outline-none focus:border-primary/30"
+            className="bg-[#0a0a0f] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white
+              placeholder:text-zinc-700 w-48 sm:w-64 focus:outline-none focus:border-red-500/30"
           />
         </div>
       </header>
 
       <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row gap-6">
-        {/* Category sidebar — horizontal scroll on mobile, vertical on desktop */}
+        {/* Category sidebar */}
         <div className="sm:w-48 flex-shrink-0">
           <div className="flex sm:flex-col gap-1.5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 sm:sticky sm:top-16">
             {CATEGORIES.map(cat => (
@@ -143,8 +143,8 @@ export default function LibraryPage() {
                 onClick={() => { setActiveCategory(cat.id); setSearch(''); }}
                 className={`text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0
                   ${activeCategory === cat.id
-                    ? 'bg-primary/10 text-text border-l-2 border-primary'
-                    : 'text-text-muted/60 hover:bg-surface-light hover:text-text'
+                    ? 'bg-red-500/10 text-white border-l-2 border-red-500'
+                    : 'text-zinc-600 hover:bg-[#0a0a0f] hover:text-white'
                   }`}
               >
                 <ModuleIcon name={cat.icon} className="w-3.5 h-3.5 text-current" />
@@ -157,24 +157,25 @@ export default function LibraryPage() {
         {/* Content area */}
         <div className="flex-1 min-w-0">
           <div className="mb-5">
-            <h2 className="heading-md text-text flex items-center gap-2">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
               {activeCat && <ModuleIcon name={activeCat.icon} className="w-4 h-4 text-current" />}
               {activeCat?.label}
             </h2>
-            <p className="text-xs text-text-muted/60 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               {activeCat?.description}
             </p>
           </div>
 
           <div className="space-y-3">
             {filtered.map((entry, i) => (
-              <div key={i} className="card-dark p-4 sm:p-5">
-                <h3 className="heading-sm text-text mb-2">{entry.name}</h3>
-                <p className="text-xs sm:text-sm text-text-muted/70 leading-relaxed">{entry.content}</p>
+              <div key={i} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 sm:p-5 relative overflow-hidden hover:border-red-500/25 transition-all">
+                <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
+                <h3 className="text-sm font-bold text-white mb-2">{entry.name}</h3>
+                <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed">{entry.content}</p>
               </div>
             ))}
             {filtered.length === 0 && (
-              <div className="text-center py-12 text-text-muted">
+              <div className="text-center py-12 text-zinc-600">
                 No entries match your search.
               </div>
             )}

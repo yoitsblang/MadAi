@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  /* Mad Men meets Futuristic — Red / Black / Gold / White */
+  /* Command Center — Red / Black / Futuristic */
   --color-primary: #dc2626;
   --color-primary-dark: #b91c1c;
   --color-primary-light: #f87171;
-  --color-surface: #09090b;
-  --color-surface-light: #18181b;
-  --color-surface-lighter: #27272a;
-  --color-border: #3f3f46;
+  --color-surface: #050507;
+  --color-surface-light: #0a0a0f;
+  --color-surface-lighter: #111116;
+  --color-border: rgba(127, 29, 29, 0.2);
   --color-text: #fafafa;
   --color-text-muted: #a1a1aa;
   --color-accent-gold: #d4a843;
@@ -45,14 +45,28 @@ h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', 'Inter', system-ui, sans-
 
 /* ═══ CARD SYSTEM ═══ */
 .card-dark {
-  background: var(--color-surface-light);
-  border: 1px solid rgba(63, 63, 70, 0.3);
+  background: #0a0a0f;
+  border: 1px solid rgba(127, 29, 29, 0.15);
   border-radius: 0.75rem;
 }
 .card-elevated {
-  background: var(--color-surface-lighter);
-  border: 1px solid rgba(63, 63, 70, 0.4);
+  background: #111116;
+  border: 1px solid rgba(127, 29, 29, 0.2);
   border-radius: 0.75rem;
+}
+/* Red accent top-line for cards */
+.card-accent {
+  position: relative;
+}
+.card-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #dc2626, transparent);
+  border-radius: 0.75rem 0.75rem 0 0;
 }
 
 /* ═══ NOTIFICATION TOAST ═══ */

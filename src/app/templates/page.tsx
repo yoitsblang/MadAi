@@ -55,7 +55,6 @@ export default function TemplatesPage() {
 
       const session = await res.json();
 
-      // Send the starter prompt as the first user message
       await fetch(`/api/sessions/${session.id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,16 +68,16 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface page-transition">
-      <header className="border-b border-border/20 bg-surface/95 backdrop-blur-xl sticky top-0 z-10">
+    <div className="min-h-screen bg-[#050507]">
+      <header className="border-b border-red-900/20 bg-[#050507]/95 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <a href="/" className="text-text-muted hover:text-text transition-colors">
+            <a href="/" className="text-zinc-600 hover:text-white transition-colors">
               &larr;
             </a>
             <div>
-              <h1 className="text-lg font-bold text-text">Strategy Templates</h1>
-              <p className="text-xs text-text-muted">
+              <h1 className="text-lg font-bold text-white">Strategy Templates</h1>
+              <p className="text-xs text-zinc-600">
                 Pick a template to jumpstart your strategy session
               </p>
             </div>
@@ -88,8 +87,8 @@ export default function TemplatesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search templates..."
-            className="bg-surface-light border border-border rounded-lg px-3 py-1.5 text-sm text-text
-              placeholder:text-text-muted/50 w-64 focus:outline-none focus:border-primary"
+            className="bg-[#0a0a0f] border border-red-900/20 rounded-lg px-3 py-1.5 text-sm text-white
+              placeholder:text-zinc-700 w-64 focus:outline-none focus:border-red-500/30"
           />
         </div>
       </header>
@@ -104,8 +103,8 @@ export default function TemplatesPage() {
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
                 ${
                   activeCategory === cat
-                    ? 'bg-primary/15 text-primary-light border border-primary/20'
-                    : 'text-text-muted hover:bg-surface-light hover:text-text border border-transparent'
+                    ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    : 'text-zinc-600 hover:bg-[#0a0a0f] hover:text-white border border-transparent'
                 }`}
             >
               {cat === 'all' ? 'All' : CATEGORY_LABELS[cat]}
@@ -120,30 +119,31 @@ export default function TemplatesPage() {
               key={template.id}
               onClick={() => launchTemplate(template)}
               disabled={launching !== null}
-              className="bg-surface-light border border-border rounded-xl p-5 text-left
-                hover:bg-surface-lighter hover:border-primary/30 transition-all group
+              className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5 text-left
+                hover:border-red-500/30 transition-all group relative overflow-hidden
                 disabled:opacity-60 disabled:cursor-wait"
             >
+              <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
               <div className="flex items-start gap-3 mb-3">
-                <ModuleIcon name={template.icon} className="w-6 h-6 text-primary-light" />
+                <ModuleIcon name={template.icon} className="w-6 h-6 text-red-400" />
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-text group-hover:text-primary-light transition-colors">
+                  <h3 className="text-sm font-semibold text-white group-hover:text-red-400 transition-colors">
                     {template.name}
                   </h3>
-                  <span className="text-xs text-text-muted">{CATEGORY_LABELS[template.category]}</span>
+                  <span className="text-xs text-zinc-600">{CATEGORY_LABELS[template.category]}</span>
                 </div>
                 {launching === template.id && (
-                  <span className="text-xs text-primary animate-pulse">Starting...</span>
+                  <span className="text-xs text-red-400 animate-pulse">Starting...</span>
                 )}
               </div>
-              <p className="text-sm text-text-muted leading-relaxed mb-3">
+              <p className="text-sm text-zinc-500 leading-relaxed mb-3">
                 {template.description}
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {template.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-xs px-2 py-0.5 rounded-full bg-surface border border-border text-text-muted"
+                    className="text-xs px-2 py-0.5 rounded-full bg-[#050507] border border-red-900/10 text-zinc-600"
                   >
                     {tag}
                   </span>
@@ -154,7 +154,7 @@ export default function TemplatesPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16 text-text-muted">
+          <div className="text-center py-16 text-zinc-600">
             No templates match your search.
           </div>
         )}

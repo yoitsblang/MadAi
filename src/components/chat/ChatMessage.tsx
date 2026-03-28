@@ -35,16 +35,16 @@ export default function ChatMessage({ role, content, module, timestamp, onApprov
       <div
         className={`max-w-[85%] rounded-2xl px-5 py-3.5 ${
           isUser
-            ? 'bg-primary/15 border border-primary/20 text-text rounded-br-sm'
-            : 'card-dark border-l-2 border-l-primary/20 rounded-bl-sm'
+            ? 'bg-red-500/10 border border-red-500/20 text-white rounded-br-sm'
+            : 'bg-[#0a0a0f] border border-red-900/15 border-l-2 border-l-red-500/20 rounded-bl-sm'
         }`}
       >
         {!isUser && module && module !== 'general' && (
-          <div className="label-xs text-accent-gold/60 mb-2 pb-1.5 border-b border-border/20">
+          <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-red-500/40 mb-2 pb-1.5 border-b border-red-900/15">
             {module.replace(/-/g, ' ')}
           </div>
         )}
-        <div className={`prose max-w-none text-sm leading-relaxed ${isUser ? 'text-white' : 'text-text'}`}>
+        <div className={`prose max-w-none text-sm leading-relaxed ${isUser ? 'text-white' : 'text-white'}`}>
           <MessageContent content={displayContent} isUser={isUser} />
         </div>
         {modifications.length > 0 && onApproveModifications && (
@@ -55,7 +55,7 @@ export default function ChatMessage({ role, content, module, timestamp, onApprov
           />
         )}
         {timestamp && (
-          <div className={`text-xs mt-1.5 ${isUser ? 'text-white/50' : 'text-text-muted/50'}`}>
+          <div className={`text-xs mt-1.5 ${isUser ? 'text-white/50' : 'text-zinc-700'}`}>
             {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </div>
         )}
@@ -112,7 +112,7 @@ const STATUS_LABELS: Record<string, string> = {
   '[LONG GAME]': 'bg-purple-600/15 text-purple-300 border-purple-600/30',
   '[WILD CARD]': 'bg-pink-500/15 text-pink-400 border-pink-500/30',
   '[HIGH POTENTIAL]': 'bg-green-600/15 text-green-300 border-green-600/30',
-  '[PRIMARY DRIVER]': 'bg-primary/15 text-primary-light border-primary/30',
+  '[PRIMARY DRIVER]': 'bg-red-500/15 text-red-400 border-red-500/30',
 };
 
 function MessageContent({ content, isUser }: { content: string; isUser?: boolean }) {
@@ -128,7 +128,7 @@ function MessageContent({ content, isUser }: { content: string; isUser?: boolean
       elements.push(
         <Tag key={listKey} className={`${listType === 'ul' ? 'list-disc' : 'list-decimal'} pl-5 my-2 space-y-1`}>
           {currentList.map((item, i) => (
-            <li key={`${listKey}-${i}`} className={isUser ? 'text-white/90' : 'text-text-muted'}>
+            <li key={`${listKey}-${i}`} className={isUser ? 'text-white/90' : 'text-zinc-400'}>
               <InlineFormat text={item} isUser={isUser} />
             </li>
           ))}
@@ -168,21 +168,21 @@ function MessageContent({ content, isUser }: { content: string; isUser?: boolean
     if (line.startsWith('### ')) {
       flushList();
       elements.push(
-        <h3 key={k} className={`text-sm font-bold mt-4 mb-1.5 ${isUser ? 'text-white' : 'text-text'} uppercase tracking-wide`}>
+        <h3 key={k} className={`text-sm font-bold mt-4 mb-1.5 ${isUser ? 'text-white' : 'text-white'} uppercase tracking-wide`}>
           {line.slice(4)}
         </h3>
       );
     } else if (line.startsWith('## ')) {
       flushList();
       elements.push(
-        <h2 key={k} className={`text-base font-bold mt-5 mb-2 ${isUser ? 'text-white' : 'text-text'} border-b ${isUser ? 'border-white/20' : 'border-border'} pb-1`}>
+        <h2 key={k} className={`text-base font-bold mt-5 mb-2 ${isUser ? 'text-white' : 'text-white'} border-b ${isUser ? 'border-white/20' : 'border-red-900/20'} pb-1`}>
           {line.slice(3)}
         </h2>
       );
     } else if (line.startsWith('# ')) {
       flushList();
       elements.push(
-        <h1 key={k} className={`text-lg font-bold mt-5 mb-2 ${isUser ? 'text-white' : 'text-text'}`}>
+        <h1 key={k} className={`text-lg font-bold mt-5 mb-2 ${isUser ? 'text-white' : 'text-white'}`}>
           {line.slice(2)}
         </h1>
       );
@@ -218,7 +218,7 @@ function MessageContent({ content, isUser }: { content: string; isUser?: boolean
     // Horizontal rules
     else if (line.match(/^---+$/) || line.match(/^===+$/)) {
       flushList();
-      elements.push(<hr key={k} className={`${isUser ? 'border-white/20' : 'border-border'} my-4`} />);
+      elements.push(<hr key={k} className={`${isUser ? 'border-white/20' : 'border-red-900/20'} my-4`} />);
     }
     // Empty lines
     else if (line.trim() === '') {
@@ -228,7 +228,7 @@ function MessageContent({ content, isUser }: { content: string; isUser?: boolean
     else {
       flushList();
       elements.push(
-        <p key={k} className={`my-1.5 ${isUser ? 'text-white/90' : 'text-text-muted'}`}>
+        <p key={k} className={`my-1.5 ${isUser ? 'text-white/90' : 'text-zinc-400'}`}>
           <InlineFormat text={line} isUser={isUser} />
         </p>
       );
@@ -249,20 +249,20 @@ function TableBlock({ lines }: { lines: string[] }) {
   const [header, ...body] = rows;
 
   return (
-    <div className="overflow-x-auto my-3 rounded-lg border border-border">
+    <div className="overflow-x-auto my-3 rounded-lg border border-red-900/20">
       <table className="w-full text-xs">
         <thead>
-          <tr className="bg-surface border-b border-border">
+          <tr className="bg-[#050507] border-b border-red-900/20">
             {header.map((cell, i) => (
-              <th key={i} className="px-3 py-2 text-left text-text font-semibold">{cell}</th>
+              <th key={i} className="px-3 py-2 text-left text-white font-semibold">{cell}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {body.map((row, ri) => (
-            <tr key={ri} className={`border-b border-border/50 ${ri % 2 === 0 ? 'bg-surface-light/30' : ''}`}>
+            <tr key={ri} className={`border-b border-red-900/10 ${ri % 2 === 0 ? 'bg-[#0a0a0f]/50' : ''}`}>
               {row.map((cell, ci) => (
-                <td key={ci} className="px-3 py-2 text-text-muted">{cell}</td>
+                <td key={ci} className="px-3 py-2 text-zinc-400">{cell}</td>
               ))}
             </tr>
           ))}
@@ -279,13 +279,13 @@ function InlineFormat({ text, isUser }: { text: string; isUser?: boolean }) {
     <>
       {parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
-          return <strong key={i} className={`font-semibold ${isUser ? 'text-white' : 'text-text'}`}>{part.slice(2, -2)}</strong>;
+          return <strong key={i} className={`font-semibold ${isUser ? 'text-white' : 'text-white'}`}>{part.slice(2, -2)}</strong>;
         }
         if (part.startsWith('*') && part.endsWith('*')) {
           return <em key={i}>{part.slice(1, -1)}</em>;
         }
         if (part.startsWith('`') && part.endsWith('`')) {
-          return <code key={i} className="bg-surface-lighter px-1.5 py-0.5 rounded text-primary-light text-xs font-mono">{part.slice(1, -1)}</code>;
+          return <code key={i} className="bg-[#111116] px-1.5 py-0.5 rounded text-red-400 text-xs font-mono">{part.slice(1, -1)}</code>;
         }
         return <React.Fragment key={i}>{part}</React.Fragment>;
       })}
@@ -312,14 +312,14 @@ export function TypingIndicator({ module }: { module?: string }) {
   };
   return (
     <div className="flex justify-start animate-fade-in">
-      <div className="bg-surface-light border border-border rounded-2xl rounded-bl-md px-5 py-4">
+      <div className="bg-[#0a0a0f] border border-red-900/15 rounded-2xl rounded-bl-md px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex gap-1.5">
-            <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
-            <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
-            <span className="typing-dot w-2 h-2 bg-primary-light rounded-full" />
+            <span className="typing-dot w-2 h-2 bg-red-400 rounded-full" />
+            <span className="typing-dot w-2 h-2 bg-red-400 rounded-full" />
+            <span className="typing-dot w-2 h-2 bg-red-400 rounded-full" />
           </div>
-          <span className="text-xs text-text-muted/60 animate-pulse">
+          <span className="text-xs text-zinc-600 animate-pulse">
             {labels[module || 'general'] || 'Thinking...'}
           </span>
         </div>
