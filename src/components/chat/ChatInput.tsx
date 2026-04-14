@@ -100,7 +100,7 @@ export default function ChatInput({ onSend, disabled, placeholder }: ChatInputPr
           placeholder={placeholder || 'Type your message...'}
           disabled={disabled}
           rows={1}
-          className="w-full bg-[#0a0a0f] border border-red-900/20 rounded-xl px-4 py-3 pr-10 text-white text-sm
+          className="w-full bg-[#12121a] border border-red-900/20 rounded-xl px-4 py-3 pr-10 text-white text-sm
             placeholder:text-zinc-700 resize-none focus:outline-none focus:border-red-500/40
             focus:ring-1 focus:ring-red-500/20 focus:shadow-[0_0_15px_rgba(220,38,38,0.1)] disabled:opacity-50 transition-all"
         />

@@ -87,7 +87,7 @@ export default function TemplatesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search templates..."
-            className="bg-[#0a0a0f] border border-red-900/20 rounded-lg px-3 py-1.5 text-sm text-white
+            className="bg-[#12121a] border border-red-900/20 rounded-lg px-3 py-1.5 text-sm text-white
               placeholder:text-zinc-700 w-64 focus:outline-none focus:border-red-500/30"
           />
         </div>
@@ -104,7 +104,7 @@ export default function TemplatesPage() {
                 ${
                   activeCategory === cat
                     ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                    : 'text-zinc-600 hover:bg-[#0a0a0f] hover:text-white border border-transparent'
+                    : 'text-zinc-600 hover:bg-[#12121a] hover:text-white border border-transparent'
                 }`}
             >
               {cat === 'all' ? 'All' : CATEGORY_LABELS[cat]}
@@ -119,7 +119,7 @@ export default function TemplatesPage() {
               key={template.id}
               onClick={() => launchTemplate(template)}
               disabled={launching !== null}
-              className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5 text-left
+              className="bg-[#12121a] border border-red-900/30 rounded-xl p-5 text-left
                 hover:border-red-500/30 transition-all group relative overflow-hidden
                 disabled:opacity-60 disabled:cursor-wait"
             >

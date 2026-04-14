@@ -63,7 +63,7 @@ export default function AssetBuilder({ sessionId }: { sessionId: string }) {
   }
 
   return (
-    <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5">
+    <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-5">
       <h3 className="text-sm font-bold text-white flex items-center gap-2 mb-4">
         <Wand2 className="w-4 h-4 text-purple-400" /> Asset Builder
       </h3>

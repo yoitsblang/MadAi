@@ -36,11 +36,11 @@ export default function ChatMessage({ role, content, module, timestamp, onApprov
         className={`max-w-[85%] rounded-2xl px-5 py-3.5 ${
           isUser
             ? 'bg-red-500/10 border border-red-500/20 text-white rounded-br-sm'
-            : 'bg-[#0a0a0f] border border-red-900/15 border-l-2 border-l-red-500/20 rounded-bl-sm'
+            : 'bg-[#12121a] border border-red-900/30 border-l-2 border-l-red-500/20 rounded-bl-sm'
         }`}
       >
         {!isUser && module && module !== 'general' && (
-          <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-red-500/40 mb-2 pb-1.5 border-b border-red-900/15">
+          <div className="text-[9px] font-medium uppercase tracking-[0.08em] text-red-500/40 mb-2 pb-1.5 border-b border-red-900/30">
             {module.replace(/-/g, ' ')}
           </div>
         )}
@@ -260,7 +260,7 @@ function TableBlock({ lines }: { lines: string[] }) {
         </thead>
         <tbody>
           {body.map((row, ri) => (
-            <tr key={ri} className={`border-b border-red-900/10 ${ri % 2 === 0 ? 'bg-[#0a0a0f]/50' : ''}`}>
+            <tr key={ri} className={`border-b border-red-900/10 ${ri % 2 === 0 ? 'bg-[#12121a]/50' : ''}`}>
               {row.map((cell, ci) => (
                 <td key={ci} className="px-3 py-2 text-zinc-400">{cell}</td>
               ))}
@@ -312,7 +312,7 @@ export function TypingIndicator({ module }: { module?: string }) {
   };
   return (
     <div className="flex justify-start animate-fade-in">
-      <div className="bg-[#0a0a0f] border border-red-900/15 rounded-2xl rounded-bl-md px-5 py-4">
+      <div className="bg-[#12121a] border border-red-900/30 rounded-2xl rounded-bl-md px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex gap-1.5">
             <span className="typing-dot w-2 h-2 bg-red-400 rounded-full" />

@@ -83,7 +83,7 @@ export default function WeeklyReviewWidget({ sessionId }: { sessionId: string })
   const latestCompleted = latest ? safeParseArray(latest.completed) : [];
 
   return (
-    <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5">
+    <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
           <Calendar className="w-4 h-4 text-blue-400" /> Weekly Review

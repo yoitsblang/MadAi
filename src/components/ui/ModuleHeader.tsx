@@ -22,7 +22,7 @@ export default function ModuleHeader({ module, ethicalStance, onStanceChange }: 
   const stance = STANCE_CONFIG[ethicalStance];
 
   return (
-    <div className="flex items-center justify-between px-5 py-3 border-b border-red-900/15 bg-[#050507]/50 backdrop-blur-sm">
+    <div className="flex items-center justify-between px-5 py-3 border-b border-red-900/30 bg-[#050507]/50 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <ModuleIcon name={info.icon} className="w-5 h-5 text-current" />
         <div>
@@ -37,7 +37,7 @@ export default function ModuleHeader({ module, ethicalStance, onStanceChange }: 
         <select
           value={ethicalStance}
           onChange={e => onStanceChange(e.target.value as EthicalStance)}
-          className={`text-xs font-medium bg-[#0a0a0f] border border-red-900/20 rounded-lg px-2 py-1.5
+          className={`text-xs font-medium bg-[#12121a] border border-red-900/20 rounded-lg px-2 py-1.5
             ${stance.color} cursor-pointer focus:outline-none focus:border-red-500/30`}
         >
           {Object.entries(STANCE_CONFIG).map(([key, config]) => (

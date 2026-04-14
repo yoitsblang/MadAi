@@ -21,7 +21,7 @@ const TIER_DISPLAY = [
 export default function UpgradePrompt({ reason, currentTier, currentCredits, requiredModule, onClose }: UpgradePromptProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0a0a0f] border border-red-900/30 rounded-2xl max-w-2xl w-full mx-4 overflow-hidden shadow-2xl">
+      <div className="bg-[#12121a] border border-red-900/30 rounded-2xl max-w-2xl w-full mx-4 overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="px-6 py-4 border-b border-red-900/20 flex items-center justify-between bg-gradient-to-r from-red-500/10 to-transparent">
           <div className="flex items-center gap-3">

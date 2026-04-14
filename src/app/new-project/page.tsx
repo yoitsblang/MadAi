@@ -195,7 +195,7 @@ Please ${goalLabels[selectedGoal] || 'diagnose my business bottleneck'}. Be thor
               <div>
                 <label className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1.5 block">Anything else the AI should know</label>
                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                  className="w-full bg-[#0a0a0f] border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-red-500/40 transition-colors min-h-[100px] resize-none"
+                  className="w-full bg-[#12121a] border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-red-500/40 transition-colors min-h-[100px] resize-none"
                   placeholder="Customer complaints, what you've tried, what's working, what's not..." />
               </div>
             </div>
@@ -213,7 +213,7 @@ Please ${goalLabels[selectedGoal] || 'diagnose my business bottleneck'}. Be thor
                   className={`w-full text-left p-4 rounded-xl border transition-all flex items-center gap-4 ${
                     selectedGoal === g.id
                       ? 'bg-red-500/5 border-red-500/30'
-                      : 'bg-[#0a0a0f] border-zinc-800/50 hover:border-red-900/30'
+                      : 'bg-[#12121a] border-zinc-800/50 hover:border-red-900/30'
                   }`}>
                   <g.icon className={`w-5 h-5 flex-shrink-0 ${selectedGoal === g.id ? 'text-red-400' : 'text-zinc-700'}`} />
                   <div>
@@ -252,7 +252,7 @@ Please ${goalLabels[selectedGoal] || 'diagnose my business bottleneck'}. Be thor
                   className={`w-full text-left p-4 rounded-xl border transition-all ${
                     aiMode === m.id
                       ? 'bg-red-500/5 border-red-500/30'
-                      : 'bg-[#0a0a0f] border-zinc-800/50 hover:border-red-900/30'
+                      : 'bg-[#12121a] border-zinc-800/50 hover:border-red-900/30'
                   }`}>
                   <p className={`text-sm font-medium ${aiMode === m.id ? 'text-white' : 'text-zinc-400'}`}>{m.label}</p>
                   <p className="text-[10px] text-zinc-600">{m.desc}</p>
@@ -296,7 +296,7 @@ function Field({ label, value, onChange, placeholder }: { label: string; value: 
     <div>
       <label className="text-[10px] text-zinc-600 uppercase tracking-wider mb-1.5 block">{label}</label>
       <input type="text" value={value} onChange={e => onChange(e.target.value)}
-        className="w-full bg-[#0a0a0f] border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-red-500/40 transition-colors"
+        className="w-full bg-[#12121a] border border-zinc-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-red-500/40 transition-colors"
         placeholder={placeholder} />
     </div>
   );

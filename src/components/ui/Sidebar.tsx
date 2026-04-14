@@ -72,7 +72,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
                       ? 'bg-red-500/10 text-white border-l-2 border-red-500 ml-[-1px]'
                       : isLocked
                         ? 'text-zinc-800 cursor-not-allowed'
-                        : 'text-zinc-600 hover:bg-[#0a0a0f] hover:text-white'
+                        : 'text-zinc-600 hover:bg-[#12121a] hover:text-white'
                     }`}
                 >
                   <span className={`${isLocked ? 'opacity-30' : ''}`}>
@@ -95,7 +95,7 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
 
       {/* Strategy Journey Progress */}
       {intakeComplete && (
-        <div className="mx-3 mb-2 p-3 bg-[#0a0a0f] border border-red-900/15 rounded-lg">
+        <div className="mx-3 mb-2 p-3 bg-[#12121a] border border-red-900/30 rounded-lg">
           <div className="text-[10px] font-semibold text-red-500/50 uppercase tracking-wider mb-2">
             Strategy Journey
           </div>
@@ -122,19 +122,19 @@ export default function Sidebar({ activeModule, onModuleChange, intakeComplete, 
       <div className="p-3 border-t border-red-900/20 space-y-1">
         <a
           href="/"
-          className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-600 hover:text-white rounded-lg hover:bg-[#0a0a0f] transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-600 hover:text-white rounded-lg hover:bg-[#12121a] transition-colors"
         >
           <ArrowLeft className="w-4 h-4 text-current" /> All Sessions
         </a>
         <a
           href="/library"
-          className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-600 hover:text-white rounded-lg hover:bg-[#0a0a0f] transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-600 hover:text-white rounded-lg hover:bg-[#12121a] transition-colors"
         >
           <BookOpen className="w-4 h-4 text-current" /> Strategy Library
         </a>
         <a
           href="/profile"
-          className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-600 hover:text-white rounded-lg hover:bg-[#0a0a0f] transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-xs text-zinc-600 hover:text-white rounded-lg hover:bg-[#12121a] transition-colors"
         >
           <Settings className="w-4 h-4 text-current" /> Settings
         </a>

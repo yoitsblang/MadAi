@@ -189,7 +189,7 @@ export default function CalendarPage() {
         {/* Calendar grid */}
         <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: firstDay }).map((_, i) => (
-            <div key={`empty-${i}`} className="min-h-[100px] bg-[#0a0a0f]/30 rounded-lg" />
+            <div key={`empty-${i}`} className="min-h-[100px] bg-[#12121a]/30 rounded-lg" />
           ))}
 
           {Array.from({ length: daysInMonth }).map((_, i) => {
@@ -205,7 +205,7 @@ export default function CalendarPage() {
                 className={`min-h-[100px] p-1.5 rounded-lg border cursor-pointer transition-colors
                   ${isToday(day)
                     ? 'bg-red-500/10 border-red-500/30'
-                    : 'bg-[#0a0a0f] border-red-900/10 hover:border-red-500/25'
+                    : 'bg-[#12121a] border-red-900/10 hover:border-red-500/25'
                   }`}
               >
                 <div className={`text-xs font-medium mb-1 ${isToday(day) ? 'text-red-400' : 'text-zinc-600'}`}>
@@ -240,7 +240,7 @@ export default function CalendarPage() {
               .filter(e => e.status !== 'completed' && new Date(e.date) >= new Date())
               .slice(0, 10)
               .map(evt => (
-                <div key={evt.id} className="flex items-center gap-3 bg-[#0a0a0f] border border-red-900/15 rounded-lg px-4 py-2.5">
+                <div key={evt.id} className="flex items-center gap-3 bg-[#12121a] border border-red-900/30 rounded-lg px-4 py-2.5">
                   <button
                     onClick={() => toggleEventStatus(evt)}
                     className="w-4 h-4 rounded border border-zinc-700 hover:border-red-500 flex-shrink-0"
@@ -271,7 +271,7 @@ export default function CalendarPage() {
       {/* Add event modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4" onClick={() => setShowAddModal(false)}>
-          <div className="bg-[#0a0a0f] border border-red-900/30 rounded-2xl p-6 w-full max-w-md relative overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="bg-[#12121a] border border-red-900/30 rounded-2xl p-6 w-full max-w-md relative overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
             <h3 className="text-base font-semibold text-white mb-4">
               Add Event — {selectedDate?.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

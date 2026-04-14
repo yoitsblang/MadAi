@@ -115,7 +115,7 @@ export default function CommandCenter() {
       <div className="min-h-screen bg-[#050507]">
         <div className="h-12 border-b border-red-900/20" />
         <div className="max-w-[900px] mx-auto p-4 space-y-4">
-          {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-[#0a0a0f] border border-red-900/10 animate-pulse" />)}
+          {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-[#12121a] border border-red-900/10 animate-pulse" />)}
         </div>
       </div>
     );
@@ -143,7 +143,7 @@ export default function CommandCenter() {
               { Icon: Zap, t: '7-Day Sprints', d: 'Instant execution plan. Tasks, deadlines, metrics.' },
               { Icon: Beaker, t: 'Experiment Engine', d: 'Test hypotheses. Track what works. Kill what doesn\'t.' },
             ].map((f, i) => (
-              <div key={i} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5 text-left">
+              <div key={i} className="bg-[#12121a] border border-red-900/30 rounded-xl p-5 text-left">
                 <f.Icon className="w-5 h-5 text-red-500 mb-3" />
                 <h3 className="text-sm font-bold text-white mb-1">{f.t}</h3>
                 <p className="text-[11px] text-zinc-600 leading-relaxed">{f.d}</p>
@@ -185,7 +185,7 @@ export default function CommandCenter() {
               {renamingId === activeProject.id ? (
                 <div className="flex items-center gap-1.5">
                   <input value={renameValue} onChange={e => setRenameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename(activeProject.id)}
-                    className="text-sm font-bold bg-[#0a0a0f] border border-red-500/30 rounded-lg px-3 py-1 text-white focus:outline-none w-48" autoFocus />
+                    className="text-sm font-bold bg-[#12121a] border border-red-500/30 rounded-lg px-3 py-1 text-white focus:outline-none w-48" autoFocus />
                   <button onClick={() => handleRename(activeProject.id)} className="text-green-500"><Check className="w-4 h-4" /></button>
                   <button onClick={() => setRenamingId(null)} className="text-zinc-600"><X className="w-4 h-4" /></button>
                 </div>
@@ -214,7 +214,7 @@ export default function CommandCenter() {
 
         {loadingData && (
           <div className="space-y-4">
-            {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-[#0a0a0f] border border-red-900/10 animate-pulse" />)}
+            {[1,2,3].map(i => <div key={i} className="h-24 rounded-xl bg-[#12121a] border border-red-900/10 animate-pulse" />)}
           </div>
         )}
 
@@ -222,7 +222,7 @@ export default function CommandCenter() {
           <>
             {/* ═══ BOTTLENECK HERO ═══ */}
             {bn ? (
-              <div className="bg-[#0a0a0f] border border-red-500/30 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(220,38,38,0.08)]">
+              <div className="bg-[#12121a] border border-red-500/30 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(220,38,38,0.08)]">
                 <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent" />
                 <div className="p-5">
                   <div className="flex items-center gap-2 mb-2">
@@ -258,7 +258,7 @@ export default function CommandCenter() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#0a0a0f] border border-red-900/20 rounded-xl p-6 text-center">
+              <div className="bg-[#12121a] border border-red-900/20 rounded-xl p-6 text-center">
                 <Crosshair className="w-6 h-6 text-red-500/20 mx-auto mb-2" />
                 <p className="text-sm font-bold text-white mb-1">No bottleneck identified yet</p>
                 <p className="text-[11px] text-zinc-700 mb-3">Complete the analysis to identify your #1 constraint.</p>
@@ -277,7 +277,7 @@ export default function CommandCenter() {
                     const done = completedActions.has(i);
                     const rec = projectData.recommendations[i];
                     return (
-                      <div key={i} className={`bg-[#0a0a0f] border rounded-xl p-4 transition-all ${done ? 'border-green-500/10 opacity-30' : 'border-red-900/15 hover:border-red-500/25'}`}>
+                      <div key={i} className={`bg-[#12121a] border rounded-xl p-4 transition-all ${done ? 'border-green-500/10 opacity-30' : 'border-red-900/30 hover:border-red-500/25'}`}>
                         <div className="flex items-start gap-3">
                           <button onClick={() => { const n = new Set(completedActions); n.has(i) ? n.delete(i) : n.add(i); setCompletedActions(n); }} className="mt-0.5 flex-shrink-0">
                             {done ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Circle className="w-5 h-5 text-zinc-700" />}
@@ -309,7 +309,7 @@ export default function CommandCenter() {
 
             {/* ═══ DO NOT WASTE TIME ═══ */}
             {risks.length > 0 && (
-              <div className="bg-[#0a0a0f] border border-amber-500/15 rounded-xl p-4">
+              <div className="bg-[#12121a] border border-amber-500/15 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Ban className="w-4 h-4 text-amber-500/60" />
                   <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500/60">DO NOT WASTE TIME ON</span>
@@ -334,7 +334,7 @@ export default function CommandCenter() {
                 <SectionHead icon={<HelpCircle className="w-4 h-4 text-blue-500" />} title="Decisions waiting" />
                 <div className="space-y-2">
                   {decisions.slice(0, 3).map((d, i) => (
-                    <div key={i} className="bg-[#0a0a0f] border border-blue-500/10 rounded-xl p-3 flex items-start gap-3">
+                    <div key={i} className="bg-[#12121a] border border-blue-500/10 rounded-xl p-3 flex items-start gap-3">
                       <HelpCircle className="w-4 h-4 text-blue-500/40 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="text-xs text-zinc-300">{d.question}</p>
@@ -390,7 +390,7 @@ function Header({ userName, userImage, onSignOut }: { userName: string; userImag
         <div className="flex items-center gap-2">
           <NotificationBell />
           <a href="/profile" className="w-7 h-7 rounded-full overflow-hidden border border-red-900/30">
-            {userImage ? <img src={userImage} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#0a0a0f] flex items-center justify-center text-[10px] text-zinc-600">{userName[0]}</div>}
+            {userImage ? <img src={userImage} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#12121a] flex items-center justify-center text-[10px] text-zinc-600">{userName[0]}</div>}
           </a>
           <button onClick={onSignOut} className="p-1 text-zinc-800 hover:text-red-500 transition-colors hidden sm:block"><Power className="w-3.5 h-3.5" /></button>
         </div>
@@ -450,7 +450,7 @@ function Chip({ label, value, color }: { label: string; value: string; color: 'r
 function MetricChip({ label, value }: { label: string; value?: string }) {
   const has = value && value.length > 0;
   return (
-    <div className={`rounded-lg p-2.5 text-center ${has ? 'bg-[#0a0a0f] border border-red-900/10' : 'bg-[#080809] border border-zinc-900/30'}`}>
+    <div className={`rounded-lg p-2.5 text-center ${has ? 'bg-[#12121a] border border-red-900/10' : 'bg-[#080809] border border-zinc-900/30'}`}>
       <span className="text-[8px] uppercase tracking-wider text-zinc-700 block mb-0.5">{label}</span>
       <span className={`text-[10px] font-medium ${has ? 'text-zinc-400' : 'text-zinc-800'}`}>
         {has ? (value.length > 12 ? value.slice(0, 12) + '..' : value) : '—'}
@@ -461,7 +461,7 @@ function MetricChip({ label, value }: { label: string; value?: string }) {
 
 function QuickBtn({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
   return (
-    <a href={href} className="bg-[#0a0a0f] border border-red-900/10 rounded-xl p-3 flex items-center gap-2 hover:border-red-500/25 transition-all group">
+    <a href={href} className="bg-[#12121a] border border-red-900/10 rounded-xl p-3 flex items-center gap-2 hover:border-red-500/25 transition-all group">
       <div className="text-zinc-700 group-hover:text-red-400 transition-colors">{icon}</div>
       <span className="text-[10px] text-zinc-600 group-hover:text-white transition-colors">{label}</span>
     </a>

@@ -82,7 +82,7 @@ export default function ExperimentLab({ sessionId }: { sessionId: string }) {
 
       {/* New experiment form */}
       {showNew && (
-        <div className="bg-[#0a0a0f] border border-purple-500/20 rounded-xl p-4 mb-3 animate-slide-up space-y-2">
+        <div className="bg-[#12121a] border border-purple-500/20 rounded-xl p-4 mb-3 animate-slide-up space-y-2">
           <input value={hypothesis} onChange={e => setHypothesis(e.target.value)}
             className="w-full bg-[#050507] border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white placeholder:text-zinc-700 focus:outline-none focus:border-purple-500/30"
             placeholder="If I do X, then Y will happen because Z" />
@@ -117,7 +117,7 @@ export default function ExperimentLab({ sessionId }: { sessionId: string }) {
           const cfg = STATUS_CONFIG[exp.status] || STATUS_CONFIG.backlog;
           const isExpanded = expanded === exp.id;
           return (
-            <div key={exp.id} className={`bg-[#0a0a0f] border border-zinc-800/30 rounded-xl overflow-hidden ${exp.status === 'running' ? 'border-blue-500/20' : ''}`}>
+            <div key={exp.id} className={`bg-[#12121a] border border-zinc-800/30 rounded-xl overflow-hidden ${exp.status === 'running' ? 'border-blue-500/20' : ''}`}>
               <div className="p-3 flex items-start gap-3 cursor-pointer" onClick={() => setExpanded(isExpanded ? null : exp.id)}>
                 <Beaker className={`w-4 h-4 mt-0.5 flex-shrink-0 ${cfg.color}`} />
                 <div className="flex-1 min-w-0">

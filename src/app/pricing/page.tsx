@@ -66,7 +66,7 @@ function PricingContent() {
         )}
 
         {user && (
-          <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 mb-6 flex items-center justify-between relative overflow-hidden">
+          <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 mb-6 flex items-center justify-between relative overflow-hidden">
             <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
             <div>
               <span className="text-xs text-zinc-600 uppercase tracking-wider">Current Plan</span>
@@ -87,8 +87,8 @@ function PricingContent() {
             const isCurrent = key === currentTier;
             const isPopular = key === 'pro';
             return (
-              <div key={key} className={`relative bg-[#0a0a0f] border rounded-xl p-5 flex flex-col overflow-hidden ${
-                isPopular ? 'border-red-500/40 ring-1 ring-red-500/20' : 'border-red-900/15'
+              <div key={key} className={`relative bg-[#12121a] border rounded-xl p-5 flex flex-col overflow-hidden ${
+                isPopular ? 'border-red-500/40 ring-1 ring-red-500/20' : 'border-red-900/30'
               }`}>
                 <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
                 {isPopular && (
@@ -151,7 +151,7 @@ function PricingContent() {
             { key: 'medium', credits: 300, price: 12, savings: 'Save 20%' },
             { key: 'large', credits: 1000, price: 35, savings: 'Save 30%' },
           ].map(pack => (
-            <div key={pack.key} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 relative overflow-hidden">
+            <div key={pack.key} className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 relative overflow-hidden">
               <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">

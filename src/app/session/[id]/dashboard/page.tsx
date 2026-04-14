@@ -109,7 +109,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#050507]">
       <div className="h-12 border-b border-red-900/20" />
       <div className="max-w-[1200px] mx-auto px-4 md:px-8 py-6 space-y-4">
-        {[1,2,3].map(i => <div key={i} className="h-28 rounded-xl bg-[#0a0a0f] border border-red-900/10 animate-pulse" />)}
+        {[1,2,3].map(i => <div key={i} className="h-28 rounded-xl bg-[#12121a] border border-red-900/10 animate-pulse" />)}
       </div>
     </div>
   );
@@ -130,7 +130,7 @@ export default function DashboardPage() {
             {renaming ? (
               <div className="flex items-center gap-1.5">
                 <input value={newName} onChange={e => setNewName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename()}
-                  className="text-sm font-bold text-white bg-[#0a0a0f] border border-red-500/30 rounded-lg px-3 py-1 focus:outline-none w-48" autoFocus />
+                  className="text-sm font-bold text-white bg-[#12121a] border border-red-500/30 rounded-lg px-3 py-1 focus:outline-none w-48" autoFocus />
                 <button onClick={handleRename} className="text-green-500"><Check className="w-4 h-4" /></button>
                 <button onClick={() => setRenaming(false)} className="text-zinc-600"><X className="w-4 h-4" /></button>
               </div>
@@ -157,7 +157,7 @@ export default function DashboardPage() {
             HERO: BOTTLENECK COMMAND CARD
             ════════════════════════════════ */}
         {bottleneck ? (
-          <div className="relative bg-[#0a0a0f] border border-red-500/30 rounded-xl overflow-hidden
+          <div className="relative bg-[#12121a] border border-red-500/30 rounded-xl overflow-hidden
             shadow-[0_0_40px_rgba(220,38,38,0.08)]">
             {/* Animated top accent */}
             <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent" />
@@ -220,7 +220,7 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-[#0a0a0f] border border-red-900/20 rounded-xl p-6 text-center">
+          <div className="bg-[#12121a] border border-red-900/20 rounded-xl p-6 text-center">
             <Crosshair className="w-8 h-8 text-red-500/20 mx-auto mb-3" />
             <h2 className="text-lg font-bold text-white mb-1">No bottleneck identified yet</h2>
             <p className="text-xs text-zinc-600 mb-4">Complete more stages to identify your #1 constraint.</p>
@@ -232,13 +232,13 @@ export default function DashboardPage() {
 
         {/* ═══ GAUGES ROW ═══ */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 flex justify-center">
+          <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 flex justify-center">
             <GaugeRing value={pipeline.percentage} label="Pipeline" />
           </div>
-          <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 flex justify-center">
+          <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 flex justify-center">
             <GaugeRing value={totalActions > 0 ? Math.round((completedCount / totalActions) * 100) : 0} label="Actions" />
           </div>
-          <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 flex justify-center">
+          <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 flex justify-center">
             <GaugeRing value={Math.min(100, (learnings.length + strengths.length) * 12)} label="Intelligence" />
           </div>
         </div>
@@ -258,8 +258,8 @@ export default function DashboardPage() {
                 const rec = recommendations[i];
                 const expanded = expandedAction === i;
                 return (
-                  <div key={i} className={`bg-[#0a0a0f] border rounded-xl overflow-hidden transition-all ${
-                    done ? 'border-green-500/10 opacity-40' : 'border-red-900/15 hover:border-red-500/30'
+                  <div key={i} className={`bg-[#12121a] border rounded-xl overflow-hidden transition-all ${
+                    done ? 'border-green-500/10 opacity-40' : 'border-red-900/30 hover:border-red-500/30'
                   }`}>
                     <div className="p-4 flex items-start gap-3">
                       <button onClick={() => toggleAction(i)} className="mt-0.5 flex-shrink-0">
@@ -311,7 +311,7 @@ export default function DashboardPage() {
         {/* ═══ TWO-COLUMN: Constraint Map + Health ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Constraint Map */}
-          <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5">
+          <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-5">
             <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
               <Target className="w-4 h-4 text-amber-500" /> Constraint Map
             </h3>
@@ -319,7 +319,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Business Health */}
-          <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5">
+          <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-5">
             <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
               <Activity className="w-4 h-4 text-green-500" /> Business Vitals
             </h3>
@@ -335,7 +335,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ═══ 7-DAY SPRINT ═══ */}
-        <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5">
+        <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-5">
           <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
             <Zap className="w-4 h-4 text-blue-500" /> 7-Day Sprint
           </h3>
@@ -344,7 +344,7 @@ export default function DashboardPage() {
 
         {/* ═══ EXPERIMENT LAB + SCORECARD ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="bg-[#0a0a0f] border border-purple-500/10 rounded-xl p-5">
+          <div className="bg-[#12121a] border border-purple-500/10 rounded-xl p-5">
             <ExperimentLab sessionId={id} />
           </div>
           <FounderScorecardWidget sessionId={id} />
@@ -360,7 +360,7 @@ export default function DashboardPage() {
         {(strengths.length > 0 || risks.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {strengths.length > 0 && (
-              <div className="bg-[#0a0a0f] border border-green-500/10 rounded-xl p-5">
+              <div className="bg-[#12121a] border border-green-500/10 rounded-xl p-5">
                 <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                   <Shield className="w-4 h-4 text-green-500" /> Strengths
                 </h3>
@@ -375,7 +375,7 @@ export default function DashboardPage() {
               </div>
             )}
             {risks.length > 0 && (
-              <div className="bg-[#0a0a0f] border border-red-500/10 rounded-xl p-5">
+              <div className="bg-[#12121a] border border-red-500/10 rounded-xl p-5">
                 <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-red-400" /> Risks
                 </h3>
@@ -394,7 +394,7 @@ export default function DashboardPage() {
 
         {/* ═══ LEARNINGS ═══ */}
         {learnings.length > 0 && (
-          <div className="bg-[#0a0a0f] border border-amber-500/10 rounded-xl p-5">
+          <div className="bg-[#12121a] border border-amber-500/10 rounded-xl p-5">
             <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-amber-500" /> Intelligence Feed
             </h3>
@@ -410,7 +410,7 @@ export default function DashboardPage() {
         )}
 
         {/* ═══ PROGRESS LOG ═══ */}
-        <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-5">
+        <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-5">
           <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
             <PenLine className="w-4 h-4 text-green-500" /> Progress Log
           </h3>
@@ -437,7 +437,7 @@ export default function DashboardPage() {
         </div>
 
         {/* ═══ PIPELINE BAR ═══ */}
-        <div className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4">
+        <div className="bg-[#12121a] border border-red-900/30 rounded-xl p-4">
           <div className="flex items-center gap-3">
             <div className="flex gap-1 flex-1">
               {pipeline.stages.map(stage => (
@@ -454,13 +454,13 @@ export default function DashboardPage() {
 
         {/* ═══ NAV PILLS ═══ */}
         <div className="flex gap-2 pb-4">
-          <a href={`/session/${id}`} className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-600 hover:text-white py-3 rounded-xl bg-[#0a0a0f] border border-red-900/15 hover:border-red-500/30 transition-all">
+          <a href={`/session/${id}`} className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-600 hover:text-white py-3 rounded-xl bg-[#12121a] border border-red-900/30 hover:border-red-500/30 transition-all">
             <MessageSquare className="w-3.5 h-3.5" /> Chat
           </a>
-          <a href={`/brief/${id}`} className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-600 hover:text-white py-3 rounded-xl bg-[#0a0a0f] border border-red-900/15 hover:border-red-500/30 transition-all">
+          <a href={`/brief/${id}`} className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-600 hover:text-white py-3 rounded-xl bg-[#12121a] border border-red-900/30 hover:border-red-500/30 transition-all">
             <BookMarked className="w-3.5 h-3.5" /> Brief
           </a>
-          <a href="/" className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-600 hover:text-white py-3 rounded-xl bg-[#0a0a0f] border border-red-900/15 hover:border-red-500/30 transition-all">
+          <a href="/" className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-600 hover:text-white py-3 rounded-xl bg-[#12121a] border border-red-900/30 hover:border-red-500/30 transition-all">
             <ArrowLeft className="w-3.5 h-3.5" /> Home
           </a>
         </div>

@@ -665,7 +665,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
                   <ClipboardList className="w-3.5 h-3.5" /> Plan
                 </button>
                 <a href={`/brief/${id}`}
-                  className="text-xs bg-[#0a0a0f] hover:bg-red-500/10 text-zinc-500 hover:text-red-400 border border-red-900/20 hover:border-red-500/30 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                  className="text-xs bg-[#12121a] hover:bg-red-500/10 text-zinc-500 hover:text-red-400 border border-red-900/20 hover:border-red-500/30 px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
                   title="Master Strategy Brief">
                   <BookMarked className="w-3.5 h-3.5" /> Brief
                 </a>
@@ -698,7 +698,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
 
         {/* Pipeline progress bar */}
         {session.intakeComplete && (
-          <div className="px-4 py-1.5 bg-[#050507]/60 border-b border-red-900/15 flex-shrink-0">
+          <div className="px-4 py-1.5 bg-[#050507]/60 border-b border-red-900/30 flex-shrink-0">
             <div className="flex items-center gap-2">
               <div className="flex gap-1 flex-1">
                 {STAGE_FLOW.map(stage => {
@@ -726,7 +726,7 @@ Generate 10-15 steps ordered by priority and time. Make every step specific enou
         {/* ═══ STAGE COMPLETE TOAST ═══ — compact floating notification */}
         {stageComplete && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-md animate-fade-in">
-            <div className="bg-[#0a0a0f] border border-green-500/30 rounded-xl shadow-lg shadow-black/20 px-4 py-3">
+            <div className="bg-[#12121a] border border-green-500/30 rounded-xl shadow-lg shadow-black/20 px-4 py-3">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">

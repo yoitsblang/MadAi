@@ -6,9 +6,9 @@
   --color-primary-dark: #b91c1c;
   --color-primary-light: #f87171;
   --color-surface: #050507;
-  --color-surface-light: #0a0a0f;
-  --color-surface-lighter: #111116;
-  --color-border: rgba(127, 29, 29, 0.2);
+  --color-surface-light: #12121a;
+  --color-surface-lighter: #1a1a24;
+  --color-border: rgba(220, 38, 38, 0.15);
   --color-text: #fafafa;
   --color-text-muted: #a1a1aa;
   --color-accent-gold: #d4a843;

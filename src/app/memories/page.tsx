@@ -84,10 +84,10 @@ export default function MemoriesPage() {
           <div className="flex-1 relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-700" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search memories..."
-              className="w-full bg-[#0a0a0f] border border-red-900/20 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-red-500/30" />
+              className="w-full bg-[#12121a] border border-red-900/20 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:border-red-500/30" />
           </div>
           <select value={filter} onChange={e => setFilter(e.target.value)}
-            className="bg-[#0a0a0f] border border-red-900/20 rounded-xl px-3 py-2.5 text-xs text-zinc-500 focus:outline-none focus:border-red-500/30">
+            className="bg-[#12121a] border border-red-900/20 rounded-xl px-3 py-2.5 text-xs text-zinc-500 focus:outline-none focus:border-red-500/30">
             <option value="all">All ({memories.length})</option>
             {categories.map(c => <option key={c} value={c}>{c} ({memories.filter(m => m.category === c).length})</option>)}
           </select>
@@ -96,7 +96,7 @@ export default function MemoriesPage() {
         {/* Memory List */}
         <div className="space-y-2">
           {filtered.map(m => (
-            <div key={m.id} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 group hover:border-red-500/25 transition-all">
+            <div key={m.id} className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 group hover:border-red-500/25 transition-all">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

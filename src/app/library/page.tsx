@@ -127,7 +127,7 @@ export default function LibraryPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search library..."
-            className="bg-[#0a0a0f] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white
+            className="bg-[#12121a] border border-red-900/20 rounded-lg px-3 py-2 text-sm text-white
               placeholder:text-zinc-700 w-48 sm:w-64 focus:outline-none focus:border-red-500/30"
           />
         </div>
@@ -144,7 +144,7 @@ export default function LibraryPage() {
                 className={`text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0
                   ${activeCategory === cat.id
                     ? 'bg-red-500/10 text-white border-l-2 border-red-500'
-                    : 'text-zinc-600 hover:bg-[#0a0a0f] hover:text-white'
+                    : 'text-zinc-600 hover:bg-[#12121a] hover:text-white'
                   }`}
               >
                 <ModuleIcon name={cat.icon} className="w-3.5 h-3.5 text-current" />
@@ -168,7 +168,7 @@ export default function LibraryPage() {
 
           <div className="space-y-3">
             {filtered.map((entry, i) => (
-              <div key={i} className="bg-[#0a0a0f] border border-red-900/15 rounded-xl p-4 sm:p-5 relative overflow-hidden hover:border-red-500/25 transition-all">
+              <div key={i} className="bg-[#12121a] border border-red-900/30 rounded-xl p-4 sm:p-5 relative overflow-hidden hover:border-red-500/25 transition-all">
                 <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
                 <h3 className="text-sm font-bold text-white mb-2">{entry.name}</h3>
                 <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed">{entry.content}</p>

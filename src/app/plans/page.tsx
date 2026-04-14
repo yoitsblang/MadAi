@@ -155,7 +155,7 @@ export default function PlansPage() {
                     className={`w-full text-left p-4 rounded-xl border transition-colors ${
                       isSelected
                         ? 'bg-red-500/10 border-red-500/30'
-                        : 'bg-[#0a0a0f] border-red-900/15 hover:border-red-500/25'
+                        : 'bg-[#12121a] border-red-900/30 hover:border-red-500/25'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1">
@@ -236,7 +236,7 @@ export default function PlansPage() {
                   </div>
 
                   {/* Progress */}
-                  <div className="mb-6 p-4 bg-[#0a0a0f] border border-red-900/15 rounded-xl relative overflow-hidden">
+                  <div className="mb-6 p-4 bg-[#12121a] border border-red-900/30 rounded-xl relative overflow-hidden">
                     <div className="h-[2px] bg-gradient-to-r from-transparent via-red-500 to-transparent absolute top-0 left-0 right-0" />
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-medium text-white">Progress</span>
@@ -263,7 +263,7 @@ export default function PlansPage() {
                         className={`flex items-start gap-3 p-3 rounded-lg border transition-colors ${
                           item.status === 'completed'
                             ? 'bg-green-500/5 border-green-500/15'
-                            : 'bg-[#0a0a0f] border-red-900/15'
+                            : 'bg-[#12121a] border-red-900/30'
                         }`}
                       >
                         <button

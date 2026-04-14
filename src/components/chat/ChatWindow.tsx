@@ -144,7 +144,7 @@ function WelcomeMessage({ module, onPromptClick }: { module: ModuleType; onPromp
           <button
             key={i}
             onClick={() => onPromptClick(prompt)}
-            className="text-xs bg-[#0a0a0f] border border-red-900/15 rounded-xl px-3.5 py-2.5
+            className="text-xs bg-[#12121a] border border-red-900/30 rounded-xl px-3.5 py-2.5
               text-zinc-500 hover:text-white hover:border-red-500/30 transition-all"
           >
             {prompt}
