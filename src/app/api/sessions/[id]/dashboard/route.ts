@@ -273,30 +273,44 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (actionItems.length > 1) actionItems[1].priority = 'high';
 
   // ─── LOAD EXPERIMENTS, DECISIONS, SCORECARD ──────────────────
-  const experiments = await prisma.experiment.findMany({
-    where: { sessionId: id },
-    orderBy: { updatedAt: 'desc' },
-  });
+  // Wrapped in try/catch because these tables may not exist in production yet
+  let experiments: unknown[] = [];
+  let decisions: unknown[] = [];
+  let scorecard: unknown = null;
+  let weeklyReviews: unknown[] = [];
 
-  const decisions = await prisma.decision.findMany({
-    where: { sessionId: id },
-    orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
-  });
+  try {
+    experiments = await prisma.experiment.findMany({
+      where: { sessionId: id },
+      orderBy: { updatedAt: 'desc' },
+    });
+  } catch { /* table may not exist */ }
 
-  const scorecard = await prisma.founderScorecard.findFirst({
-    where: { sessionId: id },
-    orderBy: { generatedAt: 'desc' },
-  });
+  try {
+    decisions = await prisma.decision.findMany({
+      where: { sessionId: id },
+      orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+    });
+  } catch { /* table may not exist */ }
 
-  const weeklyReviews = await prisma.weeklyReview.findMany({
-    where: { sessionId: id },
-    orderBy: { weekOf: 'desc' },
-    take: 4,
-  });
+  try {
+    scorecard = await prisma.founderScorecard.findFirst({
+      where: { sessionId: id },
+      orderBy: { generatedAt: 'desc' },
+    });
+  } catch { /* table may not exist */ }
+
+  try {
+    weeklyReviews = await prisma.weeklyReview.findMany({
+      where: { sessionId: id },
+      orderBy: { weekOf: 'desc' },
+      take: 4,
+    });
+  } catch { /* table may not exist */ }
 
   // Auto-generate decisions from AI analysis if none exist
   const autoDecisions: Array<{ question: string; recommendation: string; confidence: string }> = [];
-  if (decisions.length === 0 && actionItems.length > 0) {
+  if ((decisions as unknown[]).length === 0 && actionItems.length > 0) {
     // Extract decision-like patterns from AI text
     const decPatterns = allText.match(/(?:Should you|Consider whether|Decision needed|The question is|You need to decide).*?(?:\n|$)/gi);
     if (decPatterns) {
@@ -351,7 +365,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     planStats,
     memories: memories.map(m => ({ key: m.key, value: m.value, category: m.category })),
     experiments,
-    decisions: decisions.length > 0 ? decisions : autoDecisions.map((d, i) => ({ id: `auto-${i}`, ...d, status: 'pending', tradeoffSummary: '', downsideOfDelay: '' })),
+    decisions: (decisions as unknown[]).length > 0 ? decisions : autoDecisions.map((d, i) => ({ id: `auto-${i}`, ...d, status: 'pending', tradeoffSummary: '', downsideOfDelay: '' })),
     scorecard,
     weeklyReviews,
   });

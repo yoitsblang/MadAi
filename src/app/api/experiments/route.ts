@@ -13,10 +13,13 @@ export async function GET(req: NextRequest) {
   const strat = await prisma.strategySession.findFirst({ where: { id: sessionId, userId: session.user.id } });
   if (!strat) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const experiments = await prisma.experiment.findMany({
-    where: { sessionId },
-    orderBy: { updatedAt: 'desc' },
-  });
+  let experiments: unknown[] = [];
+  try {
+    experiments = await prisma.experiment.findMany({
+      where: { sessionId },
+      orderBy: { updatedAt: 'desc' },
+    });
+  } catch { /* table may not exist in production yet */ }
 
   return NextResponse.json(experiments);
 }
@@ -35,11 +38,15 @@ export async function POST(req: NextRequest) {
   const strat = await prisma.strategySession.findFirst({ where: { id: sessionId, userId: session.user.id } });
   if (!strat) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const experiment = await prisma.experiment.create({
-    data: { sessionId, hypothesis, change, metric, passCondition, failCondition, winAction: winAction || '', duration, priority: priority || 'medium' },
-  });
-
-  return NextResponse.json(experiment);
+  try {
+    const experiment = await prisma.experiment.create({
+      data: { sessionId, hypothesis, change, metric, passCondition, failCondition, winAction: winAction || '', duration, priority: priority || 'medium' },
+    });
+    return NextResponse.json(experiment);
+  } catch (e) {
+    console.error('Experiment create error:', e);
+    return NextResponse.json({ error: 'Failed to create experiment. Database table may not be ready.' }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: NextRequest) {

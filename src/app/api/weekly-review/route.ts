@@ -9,13 +9,16 @@ export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get('sessionId');
   if (!sessionId) return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
 
-  const reviews = await prisma.weeklyReview.findMany({
-    where: { sessionId },
-    orderBy: { weekOf: 'desc' },
-    take: 10,
-  });
-
-  return NextResponse.json(reviews);
+  try {
+    const reviews = await prisma.weeklyReview.findMany({
+      where: { sessionId },
+      orderBy: { weekOf: 'desc' },
+      take: 10,
+    });
+    return NextResponse.json(reviews);
+  } catch {
+    return NextResponse.json([]);
+  }
 }
 
 export async function POST(req: NextRequest) {
